@@ -69,446 +69,8 @@ import {
 } from "@/components/ui/collapsible";
 import Image from "next/image";
 
-const navItems = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutGrid,
-  },
-  {
-    title: "Customers",
-    href: "/dashboard/customers",
-    icon: Users,
-  },
-  // {
-  //   title: "Loyalty",
-  //   href: "/dashboard/loyalty",
-  //   icon: Star,
-  //   href: "/dashboard/loyalty",
 
-  // },
-  {
-    title: "Discount",
-    icon: Percent,
-    submenu: [
-      {
-        title: "Discount Codes",
-        href: "/dashboard/discount/codes",
-        icon: Tag,
-      },
-      {
-        title: "Discount Rules",
-        href: "/dashboard/discount/rules",
-        icon: ScrollText,
-      },
-      {
-        title: "Menu Discounts",
-        icon: ScrollText,
-        href: "/dashboard/discount/menu-items",
-      },
-    ],
-  },
-  {
-    title: "Gift Cards",
-    icon: Gift,
-    submenu: [
-      {
-        title: "Regular Gift Cards",
-        href: "/dashboard/gift-cards/regular-gift-cards",
-        icon: Gift,
-      },
-      {
-        title: "Bulk Gift Cards",
-        href: "/dashboard/gift-cards/bulk-gift-cards",
-        icon: Gift,
-      },
-      {
-        title: "Transactions",
-        href: "/dashboard/gift-cards/transactions",
-        icon: Receipt,
-      },
-    ],
-  },
-  {
-    title: "Wallet",
-    icon: Wallet,
-    submenu: [
-      {
-        title: "Wallet",
-        href: "/dashboard/wallet/wallets",
-        icon: Wallet,
-      },
-      {
-        title: "Wallet Rules",
-        href: "/dashboard/wallet/rules",
-        icon: ScrollText,
-      },
-      {
-        title: "Transactions",
-        href: "/dashboard/wallet/transactions",
-        icon: Receipt,
-      },
-    ],
-  },
-  {
-    title: "Report",
-    icon: File,
-    submenu: [
-      {
-        title: "Reservations",
-        icon: Calendar,
-        submenu: [
-          {
-            title: "Reservation Report",
-            href: "/dashboard/report/reservation-report",
-            icon: FileText,
-          },
-          {
-            title: "Reservation Report Care Team",
-            href: "/dashboard/report/reservation-report-care-team",
-            icon: Users, // You can choose a more appropriate icon if needed
-          },
-          {
-            title: "Reservation Time",
-            href: "/dashboard/report/reservation-time-report",
-            icon: Clock,
-          },
-          {
-            title: "Cancelled Reservations",
-            href: "/dashboard/report/cancelled-reservation-report",
-            icon: XCircle,
-          },
-        ],
-      },
-      {
-        title: "Waitings",
-        icon: Clock,
-        submenu: [
-          {
-            title: "Waiting List Time",
-            href: "/dashboard/report/waiting-report",
-            icon: Clock,
-          },
-          // {
-          //   title: "Waiting List Summary",
-          //   href: "/dashboard/report/waiting-summary",
-          //   icon: List,
-          // },
-        ],
-      },
-      {
-        title: "Walk-ins",
-        icon: Users,
-        submenu: [
-          {
-            title: "Walk-ins List Time",
-            href: "/dashboard/report/walk-ins-report",
-            icon: Clock,
-          },
-        ],
-      },
-      {
-        title: "Sales",
-        icon: DollarSign,
-        submenu: [
-          {
-            title: "Sales Report",
-            href: "/dashboard/report/detailed-report",
-            icon: FileText,
-          },
-        ],
-      },
-      {
-        title: "Wallet",
-        icon: Wallet,
-        submenu: [
-          {
-            title: "Wallet Report",
-            href: "/dashboard/report/wallet-report",
-            icon: FileText,
-          }
-        ]
-      }
-    ],
-  },
-  {
-    title: "Export Events",
-    icon: Percent,
-    submenu: [
-      {
-        title: "Check Events",
-        href: "/dashboard/export-events/check-events",
-        icon: CalendarCheck,
-      },
-      {
-        title: "Reservation",
-        href: "/dashboard/export-events/reservation",
-        icon: BookOpen,
-      },
-      {
-        title: "Sales Gift Card",
-        href: "/dashboard/export-events/sales-gift-cards",
-        icon: Gift,
-      },
-      {
-        title: "Gift Card Redeem",
-        href: "/dashboard/export-events/gift-card-redeem",
-        icon: CreditCard,
-      },
-      {
-        title: "Wallet Redeem",
-        href: "/dashboard/export-events/wallet-redeem",
-        icon: Wallet,
-      },
-      {
-        title: "Point Redeem",
-        href: "/dashboard/export-events/point-redeem",
-        icon: Star,
-      },
-      {
-        title: "Point Earn",
-        href: "/dashboard/export-events/point-earn",
-        icon: Star,
-      },
-      {
-        title: "Discount",
-        href: "/dashboard/export-events/discount",
-        icon: PercentSquare,
-      },
-      {
-        title: "Discount Code",
-        href: "/dashboard/export-events/discount-code",
-        icon: TicketPercent,
-      },
-      {
-        title: "Club Events",
-        href: "/dashboard/export-events/club-events",
-        icon: CheckCheck,
-      },
-    ],
-  },
-  {
-    title: "Reservations",
-    icon: Calendar,
-    submenu: [
-      {
-        title: "All Reservations",
-        href: "/dashboard/reservations",
-        icon: Calendar,
-      },
-      {
-        title: "All Waiting List",
-        href: "/dashboard/reservations/waiting-list",
-        icon: TimerOff,
-      },
-      {
-        title: "Reservation Rules",
-        href: "/dashboard/reservations/reservation-rule",
-        icon: Clock,
-      },
-    ],
-  },
-  {
-    title: "Floorplan",
-    icon: LayoutGrid,
-    href: "/dashboard/floorplan",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    submenu: [
-      {
-        title: "Brands",
-        href: "/dashboard/settings/brands",
-        icon: Tags,
-      },
-      {
-        title: "Branches",
-        href: "/dashboard/settings/branches",
-        icon: Building,
-      },
-      {
-        title: "Countries",
-        href: "/dashboard/settings/countries",
-        icon: Globe,
-      },
-      {
-        title: "Menu Items",
-        href: "/dashboard/settings/menu-items",
-        icon: ScrollText,
-      },
-      {
-        title: "Users",
-        href: "/dashboard/settings/users",
-        icon: Users,
-      },
-      // {
-      //   title: "Member Tiers",
-      //   href: "/dashboard/settings/member-tiers-configureation",
-      //   icon: Users,
-      // },
-      {
-        title: "Create Role",
-        href: "/dashboard/settings/roles",
-        icon: UserPlus,
-      },
-      {
-        title: "SMTP Server",
-        href: "/dashboard/settings/smtp",
-        icon: Server,
-      },
-      {
-        title: "Email Templates",
-        href: "/dashboard/settings/email-templates",
-        icon: Mail,
-      },
-      {
-        title: "New Email Templates",
-        href: "/dashboard/settings/new-email-templates",
-        icon: Mail,
-      },
-      {
-        title: "SMS Test",
-        href: "/dashboard/settings/sms-test",
-        icon: Mail,
-      },
-      {
-        title: "POS Events Test",
-        href: "/dashboard/settings/pos-events",
-        icon: ReceiptText,
-      },
-      {
-        title: "Webhook",
-        href: "/dashboard/settings/webhook",
-        icon: Webhook,
-      },
-      {
-        title: "Campaign URL Builder",
-        href: "/dashboard/settings/campaign-url-builder",
-        icon: Link2,
-      },
-    ],
-  },
-];
 
-const branchNavItems = [
-  {
-    title: "All Reservations",
-    href: "/dashboard/reservations",
-    icon: Calendar,
-  },
-  {
-    title: "Floorplan",
-    icon: LayoutGrid,
-    href: "/dashboard/floorplan",
-  },
-  {
-    title: "Report",
-    icon: File,
-    submenu: [
-      {
-        title: "Reservation Report",
-        href: "/dashboard/report/reservation-report",
-        icon: Calendar,
-      },
-      {
-        title: "Reservation Time",
-        href: "/dashboard/report/reservation-time-report",
-        icon: Calendar,
-      },
-      {
-        title: "Waiting List Report",
-        href: "/dashboard/report/waiting-report",
-        icon: List,
-      },
-      {
-        title: "Walk-ins Report",
-        href: "/dashboard/report/walk-ins-report",
-        icon: Clock,
-      },
-      {
-        title: "Cancelled Reservation Report",
-        href: "/dashboard/report/cancelled-reservation-report",
-        icon: XCircle,
-      },
-    ],
-  },
-];
-
-const branchManagerNavItems = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutGrid,
-  },
-  {
-    title: "Customers",
-    href: "/dashboard/customers",
-    icon: Users,
-  },
-  {
-    title: "All Reservations",
-    href: "/dashboard/reservations",
-    icon: Calendar,
-  },
-  {
-    title: "All Waiting List",
-    href: "/dashboard/reservations/waiting-list",
-    icon: TimerOff,
-  },
-  {
-    title: "Report",
-    icon: File,
-    submenu: [
-      {
-        title: "Reservation Report",
-        href: "/dashboard/report/reservation-report",
-        icon: Calendar,
-      },
-      {
-        title: "Reservation Time",
-        href: "/dashboard/report/reservation-time-report",
-        icon: Calendar,
-      },
-      {
-        title: "Waiting List Report",
-        href: "/dashboard/report/waiting-report",
-        icon: List,
-      },
-      {
-        title: "Walk-ins Report",
-        href: "/dashboard/report/walk-ins-report",
-        icon: Clock,
-      },
-      {
-        title: "Cancelled Reservation Report",
-        href: "/dashboard/report/cancelled-reservation-report",
-        icon: XCircle,
-      },
-    ],
-  },
-  {
-    title: "Floorplan",
-    icon: LayoutGrid,
-    href: "/dashboard/floorplan",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    submenu: [
-      {
-        title: "Branches",
-        href: "/dashboard/settings/branches",
-        icon: Building,
-      },
-      {
-        title: "Reservation Rules",
-        href: "/dashboard/reservations/reservation-rule",
-        icon: Clock,
-      },
-    ],
-  },
-];
 
 const orgUserNavItems = [
   {
@@ -556,25 +118,45 @@ const orgUserNavItems = [
 ];
 
 const adminNavItems = [
+ 
   {
     title: "Customers",
     href: "/dashboard/customers",
     icon: Users,
   },
   {
-    title: "All Reservations",
-    href: "/dashboard/reservations",
-    icon: Calendar,
+    title: "Customers",
+    href: "/dashboard/customers",
+    icon: Users,
   },
+ 
   {
-    title: "All Waiting List",
-    href: "/dashboard/reservations/waiting-list",
-    icon: TimerOff,
-  },
-  {
-    title: "Reservation Rules",
-    href: "/dashboard/reservations/reservation-rule",
-    icon: Clock,
+    title: "Settings",
+    icon: Settings,
+    submenu: [
+      // {
+      //   title: "Brands",
+      //   href: "/dashboard/settings/brands",
+      //   icon: Tags,
+      // },
+      // {
+      //   title: "Branches",
+      //   href: "/dashboard/settings/branches",
+      //   icon: Building,
+      // },
+      // {
+      //   title: "Countries",
+      //   href: "/dashboard/settings/countries",
+      //   icon: Globe,
+      // },
+    
+      {
+        title: "Users",
+        href: "/dashboard/settings/users",
+        icon: Users,
+      },
+     
+    ],
   },
 ];
 
@@ -715,20 +297,26 @@ export function AppSidebar(props) {
   const { user } = props;
   const pathname = usePathname();
   const { state } = useSidebar();
+  // const displayNavItems =
+  //   user?.user_type === "BRANCH_USER"
+  //     ? branchNavItems
+  //     : user?.user_type === "BRANCH_MANAGER"
+  //       ? branchManagerNavItems
+  //       : user?.user_type === "ADMIN"
+  //         ? adminNavItems
+  //         : user?.user_type === "USER"
+  //           ? userNavItems
+  //           : user?.user_type === "ORGANIZATION_USER"
+  //             ? orgUserNavItems
+  //             : user?.user_type === "SUPERADMIN"
+  //               ? navItems
+  //               : [];
   const displayNavItems =
-    user?.user_type === "BRANCH_USER"
-      ? branchNavItems
-      : user?.user_type === "BRANCH_MANAGER"
-        ? branchManagerNavItems
-        : user?.user_type === "ADMIN"
+    user?.user_type === "ADMIN"
           ? adminNavItems
           : user?.user_type === "USER"
             ? userNavItems
-            : user?.user_type === "ORGANIZATION_USER"
-              ? orgUserNavItems
-              : user?.user_type === "SUPERADMIN"
-                ? navItems
-                : [];
+           : [];
 
   return (
     <Sidebar className="border-r z-3" collapsible="icon" data-state={state}>
