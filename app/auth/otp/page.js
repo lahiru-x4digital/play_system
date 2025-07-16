@@ -40,7 +40,7 @@ export default function OTPPage() {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const response = await fetch('/api/auth/session');
+        const response = await fetch('/api/play/auth/session');
         const session = await response.json();
 
         console.log("Otp session", session);

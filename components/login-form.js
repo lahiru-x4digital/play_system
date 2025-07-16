@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-// import { signIn } from "next-auth/react"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -50,7 +50,7 @@ export function LoginForm() {
     // Start loading state and clear any previous errors
     setIsLoading(true)
     setError("")
-
+ 
     try {
       // Attempt to sign in using NextAuth credentials provider
       const result = await signIn("credentials", {
