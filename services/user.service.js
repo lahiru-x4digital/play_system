@@ -69,7 +69,7 @@ export const userService = {
    */
   async verifyOTP({ email, otp }) {
     try {
-      const response = await api.post("/auth/verify-otp", {
+      const response = await api.post("play/auth/verify-otp", {
         email,
         otp,
       });
@@ -113,7 +113,7 @@ export const userService = {
       console.log('Attempting to login to get new OTP for email:', email);
 
       // Use the login endpoint which should return a new OTP
-      const response = await api.post("/auth/login", {
+      const response = await api.post("play/auth/login", {
         email: email.toLowerCase().trim(),
         password: password
       });
@@ -171,7 +171,7 @@ export const userService = {
    */
   async getCurrentUser(token) {
     try {
-      const response = await api.get('/users/me', {
+      const response = await api.get('play/users/me', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -192,7 +192,7 @@ export const userService = {
         throw new Error("User ID is required");
       }
 
-      const response = await api.get(`/user?id=${id}`);
+      const response = await api.get(`play/user?id=${id}`);
 
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to fetch user data');
@@ -239,7 +239,7 @@ export const userService = {
         throw new Error("Email is required");
       }
 
-      const response = await api.post("/auth/forgot-password", {
+      const response = await api.post("play/auth/forgot-password", {
         email: email.toLowerCase()
       });
 
@@ -271,7 +271,7 @@ export const userService = {
         throw new Error("Token and new password are required");
       }
 
-      const response = await api.post("/auth/reset-password", {
+      const response = await api.post("play/auth/reset-password", {
         token,
         newPassword
       });
@@ -307,7 +307,7 @@ export const userService = {
         params.user_type = user_type;
       }
 
-      const response = await api.get(`/user`, { params });
+      const response = await api.get(`play/user`, { params });
       console.log('API response:', response.data);
 
       if (!response.data.success) {
@@ -356,7 +356,7 @@ export const userService = {
         params.id = userId;
       }
 
-      const response = await api.get(`/user`, { params });
+      const response = await api.get(`play/user`, { params });
       console.log('API response for getUsersByType:', response.data);
 
       if (!response.data.success) {
@@ -406,7 +406,7 @@ export const userService = {
       console.log('Sending formatted data:', formattedData);
 
       // Create the user
-      const response = await api.post('/user', formattedData);
+      const response = await api.post('play/user', formattedData);
       console.log('API response:', response.data);
 
       if (!response.data.success) {
@@ -584,7 +584,7 @@ export const userService = {
 
       console.log('Sending formatted data:', formattedData);
 
-      const response = await api.put(`/user?id=${id}`, formattedData);
+      const response = await api.put(`play/user?id=${id}`, formattedData);
       console.log('API response:', response.data);
 
       if (!response.data.success) {
@@ -687,7 +687,7 @@ export const userService = {
 
       console.log('Changing password with JWT authentication');
 
-      const response = await api.post("/auth/change-password", {
+      const response = await api.post("play/auth/change-password", {
         currentPassword,
         newPassword,
         confirmPassword
@@ -762,7 +762,7 @@ export const userService = {
 
       console.log('Searching user by mobile number:', mobileNumber);
 
-      const response = await api.get('/user', {
+      const response = await api.get('play/user', {
         params: {
           mobile_number: mobileNumber.trim()
         }
@@ -810,7 +810,7 @@ export const userService = {
 
       console.log('Searching user by email:', email);
 
-      const response = await api.get('/user', {
+      const response = await api.get('play/user', {
         params: {
           email: email.trim().toLowerCase()
         }

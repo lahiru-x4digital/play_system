@@ -25,45 +25,52 @@ export default function LoginPage() {
     if (session?.user) {
       // Check if 2FA is enabled for this user
       console.log("session", session)
-      // const is2faEnabled = session.user.is2fa;
+      const is2faEnabled = session.user.is2fa;
 
-      // if (!is2faEnabled) {
-      //   // 2FA is disabled, redirect directly to appropriate dashboard
-      //   const userType = session.user.user_type;
-      //   if (userType === "SUPERADMIN") {
-      //     router.push("/dashboard/customers");
-      //   } else if (userType === "BRANCH_USER") {
-      //     router.push("/dashboard/reservations");
-      //   } else if (userType === "BRANCH_MANAGER") {
-      //     router.push("/dashboard/reservations/reservation-rule");
-      //   } else if (userType === "ADMIN") {
-      //     router.push("/dashboard/settings/brands");
-      //   } else if (userType === "USER") {
-      //     router.push("/dashboard/reservations");
-      //   }
-      // } else {
-      //   // 2FA is enabled, check if OTP is verified
-      //   const otpVerified = isClient && localStorage.getItem('otpVerified') === 'true';
+      if (!is2faEnabled) {
+        // 2FA is disabled, redirect directly to appropriate dashboard
+        const userType = session.user.user_type;
+        if (userType === "ADMIN") {
+          router.push("/dashboard");
+        }
+        
+        // if (userType === "SUPERADMIN") {
+        //   router.push("/dashboard/customers");
+        // } else if (userType === "BRANCH_USER") {
+        //   router.push("/dashboard/reservations");
+        // } else if (userType === "BRANCH_MANAGER") {
+        //   router.push("/dashboard/reservations/reservation-rule");
+        // } else if (userType === "ADMIN") {
+        //   router.push("/dashboard/settings/brands");
+        // } else if (userType === "USER") {
+        //   router.push("/dashboard/reservations");
+        // }
+      } else {
+        // 2FA is enabled, check if OTP is verified
+        const otpVerified = isClient && localStorage.getItem('otpVerified') === 'true';
 
-      //   if (otpVerified) {
-      //     // User is authenticated and OTP is verified, redirect to appropriate dashboard
-      //     const userType = session.user.user_type;
-      //     if (userType === "SUPERADMIN") {
-      //       router.push("/dashboard/customers");
-      //     } else if (userType === "BRANCH_USER") {
-      //       router.push("/dashboard/reservations");
-      //     } else if (userType === "BRANCH_MANAGER") {
-      //       router.push("/dashboard/reservations/reservation-rule");
-      //     } else if (userType === "ADMIN") {
-      //       router.push("/dashboard/settings/brands");
-      //     } else if (userType === "USER") {
-      //       router.push("/dashboard/reservations");
-      //     }
-      //   } else {
-      //     // User is authenticated but OTP is not verified, redirect to OTP page
-      //     router.push("/auth/otp");
-      //   }
-      // }
+        if (otpVerified) {
+          // User is authenticated and OTP is verified, redirect to appropriate dashboard
+          const userType = session.user.user_type;
+          if (userType === "ADMIN") {
+            router.push("/dashboard");
+          }
+          // if (userType === "SUPERADMIN") {
+          //   router.push("/dashboard/customers");
+          // } else if (userType === "BRANCH_USER") {
+          //   router.push("/dashboard/reservations");
+          // } else if (userType === "BRANCH_MANAGER") {
+          //   router.push("/dashboard/reservations/reservation-rule");
+          // } else if (userType === "ADMIN") {
+          //   router.push("/dashboard/settings/brands");
+          // } else if (userType === "USER") {
+          //   router.push("/dashboard/reservations");
+          // }
+        } else {
+          // User is authenticated but OTP is not verified, redirect to OTP page
+          router.push("/auth/otp");
+        }
+      }
     }
   }, [session, router, status, isClient]);
 

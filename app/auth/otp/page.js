@@ -40,7 +40,7 @@ export default function OTPPage() {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const response = await fetch('/api/play/auth/session');
+        const response = await fetch('/api/auth/session');
         const session = await response.json();
 
         console.log("Otp session", session);
@@ -52,17 +52,20 @@ export default function OTPPage() {
           const otpVerified = localStorage.getItem('otpVerified') === 'true';
           if (otpVerified) {
             // Redirect to appropriate dashboard based on user type
-            if (session.user.user_type === "SUPERADMIN") {
-              router.push("/dashboard/customers");
-            } else if (session.user.user_type === "BRANCH_USER") {
-              router.push("/dashboard/reservations");
+            if (session.user.user_type === "ADMIN") {
+              router.push("/dashboard");
             }
-            else if (session.user.user_type === "USER") {
-              router.push("/dashboard/reservations");
-            }
-            else if (session.user.user_type === "ORGANIZATION_USER") {
-              router.push("/dashboard/reservations");
-            }
+            // if (session.user.user_type === "SUPERADMIN") {
+            //   router.push("/dashboard/customers");
+            // } else if (session.user.user_type === "BRANCH_USER") {
+            //   router.push("/dashboard/reservations");
+            // }
+            // else if (session.user.user_type === "USER") {
+            //   router.push("/dashboard/reservations");
+            // }
+            // else if (session.user.user_type === "ORGANIZATION_USER") {
+            //   router.push("/dashboard/reservations");
+            // }
           }
         }
       } catch (error) {
@@ -93,22 +96,24 @@ export default function OTPPage() {
       if (result.success) {
         // Set OTP verification status in localStorage
         localStorage.setItem('otpVerified', 'true');
-
-        if (userType === "SUPERADMIN") {
-          router.push("/dashboard/customers");
-        } else if (userType === "BRANCH_USER") {
-          router.push("/dashboard/reservations");
-        } else if (userType === "BRANCH_MANAGER") {
-          router.push("/dashboard/reservations/reservation-rule");
+        if (userType === "ADMIN") {
+          router.push("/dashboard");
         }
-        else if (userType === "ADMIN") {
-          router.push("/dashboard/settings/brands");
-        } else if (userType === "USER") {
-          router.push("/dashboard/reservations");
-        }
-        else if (userType === "ORGANIZATION_USER") {
-          router.push("/dashboard/reservations");
-        }
+        // if (userType === "SUPERADMIN") {
+        //   router.push("/dashboard/customers");
+        // } else if (userType === "BRANCH_USER") {
+        //   router.push("/dashboard/reservations");
+        // } else if (userType === "BRANCH_MANAGER") {
+        //   router.push("/dashboard/reservations/reservation-rule");
+        // }
+        // else if (userType === "ADMIN") {
+        //   router.push("/dashboard/settings/brands");
+        // } else if (userType === "USER") {
+        //   router.push("/dashboard/reservations");
+        // }
+        // else if (userType === "ORGANIZATION_USER") {
+        //   router.push("/dashboard/reservations");
+        // }
       } else {
         setError(result.message || "Failed to verify OTP");
       }
