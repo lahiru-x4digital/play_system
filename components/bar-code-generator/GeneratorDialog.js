@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAxiosPost } from "@/hooks/useAxiosPost";
+import CustomerTypeSelect from "../common/CustomerTypeSelectInput";
 
 const formSchema = z.object({
   play_customer_type_id: z.number().min(1, "Customer type is required"),
@@ -75,27 +76,18 @@ export function GeneratorDialog() {
             className="space-y-4"
           >
           <div>
-            <Label htmlFor="customerType">Customer Type</Label>
-            <Select
-              value={form.watch("play_customer_type_id")}
-              onValueChange={(val) => form.setValue("play_customer_type_id", Number(val))}
-            >
-              <SelectTrigger id="customerType">
-                <SelectValue placeholder="Select customer type" />
-              </SelectTrigger>
-              <SelectContent>
-                {customerTypes?.map((type) => (
-                  <SelectItem key={type.id} value={Number(type.id)}>
-                    {type.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.play_customer_type_id && (
-              <p className="text-red-500 text-xs mt-1">
-                {form.formState.errors.play_customer_type_id.message}
-              </p>
+          <Controller
+            name="play_customer_type_id"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <CustomerTypeSelect
+                value={field.value}
+                onChange={field.onChange}
+                error={fieldState.error?.message}
+                open={open}
+              />
             )}
+          />
           </div>
           {/* Minutes */}
           <div>
