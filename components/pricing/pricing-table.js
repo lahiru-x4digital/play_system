@@ -1,3 +1,4 @@
+"use client"
 import React from 'react';
 import {
   Table,
@@ -7,8 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import EditPricingDialog from "./EditPricingDialog";
 
-const PricingTable = ({ data = [] }) => {
+const PricingTable = ({ data = [], onRefresh }) => {
   return (
     <div className="rounded-md border">
       <Table>
@@ -18,12 +20,13 @@ const PricingTable = ({ data = [] }) => {
             <TableHead>Duration (Min)</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Created at</TableHead>
+            <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={4} className="text-center text-muted-foreground">
+              <TableCell colSpan={5} className="text-center text-muted-foreground">
                 No pricing found
               </TableCell>
             </TableRow>
@@ -43,6 +46,9 @@ const PricingTable = ({ data = [] }) => {
                         minute: '2-digit'
                       })
                     : '-'}
+                </TableCell>
+                <TableCell>
+                  <EditPricingDialog pricing={item} onSuccess={onRefresh} />
                 </TableCell>
               </TableRow>
             ))

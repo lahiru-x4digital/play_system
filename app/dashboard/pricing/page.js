@@ -1,8 +1,9 @@
 "use client"
 import useGetTimeDurationPricing from '@/hooks/useGetTimeDurationPricing'
-import React from 'react'
+import React, { useState } from 'react'
 import PricingTable from '@/components/pricing/pricing-table'
 import { Pagination } from '@/components/ui/pagination'
+import CreatePricingDialog from '@/components/pricing/CreatePricingDialog';
 
 export default function PricingPage() {
     const {
@@ -13,12 +14,16 @@ export default function PricingPage() {
       timeDurationPricingTotalPages,
       timeDurationPricingTotalCount,
       timeDurationPricingPageNavigation,
-      timeDurationPricingChangePageSize
+      timeDurationPricingChangePageSize,
+      timeDurationPricingRefres
     } = useGetTimeDurationPricing(null)
 
     return (
       <div>
-        <PricingTable data={timeDurationPricing} />
+        <div className="flex justify-end mb-4">
+          <CreatePricingDialog onSuccess={timeDurationPricingRefres} />
+        </div>
+        <PricingTable data={timeDurationPricing} onRefresh={timeDurationPricingRefres} />
         <Pagination
           currentPage={currentPage}
           totalPages={timeDurationPricingTotalPages}
