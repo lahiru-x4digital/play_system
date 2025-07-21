@@ -32,12 +32,7 @@ const useGetplayCustomerType = ({open}) => {
           signal: controller.signal,
         }
       );
-      const responsePosEvents = await api.get(
-        "pos-event",
-        {
-          signal: controller.signal,
-        }
-      );
+    
       setData(response.data);
 
     } catch (err) {
@@ -83,7 +78,7 @@ const useGetplayCustomerType = ({open}) => {
         controllerRef.current.abort();
       }
     };
-  }, [loadData]);
+  }, [loadData, open]);
 
   return {
     customerTypes:data,
