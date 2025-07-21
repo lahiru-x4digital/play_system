@@ -6,7 +6,7 @@ import api from "@/services/api";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 
 
-const useGetBarCodes = () => {
+const useGetTimeDurationPricing = (customer_type_id) => {
   //use null or [] base on scenario
   const [dataList, SetDataList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -17,8 +17,7 @@ const useGetBarCodes = () => {
     pageSize: 10,
     page: 1,
     search: null,
-    barcode_number: null,
-    play_customer_type_id: null,
+    play_customer_type_id: customer_type_id,
     time_duration: null,
   });
   const abortControllerRef = useRef(null);
@@ -32,15 +31,16 @@ const useGetBarCodes = () => {
     setLoading(true);
     try {
       const response =
-        await api.get(`play/generate-code`, {
+        await api.get(`play/pricing`, {
           params: {
             ...paramsNullCleaner(params),
+            is_active:true
           },
           signal: controller.signal,
         });
       // Only update state if this request wasn't aborted
       if (!controller.signal.aborted) {
-        SetDataList(response.data?.barcodes);
+        SetDataList(response.data?.data);
         setTotalCount(response.data?.total);
        
       }
@@ -94,18 +94,18 @@ const useGetBarCodes = () => {
   }, []);
 
   return {
-    barcodeListLimit: params.pageSize,
-    barcodeList: dataList,
+    timeDurationPricingLimit: params.pageSize,
+    timeDurationPricing: dataList,
     currentPage: params.page,
-    totalPages: Math.ceil(totalCount / params.pageSize),
-    barcodeListLoading: loading,
-    barcodeListError: error,
-    barcodeListTotalCount: totalCount,
-    barcodeListPageNavigation: handlePageNavigation,
-    barcodeListSearch: setParamsData,
-    barcodeListRefres: loadData,
-    barcodeListChangePageSize: changePageSize,
+    timeDurationPricingTotalPages: Math.ceil(totalCount / params.pageSize),
+    timeDurationPricingLoading: loading,
+    timeDurationPricingError: error,
+    timeDurationPricingTotalCount: totalCount,
+    timeDurationPricingPageNavigation: handlePageNavigation,
+    timeDurationPricingSearch: setParamsData,
+    timeDurationPricingRefres: loadData,
+    timeDurationPricingChangePageSize: changePageSize,
   };
 };
 
-export default useGetBarCodes;
+export default useGetTimeDurationPricing;

@@ -137,6 +137,11 @@ const adminNavItems = [
     href: "/dashboard/orders",
     icon: ShoppingCart,
   },
+  {
+    title: "Pricing",
+    href: "/dashboard/pricing",
+    icon: DollarSign,
+  },
  
   {
     title: "Settings",

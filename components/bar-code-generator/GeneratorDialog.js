@@ -28,7 +28,7 @@ import { useAxiosPost } from "@/hooks/useAxiosPost";
 
 const formSchema = z.object({
   play_customer_type_id: z.number().min(1, "Customer type is required"),
-  minutes: z.number({ invalid_type_error: "Minutes is required" }).min(1, "Minutes must be at least 1"),
+  time_duration: z.number({ invalid_type_error: "Minutes is required" }).min(1, "Minutes must be at least 1"),
   qty: z.number({ invalid_type_error: "Quantity is required" }).min(1, "Quantity must be at least 1"),
 });
 
@@ -41,7 +41,7 @@ export function GeneratorDialog() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       play_customer_type_id: undefined,
-      minutes: undefined,
+      time_duration: undefined,
       qty: undefined,
     },
   });
@@ -50,6 +50,9 @@ export function GeneratorDialog() {
    
     try {
       await postHandler("generate-code",data)
+      form.reset()
+      setOpen(false)
+      barcodeListRefres()
     } catch (error) {
       console.log(error)
     }}
@@ -96,16 +99,16 @@ export function GeneratorDialog() {
           </div>
           {/* Minutes */}
           <div>
-            <Label htmlFor="minutes">Minutes</Label>
+            <Label htmlFor="time_duration">Minutes</Label>
             <Input
-              id="minutes"
+              id="time_duration"
               type="number"
-              {...form.register("minutes", { valueAsNumber: true })}
+              {...form.register("time_duration", { valueAsNumber: true })}
               placeholder="Enter minutes"
             />
-            {form.formState.errors.minutes && (
+            {form.formState.errors.time_duration && (
               <p className="text-red-500 text-xs mt-1">
-                {form.formState.errors.minutes.message}
+                {form.formState.errors.time_duration.message}
               </p>
             )}
           </div>
