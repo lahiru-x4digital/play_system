@@ -43,7 +43,8 @@ import {
   LayoutList,
   FileText,
   DollarSign,
-  CheckCheck
+  CheckCheck,
+  ShoppingCart
 } from "lucide-react";
 
 import {
@@ -119,15 +120,22 @@ const orgUserNavItems = [
 
 const adminNavItems = [
  
+
   {
     title: "Customers",
     href: "/dashboard/customers",
     icon: Users,
   },
   {
-    title: "Customers",
-    href: "/dashboard/customers",
-    icon: Users,
+    title: "Bar Code Generator",
+    href: "/dashboard/bar-code-generator",
+    icon: TicketPercent,
+  },
+ 
+  {
+    title: "Orders",
+    href: "/dashboard/orders",
+    icon: ShoppingCart,
   },
  
   {
