@@ -27,41 +27,35 @@ import {
 import { useAxiosPost } from "@/hooks/useAxiosPost";
 
 const formSchema = z.object({
-  customerType: z.string().min(1, "Customer type is required"),
+  play_customer_type_id: z.number().min(1, "Customer type is required"),
   minutes: z.number({ invalid_type_error: "Minutes is required" }).min(1, "Minutes must be at least 1"),
   qty: z.number({ invalid_type_error: "Quantity is required" }).min(1, "Quantity must be at least 1"),
 });
 
 export function GeneratorDialog() {
   const [open, setOpen] = useState(false);
-  const { customerTypes ,customerTypesLoading,} = useGetplayCustomerType({ open });
+  const { customerTypes   ,customerTypesLoading,} = useGetplayCustomerType(open);
   const {postHandler,postHandlerloading,postHandlerError}=useAxiosPost()
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      customerType: "",
-      minutes: "",
-      qty: "",
+      play_customer_type_id: undefined,
+      minutes: undefined,
+      qty: undefined,
     },
   });
-  console.log(form.formState.errors)
-
+ 
+  const onSubmit = async (data) => {
+   
+    try {
+      await postHandler("generate-code",data)
+    } catch (error) {
+      console.log(error)
+    }}
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form
-        onSubmit={form.handleSubmit(async (data) => {
-          // handle form submission here
-          console.log(data)
-          // try {
-          //   await postHandler(data,"generate-code")
-
-          // } catch (error) {
-            
-          // }
-        })}
-        className="space-y-4"
-      >
+     
         <DialogTrigger asChild>
           <Button>Barcode Generator</Button>
         </DialogTrigger>
@@ -73,26 +67,30 @@ export function GeneratorDialog() {
             </DialogDescription>
           </DialogHeader>
           {/* Customer Type */}
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
           <div>
             <Label htmlFor="customerType">Customer Type</Label>
             <Select
-              value={form.watch("customerType")}
-              onValueChange={(val) => form.setValue("customerType", val)}
+              value={form.watch("play_customer_type_id")}
+              onValueChange={(val) => form.setValue("play_customer_type_id", Number(val))}
             >
               <SelectTrigger id="customerType">
                 <SelectValue placeholder="Select customer type" />
               </SelectTrigger>
               <SelectContent>
                 {customerTypes?.map((type) => (
-                  <SelectItem key={type.id} value={String(type.id)}>
+                  <SelectItem key={type.id} value={Number(type.id)}>
                     {type.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {form.formState.errors.customerType && (
+            {form.formState.errors.play_customer_type_id && (
               <p className="text-red-500 text-xs mt-1">
-                {form.formState.errors.customerType.message}
+                {form.formState.errors.play_customer_type_id.message}
               </p>
             )}
           </div>
@@ -126,11 +124,12 @@ export function GeneratorDialog() {
               </p>
             )}
           </div>
+          <Button className={'cursor-pointer'} type="submit">Generate</Button>
+          </form>
           <DialogFooter>
-            <Button type="submit">Generate</Button>
           </DialogFooter>
         </DialogContent>
-      </form>
+    
     </Dialog>
   );
 }

@@ -17,7 +17,7 @@ export const useAxiosPost = () => {
     setpostHandlerError(false);
 
     try {
-      const response = await api.post(url, data);
+      const response = await api.post(`play/${url}`, data);
       return response;
     } catch (error) {
       setpostHandlerError(true);

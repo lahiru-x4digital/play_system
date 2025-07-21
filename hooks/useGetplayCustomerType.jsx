@@ -3,8 +3,8 @@ import api from "@/services/api";
 import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 
-const useGetplayCustomerType = ({open}) => {
-
+const useGetplayCustomerType = (open) => {
+  console.log(open)
   const [params, setParams] = useState({
 
   });
@@ -26,7 +26,7 @@ const useGetplayCustomerType = ({open}) => {
     setError(null);
     try {
       const response = await api.get(
-        "customer-type",
+        "play/customer-type",
         {
           params: params,
           signal: controller.signal,

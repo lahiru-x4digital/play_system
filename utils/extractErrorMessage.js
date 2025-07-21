@@ -1,5 +1,4 @@
 import {  isAxiosError } from "axios";
-import toast from "react-hot-toast";
 export const extractErrorMessage = (error) => {
   if (isAxiosError(error)) {
     console.log("Raw Error:", error); // Debugging
@@ -23,6 +22,6 @@ export const extractErrorMessage = (error) => {
         }
       }
     }
-    toast.error(errorMessage);
+    console.log(errorMessage)
   }
 };
