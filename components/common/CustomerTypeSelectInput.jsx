@@ -8,7 +8,7 @@ const CustomerTypeSelect = ({ value, onChange, error, label = "Customer Type", o
   const { customerTypes, customerTypesLoading } = useGetplayCustomerType(open);
 
   return (
-    <div>
+    <div style={{ width: "100%", minWidth: "300px" }}>
       <Label>{label}</Label>
       <Select
         value={value}

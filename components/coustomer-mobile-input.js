@@ -27,14 +27,17 @@ export function PhoneNumberField({
   defaultCountry = "ae",
   preferred = ["ae", "sa", "lk", "us", "gb"],
 }) {
-  const { setError, clearErrors, getValues } = useFormContext();
+  const { setError, clearErrors, getValues ,setValue} = useFormContext();
   const timer = useRef(null);
   const [isFree, setIsFree] = useState(false); // banner flag
 
   /* ----- debounced uniqueness check ------------------ */
   const checkUniqueness = async (digits) => {
-    const { success } = await customerService.searchCustomerByMobile(digits);
+    const { success,data } = await customerService.searchCustomerByMobile(digits);
+    setValue("first_name", data?.customers[0]?.first_name||"");
+    setValue("last_name", data?.customers[0]?.last_name||"");
 
+ 
     // if number exists → error
     if (success) {
       setError(name, { type: "manual", message: "Number already exists" });
