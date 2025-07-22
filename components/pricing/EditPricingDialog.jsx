@@ -9,6 +9,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CustomerTypeSelect from "@/components/common/CustomerTypeSelectInput";
 import api from "@/services/api";
+import SelectBranch from "../common/selectBranch";
+import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
 
 const formSchema = z.object({
   play_customer_type_id: z.number().min(1, "Customer type is required"),
@@ -17,22 +19,37 @@ const formSchema = z.object({
   is_active: z.boolean().optional(),
 });
 
-const EditPricingDialog = ({ pricing, onSuccess }) => {
-  const [open, setOpen] = useState(false);
-
+const EditPricingDialog = ({ pricing = {}, onSuccess, open, setOpen }) => {
+  const isAdmin = useIsAdmin();
+  const user = useSessionUser();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      play_customer_type_id: pricing.play_customer_type_id,
-      duration: pricing.duration,
-      price: pricing.price,
+      play_customer_type_id: pricing.play_customer_type_id || '',
+      duration: pricing.duration || '',
+      price: pricing.price || '',
       is_active: pricing.is_active,
+      branch_id: pricing.branch_id || '',
     },
   });
 
+  React.useEffect(() => {
+    form.reset({
+      play_customer_type_id: pricing.play_customer_type_id || '',
+      duration: pricing.duration || '',
+      price: pricing.price || '',
+      is_active: pricing.is_active,
+      branch_id: pricing.branch_id || '',
+    });
+  }, [pricing]);
+
   const onSubmit = async (data) => {
+    const payload={
+      ...data,
+      branch_id: isAdmin ? data.branch_id : user?.branchId,
+    }
     try {
-      await api.put(`play/pricing?id=${pricing.id}`, data);
+      await api.put(`play/pricing?id=${pricing.id}`, payload);
       setOpen(false);
       onSuccess?.();
     } catch (error) {
@@ -51,6 +68,19 @@ const EditPricingDialog = ({ pricing, onSuccess }) => {
           <DialogTitle>Edit Pricing</DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+              name="branch_id"
+              control={form.control}
+              rules={{ required: "Branch is required" }}
+              render={({ field, fieldState }) => (
+                <SelectBranch
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={fieldState.error?.message}
+                  label="Branch"
+                />
+              )}
+            />
           <Controller
             name="play_customer_type_id"
             control={form.control}

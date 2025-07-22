@@ -1,6 +1,6 @@
 "use client"
-import React, { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { PhoneNumberField } from "@/components/coustomer-mobile-input";
 import {
   FormItem,
@@ -13,13 +13,19 @@ import { Input } from "@/components/ui/input";
 import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
 import { ADULTS_ID, KIDS_ID } from "@/utils/static-variables";
 import { useSession } from "next-auth/react";
+import SelectBranch from "@/components/common/selectBranch";
+import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
+import { useAxiosPatch } from "@/hooks/useAxiosPatch";
+import { useAxiosPost } from "@/hooks/useAxiosPost";
+import useGetPlayReservations from "@/hooks/useGetPlayReservations";
 
 export default function Orders() {
-  const { data: session, status } = useSession();
-  
-  
+  const { timeDurationPricing = [], timeDurationPricingLoading , timeDurationPricingRefres} = useGetTimeDurationPricing(false);
+  const {playReservations,playReservationsLoading,playReservationsRefres}=useGetPlayReservations()
+  const {postHandler,postHandlerloading}=useAxiosPost()
+  const isAdmin = useIsAdmin();
+  const user =useSessionUser()
   const [open, setOpen] = useState(false);
-  const { timeDurationPricing = [], timeDurationPricingLoading } = useGetTimeDurationPricing();
   const methods = useForm({
     defaultValues: {
       mobile_number: "",
@@ -29,8 +35,28 @@ export default function Orders() {
       kids_time_pricing_id: "",
       first_name: "",
       last_name: "",
+      branch_id: user?.branchId,
     },
   });
+
+  useEffect(() => {
+    if(open){
+      if(!isAdmin){
+        timeDurationPricingRefres({
+          branch_id:user?.branchId,
+        });
+       
+      }
+    }
+  }, [open]);
+useEffect(() => {
+  if(isAdmin && methods.watch("branch_id")){
+    timeDurationPricingRefres({
+      branch_id:methods.watch("branch_id"),
+    });
+    
+  }
+}, [methods.watch("branch_id")]);
 
   // Simple price calculation: $10/adult, $5/kid, $20/hour
   const watch = methods.watch;
@@ -52,16 +78,37 @@ export default function Orders() {
     (adults * (adultsPricing?.price || 0)) +
     (kids * (kidsPricing?.price || 0));
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const payload={
-      ...data,
-      branch_id: session?.user?.branchId,
+      first_name:data.first_name,
+      last_name:data.last_name,
+      mobile_number:data.mobile_number,
+      branch_id: isAdmin ? data.branch_id : user?.branchId,
+      total_price: price,
+      customer_types: [
+        {
+          playCustomerTypeId: ADULTS_ID,
+          count: data.adults,
+          playPricingId: adults_time_pricing_id,
+        },
+        {
+          playCustomerTypeId: KIDS_ID,
+          count: data.kids,
+          playPricingId: kids_time_pricing_id,
+        },
+      ],
     }
+
+ try {
+  const res= await postHandler(`play-reservation`,payload)
+ 
+ } catch (error) {
+  
+ }
 
     // handle create order logic here
     setOpen(false);
     methods.reset();
-    alert("Order created:\n" + JSON.stringify({ payload }, null, 2));
   };
 
   return (
@@ -73,12 +120,28 @@ export default function Orders() {
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg min-w-[350px]">
             <h2 className="text-lg font-bold mb-4">Create Order</h2>
+            
             <FormProvider {...methods}>
               <form
                 onSubmit={methods.handleSubmit(onSubmit)}
                 className="space-y-4"
               >
                 {/* Mobile Number */}
+                <Controller
+                  name="branch_id"
+                  control={methods.control}
+                  rules={{ required: "Branch is required" }}
+                  render={({ field, fieldState }) => (
+                    <SelectBranch
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={fieldState.error?.message}
+                      label="Branch"
+                    />
+                  )}
+                />
+
+                {/* Mobile Number */} 
                 <PhoneNumberField
                   control={methods.control}
                   name="mobile_number"
@@ -132,7 +195,7 @@ export default function Orders() {
                       <FormLabel>Time & Price</FormLabel>
                       <FormControl>
                         <select
-                          {...methods.register("adults_time_pricing_id", { required: true })}
+                          {...methods.register("adults_time_pricing_id", { required: true ,valueAsNumber: true})}
                           className="border rounded px-2 py-1 w-full"
                           defaultValue=""
                         >
@@ -173,7 +236,7 @@ export default function Orders() {
                       <FormLabel>Time & Price</FormLabel>
                       <FormControl>
                         <select
-                          {...methods.register("kids_time_pricing_id", { required: true })}
+                          {...methods.register("kids_time_pricing_id", { required: true ,valueAsNumber: true})}
                           className="border rounded px-2 py-1 w-full"
                           defaultValue=""
                         >

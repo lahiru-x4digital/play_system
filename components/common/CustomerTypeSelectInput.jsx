@@ -15,7 +15,7 @@ const CustomerTypeSelect = ({ value, onChange, error, label = "Customer Type", o
         onValueChange={(val) => onChange(Number(val))}
         disabled={customerTypesLoading}
       >
-        <SelectTrigger>
+        <SelectTrigger className="w-full">
           <SelectValue placeholder="Select customer type" />
         </SelectTrigger>
         <SelectContent>

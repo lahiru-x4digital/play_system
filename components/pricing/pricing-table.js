@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -11,6 +11,19 @@ import {
 import EditPricingDialog from "./EditPricingDialog";
 
 const PricingTable = ({ data = [], onRefresh }) => {
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedPricing, setSelectedPricing] = useState(null);
+
+  const handleEditClick = (item) => {
+    setSelectedPricing(item);
+    setEditDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setEditDialogOpen(false);
+    setSelectedPricing(null);
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -48,13 +61,27 @@ const PricingTable = ({ data = [], onRefresh }) => {
                     : '-'}
                 </TableCell>
                 <TableCell>
-                  <EditPricingDialog pricing={item} onSuccess={onRefresh} />
+                  <button
+                    className="px-2 py-1 border rounded text-sm hover:bg-gray-100"
+                    onClick={() => handleEditClick(item)}
+                  >
+                    Edit
+                  </button>
                 </TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
+      <EditPricingDialog
+        pricing={selectedPricing || {}}
+        open={editDialogOpen}
+        setOpen={setEditDialogOpen}
+        onSuccess={() => {
+          handleDialogClose();
+          onRefresh?.();
+        }}
+      />
     </div>
   );
 };

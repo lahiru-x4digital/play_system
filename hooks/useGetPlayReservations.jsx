@@ -4,11 +4,14 @@ import { extractErrorMessage } from "../utils/extractErrorMessage";
 import axios from "axios";
 import api from "@/services/api";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
+import useSessionUser from "@/lib/getuserData";
+import useIsAdmin from "@/lib/getuserData";
 
 
-const useGetTimeDurationPricing = () => {
-
+const useGetPlayReservations = () => {
   //use null or [] base on scenario
+  const user=useSessionUser()
+  const isAdmin=useIsAdmin()
   const [dataList, SetDataList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   
@@ -18,14 +21,12 @@ const useGetTimeDurationPricing = () => {
     pageSize: 10,
     page: 1,
     search: null,
-    play_customer_type_id: null,
-    time_duration: null,
+    branch_id: isAdmin ? null : user?.branchId,
+    order_id: null,
   });
   const abortControllerRef = useRef(null);
 
-  const loadData = useCallback(async ({
-    branch_id,
-  }) => {
+  const loadData = useCallback(async () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -34,11 +35,9 @@ const useGetTimeDurationPricing = () => {
     setLoading(true);
     try {
       const response =
-        await api.get(`play/pricing`, {
+        await api.get(`play/play-reservation`, {
           params: {
             ...paramsNullCleaner(params),
-            is_active:true,
-            branch_id:branch_id
           },
           signal: controller.signal,
         });
@@ -73,18 +72,16 @@ const useGetTimeDurationPricing = () => {
       ...newParams,
     }));
   };
-  // useEffect(() => {
-  //   // Call loadData directly - it will handle its own cleanup
-  //   if(branch_id){
-  //   loadData();
-  // }
-  //   // Return cleanup function for component unmount
-  //   return () => {
-  //     if (abortControllerRef.current) {
-  //       abortControllerRef.current.abort();
-  //     }
-  //   };
-  // }, [loadData]);
+  useEffect(() => {
+    // Call loadData directly - it will handle its own cleanup
+    loadData();
+    // Return cleanup function for component unmount
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [loadData]);
   const handlePageNavigation = useCallback((page) => {
     setParams((prev) => ({
       ...prev,
@@ -92,30 +89,26 @@ const useGetTimeDurationPricing = () => {
     }));
   }, []);
   const changePageSize = useCallback((pageSize) => {
-    //call load data 
-  
     setParams((prev) => ({
       ...prev,
       pageSize: pageSize,
-      
     }));
-    
     ///* if you use functional prev state you do not need to add params to callback depandancy array
   }, []);
 
   return {
-    timeDurationPricingLimit: params.pageSize,
-    timeDurationPricing: dataList,
+    playReservationsLimit: params.pageSize,
+    playReservations: dataList,
     currentPage: params.page,
-    timeDurationPricingTotalPages: Math.ceil(totalCount / params.pageSize),
-    timeDurationPricingLoading: loading,
-    timeDurationPricingError: error,
-    timeDurationPricingTotalCount: totalCount,
-    timeDurationPricingPageNavigation: handlePageNavigation,
-    timeDurationPricingSearch: setParamsData,
-    timeDurationPricingRefres: loadData,
-    timeDurationPricingChangePageSize: changePageSize,
+    playReservationsTotalPages: Math.ceil(totalCount / params.pageSize),
+    playReservationsLoading: loading,
+    playReservationsError: error,
+    playReservationsTotalCount: totalCount,
+    playReservationsPageNavigation: handlePageNavigation,
+    playReservationsSearch: setParamsData,
+    playReservationsRefres: loadData,
+    playReservationsChangePageSize: changePageSize,
   };
 };
 
-export default useGetTimeDurationPricing;
+export default useGetPlayReservations;

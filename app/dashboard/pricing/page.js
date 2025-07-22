@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import PricingTable from '@/components/pricing/pricing-table'
 import { Pagination } from '@/components/ui/pagination'
 import CreatePricingDialog from '@/components/pricing/CreatePricingDialog';
+import useGetTimeDurationPricingInitial from '@/hooks/useGetTimeDurationPricingInitial'
 
 export default function PricingPage() {
     const {
@@ -16,7 +17,7 @@ export default function PricingPage() {
       timeDurationPricingPageNavigation,
       timeDurationPricingChangePageSize,
       timeDurationPricingRefres
-    } = useGetTimeDurationPricing(null)
+    } = useGetTimeDurationPricingInitial(null)
 
     return (
       <div>
