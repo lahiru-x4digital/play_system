@@ -40,6 +40,7 @@ export function AutoBookingDialog() {
           <div>
           <AutoGenarateReservationForm onSuccess={(res)=>{
             console.log("RES",res)
+            window.open(`/dashboard/booking/${res?.data?.playReservation?.id}`, '_blank');
           }}/>
           </div>    
           <DialogFooter>

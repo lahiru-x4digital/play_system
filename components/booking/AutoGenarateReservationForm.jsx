@@ -37,6 +37,8 @@ export default function AutoGenarateReservationForm(
         first_name: "",
         last_name: "",
         branch_id: user?.branchId,
+        cash:0,
+        card:0,
       },
     });
   
@@ -87,6 +89,8 @@ export default function AutoGenarateReservationForm(
         branch_id: isAdmin ? data.branch_id : user?.branchId,
         total_price: price,
         play_pricing_id:kids_time_pricing_id,
+        cash:data.cash,
+        card:data.card,
         customer_types: [
           {
             playCustomerTypeId: ADULTS_ID,
@@ -227,6 +231,32 @@ export default function AutoGenarateReservationForm(
                      <FormMessage />
                    </FormItem>
                </div>
+               <div className="flex gap-4">
+                   <FormItem className="flex-1">
+                     <FormLabel>Cash</FormLabel>
+                     <FormControl>
+                       <input
+                         type="number"
+                         min={0}
+                         {...methods.register("cash", { valueAsNumber: true, min: 0 })}
+                         className="border rounded px-2 py-1 w-full"
+                       />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                   <FormItem className="flex-1">
+                     <FormLabel>Card</FormLabel>
+                     <FormControl>
+                       <input
+                         type="number"
+                         min={0}
+                         {...methods.register("card", { valueAsNumber: true, min: 0 })}
+                         className="border rounded px-2 py-1 w-full"
+                       />
+                     </FormControl>
+                     <FormMessage />
+                   </FormItem>
+                 </div>
                {/* Calculated Price */}
                <div>
                  <span className="font-semibold">Calculated Price: </span>
