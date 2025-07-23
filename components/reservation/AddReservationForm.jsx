@@ -14,8 +14,14 @@ import { ADULTS_ID, KIDS_ID } from "@/utils/static-variables";
 import SelectBranch from "@/components/common/selectBranch";
 import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
 import { useAxiosPost } from "@/hooks/useAxiosPost";
+import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
 
-export default function AddReservationForm() {
+export default function AddReservationForm(
+  {
+    onSuccess
+  }
+) {
+    const {timeDurationPricing = [], timeDurationPricingLoading , timeDurationPricingRefres} = useGetTimeDurationPricing();
     const {postHandler,postHandlerloading}=useAxiosPost()
     const isAdmin = useIsAdmin();
     const user =useSessionUser()
@@ -95,7 +101,7 @@ export default function AddReservationForm() {
   
    try {
     const res= await postHandler(`play-reservation`,payload)
-   
+    if (onSuccess) onSuccess(res);
    } catch (error) {
     
    }
