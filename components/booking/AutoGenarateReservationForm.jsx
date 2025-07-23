@@ -181,8 +181,8 @@ export default function AutoGenarateReservationForm(
                      <FormControl>
                        <input
                          type="number"
-                         min={1}
-                         {...methods.register("adults", { valueAsNumber: true, min: 1 })}
+                         min={0}
+                         {...methods.register("adults", { valueAsNumber: true, min: 0 })}
                          className="border rounded px-2 py-1 w-full"
                        />
                      </FormControl>

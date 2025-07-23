@@ -8,8 +8,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScanReservationDialog } from "./ScanReservationDialog"; // Import the dialog
+import { Button } from '../ui/button';
+import { Eye, Printer } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const PlayReservationTable = ({ data = [], onRefresh }) => {
+  const router = useRouter();
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState(null);
 
@@ -28,6 +32,7 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
             <TableHead>Mobile Number</TableHead>
             <TableHead>Branch</TableHead>
             <TableHead>Total Price</TableHead>
+            <TableHead>Total Payment</TableHead>
             <TableHead>Created at</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
@@ -54,6 +59,9 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
                 </TableCell>
                 <TableCell>{item.total_price != null ? item.total_price : '-'}</TableCell>
                 <TableCell>
+                  {item.total_payment != null ? item.total_payment : '-'}
+                </TableCell>
+                <TableCell>
                   {item.created_date
                     ? new Date(item.created_date).toLocaleDateString('en-US', {
                         year: 'numeric',
@@ -65,12 +73,24 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
                     : '-'}
                 </TableCell>
                 <TableCell>
-                  <button
+                  <Button
+                    variant="ghost"
                     className="px-2 py-1 border rounded text-sm hover:bg-gray-100"
                     onClick={() => handleScanClick(item.id)}
                   >
-                    Scan
-                  </button>
+                    <Printer/>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="px-2 py-1 border rounded text-sm hover:bg-gray-100 mx-2"
+                    onClick={() => {
+                      //navigate to the reservation id page
+                      router.push(`/dashboard/booking/${item.id}`)
+                      
+                    }}
+                  >
+                    <Eye/>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))

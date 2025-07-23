@@ -109,7 +109,6 @@ useEffect(() => {
  } catch (error) {
   
  }
-
     // handle create order logic here
     setOpen(false);
     methods.reset();

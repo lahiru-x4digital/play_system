@@ -17,8 +17,7 @@ import { CirclePlus, ScanBarcode } from "lucide-react"
 import AutoGenarateReservationForm from "./AutoGenarateReservationForm";
 
 export function AutoBookingDialog() {
-    const [mode, setMode] = useState("create")
-    const [reservation_id, setReservation_id] = useState(null)
+
 
   return (
     <Dialog>
