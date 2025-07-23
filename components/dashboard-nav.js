@@ -44,7 +44,8 @@ import {
   FileText,
   DollarSign,
   CheckCheck,
-  ShoppingCart
+  ShoppingCart,
+  NotebookPen
 } from "lucide-react";
 
 import {
@@ -133,9 +134,14 @@ const adminNavItems = [
   },
  
   {
-    title: "Orders",
-    href: "/dashboard/orders",
-    icon: ShoppingCart,
+    title: "Reservations",
+    href: "/dashboard/reservations",
+    icon: NotebookPen ,
+  },
+  {
+    title: "Booking",
+    href: "/dashboard/booking",
+    icon: CalendarCheck ,
   },
   {
     title: "Pricing",

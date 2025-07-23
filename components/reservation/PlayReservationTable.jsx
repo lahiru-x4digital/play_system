@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Table,
   TableBody,
@@ -7,8 +7,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ScanReservationDialog } from "./ScanReservationDialog"; // Import the dialog
 
 const PlayReservationTable = ({ data = [], onRefresh }) => {
+  const [scanDialogOpen, setScanDialogOpen] = useState(false);
+  const [selectedReservationId, setSelectedReservationId] = useState(null);
+
+  const handleScanClick = (reservationId) => {
+    setSelectedReservationId(reservationId);
+    setScanDialogOpen(true);
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -26,7 +35,7 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
                 No reservations found
               </TableCell>
             </TableRow>
@@ -56,8 +65,10 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
                     : '-'}
                 </TableCell>
                 <TableCell>
-                  {/* Future: Add actions like view/edit/cancel */}
-                  <button className="px-2 py-1 border rounded text-sm hover:bg-gray-100" onClick={onRefresh}>
+                  <button
+                    className="px-2 py-1 border rounded text-sm hover:bg-gray-100"
+                    onClick={() => handleScanClick(item.id)}
+                  >
                     Scan
                   </button>
                 </TableCell>
@@ -66,6 +77,12 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
           )}
         </TableBody>
       </Table>
+      {/* Scan dialog outside the map, controlled by state */}
+      <ScanReservationDialog
+        reservation_id={selectedReservationId}
+        open={scanDialogOpen}
+        onOpenChange={setScanDialogOpen}
+      />
     </div>
   )
 }

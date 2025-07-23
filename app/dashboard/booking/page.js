@@ -21,8 +21,9 @@ import useGetPlayReservations from "@/hooks/useGetPlayReservations";
 import PlayReservationTable from "@/components/reservation/PlayReservationTable";
 import { Pagination } from "@/components/ui/pagination";
 import { ReservationDialog } from "@/components/reservation/ReservationDialog";
+import { AutoBookingDialog } from "@/components/booking/AutoBookingDialog";
 
-export default function Orders() {
+export default function Booking() {
   const { timeDurationPricing = [], timeDurationPricingLoading , timeDurationPricingRefres} = useGetTimeDurationPricing();
   const {playReservations,playReservationsLoading,playReservationsRefres,playReservationsLimit,playReservationsError,playReservationsTotalCount,playReservationsTotalPages,playReservationsPageNavigation,playReservationsChangePageSize,currentPage}=useGetPlayReservations()
   const {postHandler,postHandlerloading}=useAxiosPost()
@@ -103,7 +104,7 @@ useEffect(() => {
     }
 
  try {
-  const res= await postHandler(`play-reservation`,payload)
+  const res= await postHandler(`auto-booking`,payload)
  
  } catch (error) {
   
@@ -116,9 +117,7 @@ useEffect(() => {
 
   return (
     <div>
-      <h1>Orders</h1>
-      <Button onClick={() => setOpen(true)}>Create Order</Button>
-      <ReservationDialog  />
+      <AutoBookingDialog />
       <div className="mt-8">
         {playReservationsLoading ? (
           <div className="text-center py-8">Loading reservations...</div>

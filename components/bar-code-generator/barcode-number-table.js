@@ -11,6 +11,7 @@ import {
 
 const printBarcodes = async (groupName, barcodeListSearch, data, barcodeListLoading) => {
   if (barcodeListLoading) return;
+
   barcodeListSearch({
     pageSize: 1000,
     page: 1,
@@ -20,49 +21,66 @@ const printBarcodes = async (groupName, barcodeListSearch, data, barcodeListLoad
     time_duration: null,
     mode: groupName,
   });
-  const printWindow = window.open('', '', 'width=900,height=1200');
+
+  const chunkSize = 10;
+  const pages = Array.from({ length: Math.ceil(data.length / chunkSize) }, (_, i) =>
+    data.slice(i * chunkSize, (i + 1) * chunkSize)
+  );
+
   const html = `
     <html>
       <head>
-        <title>Print Barcodes</title>
         <style>
-          @media print {
-            body { margin: 0; padding: 0; }
-            .barcode-table { width: 100%; border-collapse: collapse; }
-            .barcode-table th, .barcode-table td { border: 1px solid #ccc; padding: 8px; font-size: 12px; }
-            .barcode-table th { background: #f5f5f5; }
+          @page {
+            size: 190mm 250mm;
+            margin: 0;
+            padding:0;
           }
-          .barcode-table { width: 100%; border-collapse: collapse; }
-          .barcode-table th, .barcode-table td { border: 1px solid #ccc; padding: 8px; font-size: 12px; }
-          .barcode-table th { background: #f5f5f5; }
+          body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background:"red";
+          }
+          .page {
+            width: 190mm;
+            height: 250mm;
+            display: flex;
+            flex-wrap: wrap;
+            page-break-after: always;
+          }
+          .barcode-block {
+            width: 19mm;
+            height: 250mm;
+            display: flex flex-row;
+            align-items: center;
+            justify-content: flex-start;
+            box-sizing: border-box;
+          }
+          .barcode-block:last-child {
+            border-bottom: none;
+          }
         </style>
       </head>
       <body>
-        <h2>Barcodes for group: ${groupName}</h2>
-        <table class="barcode-table">
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Duration (Min)</th>
-              <th>Code</th>
-              <th>Created at</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${data.map(item => `
-              <tr>
-                <td>${item.play_customer_type?.name || '-'}</td>
-                <td>${item.time_duration || '-'}</td>
-                <td>${item.barcode_number || '-'}</td>
-                <td>${item.created_date ? new Date(item.created_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-              </tr>
+        ${pages.map((pageItems, pageIndex) => `
+          <div class="page">
+            ${pageItems.map(item => `
+              <div class="barcode-block">
+                <div style="text-align: center; font-size: 9pt;">
+                  ${item.play_customer_type?.name || '-'}
+                  <!-- Add barcode number or other info here if needed -->
+                </div>
+              </div>
             `).join('')}
-          </tbody>
-        </table>
-        <script>window.onload = function() { window.print(); };</script>
+          </div>
+        `).join('')}
+        <script>window.onload = function() { window.print(); }</script>
       </body>
     </html>
   `;
+
+  const printWindow = window.open('', '', 'width=900,height=1200');
   printWindow.document.write(html);
   printWindow.document.close();
 };
