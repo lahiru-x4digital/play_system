@@ -18,10 +18,13 @@ import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
 import { useAxiosPatch } from "@/hooks/useAxiosPatch";
 import { useAxiosPost } from "@/hooks/useAxiosPost";
 import useGetPlayReservations from "@/hooks/useGetPlayReservations";
+import PlayReservationTable from "@/components/reservation/PlayReservationTable";
+import { Pagination } from "@/components/ui/pagination";
+import { ReservationDialog } from "@/components/reservation/ReservationDialog";
 
 export default function Orders() {
-  const { timeDurationPricing = [], timeDurationPricingLoading , timeDurationPricingRefres} = useGetTimeDurationPricing(false);
-  const {playReservations,playReservationsLoading,playReservationsRefres}=useGetPlayReservations()
+  const { timeDurationPricing = [], timeDurationPricingLoading , timeDurationPricingRefres} = useGetTimeDurationPricing();
+  const {playReservations,playReservationsLoading,playReservationsRefres,playReservationsLimit,playReservationsError,playReservationsTotalCount,playReservationsTotalPages,playReservationsPageNavigation,playReservationsChangePageSize,currentPage}=useGetPlayReservations()
   const {postHandler,postHandlerloading}=useAxiosPost()
   const isAdmin = useIsAdmin();
   const user =useSessionUser()
@@ -115,7 +118,7 @@ useEffect(() => {
     <div>
       <h1>Orders</h1>
       <Button onClick={() => setOpen(true)}>Create Order</Button>
-
+      <ReservationDialog />
       {open && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg min-w-[350px]">
@@ -134,7 +137,11 @@ useEffect(() => {
                   render={({ field, fieldState }) => (
                     <SelectBranch
                       value={field.value}
-                      onChange={field.onChange}
+                      onChange={(e)=>{
+                        field.onChange(e)
+                        methods.setValue("adults_time_pricing_id","")
+                        methods.setValue("kids_time_pricing_id","")
+                      }}
                       error={fieldState.error?.message}
                       label="Branch"
                     />

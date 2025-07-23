@@ -7,11 +7,11 @@ export default function BarcodeList() {
   //get param 
   const params = useParams()
   const groupName = params.group_name
-  const {barcodeList,barcodeListLoading,barcodeListLimit,currentPage,totalPages,barcodeListTotalCount,barcodeListPageNavigation,barcodeListChangePageSize,barcodeListRefres}=useGetBarCodes(groupName)
+  const {barcodeList,barcodeListLoading,barcodeListLimit,currentPage,totalPages,barcodeListTotalCount,barcodeListPageNavigation,barcodeListChangePageSize,barcodeListRefres,barcodeListSearch}=useGetBarCodes(groupName)
 
   return (
     <div>
-      <BarcodeNumberTable data={barcodeList} />
+      <BarcodeNumberTable data={barcodeList} barcodeListSearch={barcodeListSearch} groupName={groupName} barcodeListLoading={barcodeListLoading} />
     </div>
   )
 }
