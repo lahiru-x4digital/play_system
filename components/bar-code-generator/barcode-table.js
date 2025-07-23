@@ -1,3 +1,4 @@
+"use client"
 import React from 'react'
 import {
   Table,
@@ -7,6 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import Link from 'next/link'
+import { Eye } from 'lucide-react'
 
 const BarcodeTable = ({ data = [] }) => {
  
@@ -15,10 +18,12 @@ const BarcodeTable = ({ data = [] }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Type</TableHead>
+            <TableHead>Group Name</TableHead>
             <TableHead>Duration (Min)</TableHead>
-            <TableHead>Code</TableHead>
-            <TableHead>Created at</TableHead>
+            <TableHead>Quantity</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Action</TableHead>
+            
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -31,21 +36,14 @@ const BarcodeTable = ({ data = [] }) => {
           ) : (
             data.map((item, index) => (
               <TableRow key={index}>
-                <TableCell className="font-medium">{item.play_customer_type.name || '-'}</TableCell>
-                <TableCell>{item.time_duration || '-'}</TableCell>
-                <TableCell className="font-mono">{item.barcode_number || '-'}</TableCell>
-                <TableCell>
-                  {item.created_date 
-                    ? new Date(item.created_date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })
-                    : '-'
-                  }
-                </TableCell>
+                <TableCell className="font-medium">{item.group_name || '-'}</TableCell>
+                <TableCell>{item.duration || '-'}</TableCell>
+                <TableCell>{item.qty || '-'}</TableCell>
+                <TableCell className="font-mono">{item.type || '-'}</TableCell>
+                <TableCell className="font-mono"><Link href={`/dashboard/bar-code-generator/${item.group_name}`}>
+                <Eye />
+                </Link></TableCell>
+          
               </TableRow>
             ))
           )}

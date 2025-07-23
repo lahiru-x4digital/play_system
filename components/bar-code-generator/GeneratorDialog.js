@@ -34,9 +34,10 @@ const formSchema = z.object({
   time_duration: z.number({ invalid_type_error: "Minutes is required" }).min(1, "Minutes must be at least 1"),
   qty: z.number({ invalid_type_error: "Quantity is required" }).min(1, "Quantity must be at least 1"),
   branch_id: z.number().min(1, "Branch is required"),
+  group_name: z.string().optional(),
 });
 
-export function GeneratorDialog() {
+export function GeneratorDialog({refresh}) {
   const [open, setOpen] = useState(false);
   const {postHandler,postHandlerloading,postHandlerError}=useAxiosPost()
   const isAdmin = useIsAdmin();
@@ -49,6 +50,7 @@ export function GeneratorDialog() {
       time_duration: undefined,
       qty: undefined,
       branch_id: undefined,
+      group_name: undefined,
     },
   });
 
@@ -62,7 +64,7 @@ export function GeneratorDialog() {
       await postHandler("generate-code",payload)
       form.reset()
       setOpen(false)
-      barcodeListRefres()
+      refresh()
     } catch (error) {
       console.log(error)
     }}
@@ -112,6 +114,16 @@ export function GeneratorDialog() {
             )}
           />
           </div>
+        
+           {/* Group Name */}
+           <div>
+            <Label htmlFor="group_name">Group Name</Label>
+            <Input
+              id="group_name"
+              {...form.register("group_name")}
+              placeholder="Enter group name"
+            />
+          </div>
           {/* Minutes */}
           <div>
             <Label htmlFor="time_duration">Minutes</Label>
@@ -142,7 +154,7 @@ export function GeneratorDialog() {
               </p>
             )}
           </div>
-          <Button className={'cursor-pointer'} type="submit">Generate</Button>
+          <Button className={'cursor-pointer w-full'} type="submit">Generate</Button>
           </form>
           <DialogFooter>
           </DialogFooter>

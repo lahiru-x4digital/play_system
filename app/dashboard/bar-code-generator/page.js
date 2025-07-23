@@ -6,12 +6,12 @@ import useGetBarCodes from '@/hooks/useGetBarCodes'
 import { Pagination } from '@/components/ui/pagination'
 export default function BarCodeGenerator() {
 
-  const {barcodeList,barcodeListLoading,barcodeListLimit,currentPage,totalPages,barcodeListTotalCount,barcodeListPageNavigation,barcodeListChangePageSize,barcodeListRefres}=useGetBarCodes()
+  const {barcodeList,barcodeListLoading,barcodeListLimit,currentPage,totalPages,barcodeListTotalCount,barcodeListPageNavigation,barcodeListChangePageSize,barcodeListRefres}=useGetBarCodes("group")
 
   return (
     <div>
      
-      <GeneratorDialog barcodeListRefres={barcodeListRefres} />
+      <GeneratorDialog barcodeListRefres={barcodeListRefres} refresh={barcodeListRefres}/>
       <BarcodeTable data={barcodeList} />
       <Pagination
         currentPage={currentPage}

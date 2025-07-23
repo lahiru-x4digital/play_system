@@ -274,6 +274,25 @@ useEffect(() => {
           </div>
         </div>
       )}
+      <div className="mt-8">
+        {playReservationsLoading ? (
+          <div className="text-center py-8">Loading reservations...</div>
+        ) : playReservationsError ? (
+          <div className="text-center py-8 text-red-500">Failed to load reservations.</div>
+        ) : (
+          <>
+            <PlayReservationTable data={playReservations} onRefresh={playReservationsRefres} />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={playReservationsTotalPages}
+              onPageChange={playReservationsPageNavigation}
+              pageSize={playReservationsLimit}
+              onPageSizeChange={playReservationsChangePageSize}
+              total={playReservationsTotalCount}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }

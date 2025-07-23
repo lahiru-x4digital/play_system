@@ -6,7 +6,7 @@ import api from "@/services/api";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 
 
-const useGetBarCodes = () => {
+const useGetBarCodes = (mode) => {
   //use null or [] base on scenario
   const [dataList, SetDataList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -20,6 +20,7 @@ const useGetBarCodes = () => {
     barcode_number: null,
     play_customer_type_id: null,
     time_duration: null,
+    mode: mode,
   });
   const abortControllerRef = useRef(null);
 
