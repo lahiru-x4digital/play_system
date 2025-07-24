@@ -16,9 +16,9 @@ import { ScanBarcode } from "lucide-react"
 export function ScanReservationDialog({ reservation_id, open, onOpenChange }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
+      {/* <DialogTrigger asChild>
         <Button variant="outline">Scan Reservation</Button>
-      </DialogTrigger>
+      </DialogTrigger> */}
       <DialogContent
         onInteractOutside={e => e.preventDefault()}
         className="sm:max-w-[425px]"

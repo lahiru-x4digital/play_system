@@ -127,17 +127,17 @@ const adminNavItems = [
     href: "/dashboard/customers",
     icon: Users,
   },
-  {
-    title: "Bar Code Generator",
-    href: "/dashboard/bar-code-generator",
-    icon: TicketPercent,
-  },
+  // {
+  //   title: "Bar Code Generator",
+  //   href: "/dashboard/bar-code-generator",
+  //   icon: TicketPercent,
+  // },
  
-  {
-    title: "Reservations",
-    href: "/dashboard/reservations",
-    icon: NotebookPen ,
-  },
+  // {
+  //   title: "Reservations",
+  //   href: "/dashboard/reservations",
+  //   icon: NotebookPen ,
+  // },
   {
     title: "Booking",
     href: "/dashboard/booking",

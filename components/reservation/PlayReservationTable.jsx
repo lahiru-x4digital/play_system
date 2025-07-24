@@ -11,6 +11,7 @@ import { ScanReservationDialog } from "./ScanReservationDialog"; // Import the d
 import { Button } from '../ui/button';
 import { Eye, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { PrintDialog } from '../booking/PrintDialog';
 
 const PlayReservationTable = ({ data = [], onRefresh }) => {
   const router = useRouter();
@@ -98,7 +99,7 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
         </TableBody>
       </Table>
       {/* Scan dialog outside the map, controlled by state */}
-      <ScanReservationDialog
+      <PrintDialog
         reservation_id={selectedReservationId}
         open={scanDialogOpen}
         onOpenChange={setScanDialogOpen}

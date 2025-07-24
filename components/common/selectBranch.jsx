@@ -17,7 +17,6 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
     branchListLoading,
     branchListError,
   } = useGetPlayEnabledBranches();
-  console.log(branchList);
   // If not admin, auto-select user's branchId on mount
   useEffect(() => {
     if (!isAdmin && branchId && onChange) {

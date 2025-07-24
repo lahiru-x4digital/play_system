@@ -16,7 +16,23 @@ import SelectBranch from "@/components/common/selectBranch";
 import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
 import { useAxiosPost } from "@/hooks/useAxiosPost";
 import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
+import PaymentInput from "../common/PaymentInput";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
+const reservationSchema = z.object({
+  mobile_number: z.string().min(1, { message: "Mobile number is required" }),
+  adults: z.number().min(1, { message: "Adults is required" }),
+  kids: z.number().min(1, { message: "Kids is required" }),
+  // adults_time_pricing_id: z.string().min(1, { message: "Adults time pricing is required" }),
+  kids_time_pricing_id: z.number().min(1, { message: "Kids time pricing is required" }),
+  payment_method: z.string().min(1, { message: "Payment method is required" }),
+  amount: z.number().min(0, { message: "Amount is required" }),
+  first_name: z.string(),
+  last_name: z.string(),
+  branch_id: z.number().min(1, { message: "Branch is required" }),
+  payment_method: z.string().min(1, { message: "Payment method is required" }),
+})
 export default function AutoGenarateReservationForm(
   {
     onSuccess
@@ -24,24 +40,26 @@ export default function AutoGenarateReservationForm(
 ) {
     const {timeDurationPricing = [], timeDurationPricingLoading , timeDurationPricingRefres} = useGetTimeDurationPricing();
     const {postHandler,postHandlerloading}=useAxiosPost()
+ 
     const isAdmin = useIsAdmin();
     const user =useSessionUser()
     const [open, setOpen] = useState(false);
     const methods = useForm({
+      resolver: zodResolver(reservationSchema),
       defaultValues: {
         mobile_number: "",
         adults: 1,
         kids: 0,
-        adults_time_pricing_id: "",
+        // adults_time_pricing_id: "",
         kids_time_pricing_id: "",
         first_name: "",
         last_name: "",
         branch_id: user?.branchId,
-        cash:0,
-        card:0,
+        payment_method: "CASH",
+        amount: 0,
       },
+     
     });
-  
     useEffect(() => {
       if(open){
         if(!isAdmin){
@@ -89,8 +107,6 @@ export default function AutoGenarateReservationForm(
         branch_id: isAdmin ? data.branch_id : user?.branchId,
         total_price: price,
         play_pricing_id:kids_time_pricing_id,
-        cash:data.cash,
-        card:data.card,
         customer_types: [
           {
             playCustomerTypeId: ADULTS_ID,
@@ -102,14 +118,19 @@ export default function AutoGenarateReservationForm(
           },
         ],
       }
+      if(data.payment_method === "CASH"){
+        payload.cash = data.amount;
+      }else if(data.payment_method === "CARD"){
+        payload.card = data.amount;
+      }
   
    try {
     const res= await postHandler(`auto-booking`,payload)
-    if (onSuccess) onSuccess(res);
+
+    if (onSuccess) onSuccess(res?.data);
    } catch (error) {
     
    }
-  
       // handle create order logic here
       setOpen(false);
       methods.reset();
@@ -117,7 +138,7 @@ export default function AutoGenarateReservationForm(
   
   return (
     <div>
-        <FormProvider {...methods}>
+       <FormProvider {...methods}>
              <form
                onSubmit={methods.handleSubmit(onSubmit)}
                className="space-y-4"
@@ -179,11 +200,21 @@ export default function AutoGenarateReservationForm(
                    <FormItem className="flex-1">
                      <FormLabel>Adults</FormLabel>
                      <FormControl>
-                       <input
+                       <Input
                          type="number"
                          min={0}
                          {...methods.register("adults", { valueAsNumber: true, min: 0 })}
                          className="border rounded px-2 py-1 w-full"
+                         onFocus={e => {
+                           if (e.target.value === "0") {
+                             methods.setValue("adults", "");
+                           }
+                         }}
+                         onBlur={e => {
+                           if (e.target.value === "") {
+                             methods.setValue("adults", 0);
+                           }
+                         }}
                        />
                      </FormControl>
                      <FormMessage />
@@ -191,11 +222,20 @@ export default function AutoGenarateReservationForm(
                    <FormItem className="flex-1">
                      <FormLabel>Kids</FormLabel>
                      <FormControl>
-                       <input
+                       <Input
                          type="number"
                          min={0}
                          {...methods.register("kids", { valueAsNumber: true, min: 0 })}
-                         className="border rounded px-2 py-1 w-full"
+                         onFocus={e => {
+                           if (e.target.value === "0") {
+                             methods.setValue("kids", "");
+                           }
+                         }}
+                         onBlur={e => {
+                           if (e.target.value === "") {
+                             methods.setValue("kids", 0);
+                           }
+                         }}
                        />
                      </FormControl>
                      <FormMessage />
@@ -232,30 +272,7 @@ export default function AutoGenarateReservationForm(
                    </FormItem>
                </div>
                <div className="flex gap-4">
-                   <FormItem className="flex-1">
-                     <FormLabel>Cash</FormLabel>
-                     <FormControl>
-                       <input
-                         type="number"
-                         min={0}
-                         {...methods.register("cash", { valueAsNumber: true, min: 0 })}
-                         className="border rounded px-2 py-1 w-full"
-                       />
-                     </FormControl>
-                     <FormMessage />
-                   </FormItem>
-                   <FormItem className="flex-1">
-                     <FormLabel>Card</FormLabel>
-                     <FormControl>
-                       <input
-                         type="number"
-                         min={0}
-                         {...methods.register("card", { valueAsNumber: true, min: 0 })}
-                         className="border rounded px-2 py-1 w-full"
-                       />
-                     </FormControl>
-                     <FormMessage />
-                   </FormItem>
+                <PaymentInput/>
                  </div>
                {/* Calculated Price */}
                <div>
@@ -270,6 +287,7 @@ export default function AutoGenarateReservationForm(
                </div>
              </form>
            </FormProvider>
+          
     </div>
   )
 }

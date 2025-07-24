@@ -5,6 +5,9 @@ import { use } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Plus, Printer } from 'lucide-react';
+import { AddBarcodeDialog } from '@/components/booking/AddBarcodeDialog';
 
 function formatDate(dateStr) {
   if (!dateStr) return '-';
@@ -127,7 +130,10 @@ export default function Page({ params }) {
       {/* Barcodes */}
       <Card>
         <CardHeader className="pb-2">
+          <div className='flex justify-between items-center'>
           <CardTitle className="text-xl font-bold">Barcodes</CardTitle>
+          <AddBarcodeDialog/>
+          </div>
         </CardHeader>
         <CardContent className="text-sm md:text-base">
           {playReservation.barcodes?.length > 0 ? (
