@@ -16,7 +16,7 @@ export default function BandItem({ barcode, reservation }) {
         }, 100); // Wait for DOM update
     };
     if (!barcode || !reservation) return null;
-    console.log(reservation)
+  
     return (
         <div className='flex flex-col items-center justify-center' key={barcode.id}>
             <Button
@@ -71,6 +71,7 @@ export default function BandItem({ barcode, reservation }) {
                 </div>
                 <QRCode value={barcode.barcode_number} size={60} style={{ marginBottom: '2mm' }} />
                 <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>{barcode.barcode_number}</div>
+                <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>{barcode.play_customer_type.name}</div>
             </div>
         </div>
     );

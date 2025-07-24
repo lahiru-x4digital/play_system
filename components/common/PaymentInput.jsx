@@ -12,7 +12,9 @@ const PAYMENT_METHODS = [
  * Reusable PaymentInput for react-hook-form
  */
 export default function PaymentInput() {
-  const { control } = useFormContext();
+  const { control, formState } = useFormContext();
+  const paymentMethodError = formState.errors?.payment_method?.message;
+  const amountError = formState.errors?.amount?.message;
 
   return (
     <div className="flex gap-4 items-end">
@@ -32,7 +34,7 @@ export default function PaymentInput() {
             )}
           />
         </FormControl>
-        <FormMessage />
+
       </FormItem>
       <FormItem className="flex-1">
         <FormLabel>Amount</FormLabel>
@@ -64,9 +66,11 @@ export default function PaymentInput() {
               />
             )}
           />
+          
         </FormControl>
-        <FormMessage />
+    
       </FormItem>
+
     </div>
   );
 }

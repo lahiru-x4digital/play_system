@@ -27,11 +27,10 @@ const reservationSchema = z.object({
   // adults_time_pricing_id: z.string().min(1, { message: "Adults time pricing is required" }),
   kids_time_pricing_id: z.number().min(1, { message: "Kids time pricing is required" }),
   payment_method: z.string().min(1, { message: "Payment method is required" }),
-  amount: z.number().min(0, { message: "Amount is required" }),
+  amount: z.number().min(1, { message: "Amount is required" }),
   first_name: z.string(),
   last_name: z.string(),
   branch_id: z.number().min(1, { message: "Branch is required" }),
-  payment_method: z.string().min(1, { message: "Payment method is required" }),
 })
 export default function AutoGenarateReservationForm(
   {
@@ -135,7 +134,7 @@ export default function AutoGenarateReservationForm(
       setOpen(false);
       methods.reset();
     };
-  
+
   return (
     <div>
        <FormProvider {...methods}>
