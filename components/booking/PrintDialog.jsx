@@ -1,4 +1,4 @@
-
+'use client'
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -29,9 +29,9 @@ export function PrintDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogTrigger asChild>
+        {/* <DialogTrigger asChild>
           <Button variant="outline">Open Dialog</Button>
-        </DialogTrigger>
+        </DialogTrigger> */}
         <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto ">
          <BarcodePrintView reservation={playReservation}/>
         </DialogContent>

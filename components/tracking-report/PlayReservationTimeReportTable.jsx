@@ -7,14 +7,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScanReservationDialog } from "./ScanReservationDialog"; // Import the dialog
+import { ScanReservationDialog } from "../reservation/ScanReservationDialog"; // Import the dialog
 import { Button } from '../ui/button';
 import { Eye, Printer } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { PrintDialog } from '../booking/PrintDialog';
 import { getEndTime } from '@/lib/getEndTime';
+import TimerCountDown from '../common/TimerCountDown';
 
-const PlayReservationTable = ({ data = [], onRefresh }) => {
+const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
   const router = useRouter();
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState(null);
@@ -35,6 +36,7 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
             <TableHead>Branch</TableHead>
             <TableHead>Total Price</TableHead>
             <TableHead>Total Payment</TableHead>
+            <TableHead>Remaining Time</TableHead>
             <TableHead>Start At</TableHead>
             <TableHead>End Time</TableHead>
             <TableHead>Action</TableHead>
@@ -65,6 +67,10 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
                   {item.total_payment != null ? item.total_payment : '-'}
 
                 </TableCell>
+                 <TableCell>
+                    <TimerCountDown startTime={item.created_date} duration={item.play_pricing.duration} />
+                 </TableCell>
+
                 <TableCell>
                   {item.created_date
                     ? new Date(item.created_date).toLocaleDateString('en-US', {
@@ -114,4 +120,4 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
   )
 }
 
-export default PlayReservationTable;
+export default PlayReservationTimeReportTable;

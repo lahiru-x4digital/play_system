@@ -4,6 +4,7 @@ import QRCode from 'react-qr-code'
 import { Button } from '../ui/button'
 import { Printer } from 'lucide-react'
 import { useReactToPrint } from "react-to-print";
+import { getEndTime } from '@/lib/getEndTime';
 
 export default function BandItem({ barcode, reservation }) {
     const printRef = useRef(null);
@@ -16,7 +17,7 @@ export default function BandItem({ barcode, reservation }) {
         }, 100); // Wait for DOM update
     };
     if (!barcode || !reservation) return null;
-  
+  console.log(barcode)
     return (
         <div className='flex flex-col items-center justify-center' key={barcode.id}>
             <Button
@@ -67,7 +68,7 @@ export default function BandItem({ barcode, reservation }) {
                 </div>
                 {/* <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>To</div> */}
                 <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>
-                    {new Date(new Date(barcode?.created_date).getTime() + barcode?.time_duration * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {getEndTime(barcode?.created_date, barcode?.time_duration)}
                 </div>
                 <QRCode value={barcode.barcode_number} size={60} style={{ marginBottom: '2mm' }} />
                 <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>{barcode.barcode_number}</div>

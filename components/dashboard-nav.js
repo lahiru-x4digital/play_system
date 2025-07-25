@@ -45,7 +45,8 @@ import {
   DollarSign,
   CheckCheck,
   ShoppingCart,
-  NotebookPen
+  NotebookPen,
+  Timer
 } from "lucide-react";
 
 import {
@@ -71,54 +72,6 @@ import {
 } from "@/components/ui/collapsible";
 import Image from "next/image";
 
-
-
-
-const orgUserNavItems = [
-  {
-    title: "All Reservations",
-    href: "/dashboard/reservations",
-    icon: Calendar,
-  },
-  {
-    title: "All Waiting List",
-    href: "/dashboard/reservations/waiting-list",
-    icon: TimerOff,
-  },
-  {
-    title: "Report",
-    icon: File,
-    submenu: [
-      {
-        title: "Reservation Report",
-        href: "/dashboard/report/reservation-report",
-        icon: Calendar,
-      },
-      {
-        title: "Reservation Time",
-        href: "/dashboard/report/reservation-time-report",
-        icon: Calendar,
-      },
-      {
-        title: "Waiting List Report",
-        href: "/dashboard/report/waiting-report",
-        icon: List,
-      },
-      {
-        title: "Cancelled Reservation Report",
-        href: "/dashboard/report/cancelled-reservation-report",
-        icon: XCircle,
-      },
-      {
-        title: "Detailed Report",
-        href: "/dashboard/report/detailed-report",
-        icon: FileSpreadsheet,
-      },
-
-    ],
-  },
-];
-
 const adminNavItems = [
  
 
@@ -143,6 +96,12 @@ const adminNavItems = [
     href: "/dashboard/booking",
     icon: CalendarCheck ,
   },
+  {
+    title: "Tracking Report",
+    href: "/dashboard/tracking-report",
+    icon: Timer ,
+  },
+
   {
     title: "Pricing",
     href: "/dashboard/pricing",
@@ -174,6 +133,11 @@ const adminNavItems = [
         href: "/dashboard/settings/users",
         icon: Users,
       },
+      {
+        title: "Customer Types",
+        href: "/dashboard/settings/customer-types",
+        icon: Users ,
+      },
      
     ],
   },
@@ -181,15 +145,71 @@ const adminNavItems = [
 
 const userNavItems = [
   {
-    title: "All Reservations",
-    href: "/dashboard/reservations",
-    icon: Calendar,
+    title: "Customers",
+    href: "/dashboard/customers",
+    icon: Users,
+  },
+  // {
+  //   title: "Bar Code Generator",
+  //   href: "/dashboard/bar-code-generator",
+  //   icon: TicketPercent,
+  // },
+ 
+  // {
+  //   title: "Reservations",
+  //   href: "/dashboard/reservations",
+  //   icon: NotebookPen ,
+  // },
+  {
+    title: "Booking",
+    href: "/dashboard/booking",
+    icon: CalendarCheck ,
   },
   {
-    title: "All Waiting List",
-    href: "/dashboard/reservations/waiting-list",
-    icon: TimerOff,
+    title: "Tracking Report",
+    href: "/dashboard/tracking-report",
+    icon: Timer ,
   },
+
+  {
+    title: "Pricing",
+    href: "/dashboard/pricing",
+    icon: DollarSign,
+  },
+ 
+  // {
+  //   title: "Settings",
+  //   icon: Settings,
+  //   submenu: [
+  //     // {
+  //     //   title: "Brands",
+  //     //   href: "/dashboard/settings/brands",
+  //     //   icon: Tags,
+  //     // },
+  //     // {
+  //     //   title: "Branches",
+  //     //   href: "/dashboard/settings/branches",
+  //     //   icon: Building,
+  //     // },
+  //     // {
+  //     //   title: "Countries",
+  //     //   href: "/dashboard/settings/countries",
+  //     //   icon: Globe,
+  //     // },
+    
+  //     {
+  //       title: "Users",
+  //       href: "/dashboard/settings/users",
+  //       icon: Users,
+  //     },
+  //     {
+  //       title: "Customer Types",
+  //       href: "/dashboard/settings/customer-types",
+  //       icon: Users ,
+  //     },
+     
+  //   ],
+  // },
 ];
 
 function NestedSubmenu({ item, pathname, level = 0 }) {

@@ -145,6 +145,7 @@ export default function Page({ params }) {
                     <Badge variant="outline">{b.barcode_number}</Badge>
                   </div>
                   <LabelValue label="Duration" value={`${b.time_duration} min`} />
+                  <LabelValue label="Customer Type" value={b.play_customer_type.name} />
                 </li>
               ))}
             </ul>

@@ -24,96 +24,9 @@ import { ReservationDialog } from "@/components/reservation/ReservationDialog";
 import { AutoBookingDialog } from "@/components/booking/AutoBookingDialog";
 
 export default function Booking() {
-  const { timeDurationPricing = [], timeDurationPricingLoading , timeDurationPricingRefres} = useGetTimeDurationPricing();
-  const {playReservations,playReservationsLoading,playReservationsRefres,playReservationsLimit,playReservationsError,playReservationsTotalCount,playReservationsTotalPages,playReservationsPageNavigation,playReservationsChangePageSize,currentPage}=useGetPlayReservations()
-  const {postHandler,postHandlerloading}=useAxiosPost()
-  const isAdmin = useIsAdmin();
-  const user =useSessionUser()
-  const [open, setOpen] = useState(false);
-  const methods = useForm({
-    defaultValues: {
-      mobile_number: "",
-      adults: 1,
-      kids: 0,
-      adults_time_pricing_id: "",
-      kids_time_pricing_id: "",
-      first_name: "",
-      last_name: "",
-      branch_id: user?.branchId,
-    },
-  });
-
-  useEffect(() => {
-    if(open){
-      if(!isAdmin){
-        timeDurationPricingRefres({
-          branch_id:user?.branchId,
-        });
-       
-      }
-    }
-  }, [open]);
-useEffect(() => {
-  if(isAdmin && methods.watch("branch_id")){
-    timeDurationPricingRefres({
-      branch_id:methods.watch("branch_id"),
-    });
-    
-  }
-}, [methods.watch("branch_id")]);
-
-  // Simple price calculation: $10/adult, $5/kid, $20/hour
-  const watch = methods.watch;
-  const adults = watch("adults") || 0;
-  const kids = watch("kids") || 0;
-  const adults_time_pricing_id = watch("adults_time_pricing_id");
-  const kids_time_pricing_id = watch("kids_time_pricing_id");
-
-  // Find selected pricing objects
-  const adultsPricing = timeDurationPricing.find(
-    (p) => p.id === Number(adults_time_pricing_id)
-  );
-  const kidsPricing = timeDurationPricing.find(
-    (p) => p.id === Number(kids_time_pricing_id)
-  );
-
-  // Calculate price
-  const price =
-    (adults * (adultsPricing?.price || 0)) +
-    (kids * (kidsPricing?.price || 0));
-
-  const onSubmit = async (data) => {
-    const payload={
-      first_name:data.first_name,
-      last_name:data.last_name,
-      mobile_number:data.mobile_number,
-      branch_id: isAdmin ? data.branch_id : user?.branchId,
-      total_price: price,
-      customer_types: [
-        {
-          playCustomerTypeId: ADULTS_ID,
-          count: data.adults,
-          playPricingId: adults_time_pricing_id,
-        },
-        {
-          playCustomerTypeId: KIDS_ID,
-          count: data.kids,
-          playPricingId: kids_time_pricing_id,
-        },
-      ],
-    }
-
- try {
-  const res= await postHandler(`auto-booking`,payload)
  
- } catch (error) {
+  const {playReservations,playReservationsLoading,playReservationsRefres,playReservationsLimit,playReservationsError,playReservationsTotalCount,playReservationsTotalPages,playReservationsPageNavigation,playReservationsChangePageSize,currentPage}=useGetPlayReservations()
   
- }
-    // handle create order logic here
-    setOpen(false);
-    methods.reset();
-  };
-
   return (
     <div>
       <AutoBookingDialog />
