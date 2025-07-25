@@ -26,6 +26,7 @@ const useGetPlayReservations = () => {
     start_date: null,
     end_date: null,
     mobile_number: null,
+    ress_status: null,
   });
   const abortControllerRef = useRef(null);
   console.log("PARAMS", params);

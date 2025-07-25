@@ -13,6 +13,7 @@ export default function ReservationFilter({ onSubmit }) {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeDurationId, setSelectedTimeDurationId] = useState("");
   const [selectedMobileNumber, setSelectedMobileNumber] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("all"); // <-- Add this line
   const { data: session } = useSession();
   const user = session?.user;
   const isAdmin = useIsAdmin();
@@ -42,6 +43,7 @@ export default function ReservationFilter({ onSubmit }) {
       date: selectedDate || null,
       timeDurationId: selectedTimeDurationId || null,
       mobileNumber: selectedMobileNumber || null,
+      ressStatus: selectedStatus !== "all" ? selectedStatus : null, // <-- Add this line
     });
   };
 
@@ -50,11 +52,13 @@ export default function ReservationFilter({ onSubmit }) {
     setSelectedDate("");
     setSelectedTimeDurationId("");
     setSelectedMobileNumber(null);
+    setSelectedStatus("all"); // <-- Add this line
     onSubmit?.({
       branch: null,
       date: null,
       timeDurationId: null,
       mobileNumber: null,
+      ressStatus: null, // <-- Add this line
     });
   };
 
@@ -115,6 +119,21 @@ export default function ReservationFilter({ onSubmit }) {
               value={selectedMobileNumber}
               onChange={(e) => handleMobileNumberChange(e.target.value)}
             />
+          </div>
+          {/* Reservation Status */}
+          <div className="flex-1 min-w-[200px]">
+            <label className="block mb-2 font-semibold text-gray-700">
+              Reservation Status
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="not_expired">Not Expired</option>
+              <option value="expired">Expired</option>
+            </select>
           </div>
         </div>
         <div className="flex gap-2 mt-2">

@@ -23,8 +23,9 @@ export default function page() {
     <div>
       <ReservationFilter
         onSubmit={(data) => {
-          const { branch, date, timeDurationId, mobileNumber } = data;
-          console.log(data);
+          const { branch, date, timeDurationId, mobileNumber, ressStatus } =
+            data;
+
           playReservationsSearch({
             search: null,
             branch_id: branch,
@@ -33,6 +34,7 @@ export default function page() {
             start_date: date,
             end_date: null,
             mobile_number: mobileNumber,
+            ress_status: ressStatus,
           });
         }}
       />

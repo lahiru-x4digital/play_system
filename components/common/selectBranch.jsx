@@ -107,11 +107,9 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
       <div style={{ width: "100%", minWidth: "300px" }}>
         <Label>{label}</Label>
         <Select
-          value={
-            value !== undefined && value !== null ? String(value) : undefined
-          }
+          value={value !== undefined && value !== null ? String(value) : ""}
           onValueChange={(val) => onChange(Number(val))}
-          // disabled={branchListLoading}
+          disabled={branchListLoading}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select branch" />
