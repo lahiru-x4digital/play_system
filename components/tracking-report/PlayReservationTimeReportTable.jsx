@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,12 +8,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScanReservationDialog } from "../reservation/ScanReservationDialog"; // Import the dialog
-import { Button } from '../ui/button';
-import { Eye, Printer } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { PrintDialog } from '../booking/PrintDialog';
-import { getEndTime } from '@/lib/getEndTime';
-import TimerCountDown from '../common/TimerCountDown';
+import { Button } from "../ui/button";
+import { Eye, Printer } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { PrintDialog } from "../booking/PrintDialog";
+import { getEndTime } from "@/lib/getEndTime";
+import TimerCountDown from "../common/TimerCountDown";
 
 const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
   const router = useRouter();
@@ -45,7 +45,10 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center text-muted-foreground">
+              <TableCell
+                colSpan={7}
+                className="text-center text-muted-foreground"
+              >
                 No reservations found
               </TableCell>
             </TableRow>
@@ -54,33 +57,41 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
               <TableRow key={item.id || index}>
                 <TableCell className="font-medium">{item.id}</TableCell>
                 <TableCell>
-                  {item.customer ? `${item.customer.first_name || ''} ${item.customer.last_name || ''}` : '-'}
+                  {item.customer
+                    ? `${item.customer.first_name || ""} ${
+                        item.customer.last_name || ""
+                      }`
+                    : "-"}
                 </TableCell>
                 <TableCell>
-                  {item.customer ? item.customer.mobile_number : '-'}
+                  {item.customer ? item.customer.mobile_number : "-"}
                 </TableCell>
                 <TableCell>
-                  {item.branch ? `${item.branch.branch_name}` : '-'}
+                  {item.branch ? `${item.branch.branch_name}` : "-"}
                 </TableCell>
-                <TableCell>{item.total_price != null ? item.total_price : '-'}</TableCell>
                 <TableCell>
-                  {item.total_payment != null ? item.total_payment : '-'}
-
+                  {item.total_price != null ? item.total_price : "-"}
                 </TableCell>
-                 <TableCell>
-                    <TimerCountDown startTime={item.created_date} duration={item.play_pricing.duration} />
-                 </TableCell>
+                <TableCell>
+                  {item.total_payment != null ? item.total_payment : "-"}
+                </TableCell>
+                <TableCell>
+                  <TimerCountDown
+                    startTime={item.created_date}
+                    duration={item.play_pricing.duration}
+                  />
+                </TableCell>
 
                 <TableCell>
                   {item.created_date
-                    ? new Date(item.created_date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                    ? new Date(item.created_date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })
-                    : '-'}
+                    : "-"}
                 </TableCell>
                 <TableCell>
                   {getEndTime(item.created_date, item.play_pricing.duration)}
@@ -88,21 +99,22 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
                 <TableCell>
                   <Button
                     variant="ghost"
-                    className="px-2 py-1 border rounded text-sm hover:bg-gray-100"
+                    size="sm"
+                    className="text-primary hover:text-primary"
                     onClick={() => handleScanClick(item.id)}
                   >
-                    <Printer/>
+                    <Printer className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
-                    className="px-2 py-1 border rounded text-sm hover:bg-gray-100 mx-2"
+                    size="sm"
+                    className="text-primary hover:text-primary"
                     onClick={() => {
                       //navigate to the reservation id page
-                      router.push(`/dashboard/booking/${item.id}`)
-                      
+                      router.push(`/dashboard/booking/${item.id}`);
                     }}
                   >
-                    <Eye/>
+                    <Eye className="h-4 w-4" />
                   </Button>
                 </TableCell>
               </TableRow>
@@ -117,7 +129,7 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
         onOpenChange={setScanDialogOpen}
       />
     </div>
-  )
-}
+  );
+};
 
 export default PlayReservationTimeReportTable;

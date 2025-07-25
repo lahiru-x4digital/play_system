@@ -54,8 +54,8 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
   }
 
   return (
-    <div>
-      <div style={{ width: "100%", minWidth: "300px" }}>
+    <>
+      <div>
         <Label>Country </Label>
         <Select
           value={
@@ -125,7 +125,7 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
         </Select>
         {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
       </div>
-    </div>
+    </>
   );
 };
 
