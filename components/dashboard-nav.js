@@ -46,7 +46,8 @@ import {
   CheckCheck,
   ShoppingCart,
   NotebookPen,
-  Timer
+  Timer,
+  Play,
 } from "lucide-react";
 
 import {
@@ -73,8 +74,6 @@ import {
 import Image from "next/image";
 
 const adminNavItems = [
- 
-
   {
     title: "Customers",
     href: "/dashboard/customers",
@@ -85,7 +84,7 @@ const adminNavItems = [
   //   href: "/dashboard/bar-code-generator",
   //   icon: TicketPercent,
   // },
- 
+
   // {
   //   title: "Reservations",
   //   href: "/dashboard/reservations",
@@ -94,12 +93,12 @@ const adminNavItems = [
   {
     title: "Booking",
     href: "/dashboard/booking",
-    icon: CalendarCheck ,
+    icon: CalendarCheck,
   },
   {
     title: "Tracking Report",
     href: "/dashboard/tracking-report",
-    icon: Timer ,
+    icon: Timer,
   },
 
   {
@@ -107,7 +106,7 @@ const adminNavItems = [
     href: "/dashboard/pricing",
     icon: DollarSign,
   },
- 
+
   {
     title: "Settings",
     icon: Settings,
@@ -127,7 +126,7 @@ const adminNavItems = [
       //   href: "/dashboard/settings/countries",
       //   icon: Globe,
       // },
-    
+
       {
         title: "Users",
         href: "/dashboard/settings/users",
@@ -136,9 +135,8 @@ const adminNavItems = [
       {
         title: "Customer Types",
         href: "/dashboard/settings/customer-types",
-        icon: Users ,
+        icon: Users,
       },
-     
     ],
   },
 ];
@@ -154,7 +152,7 @@ const userNavItems = [
   //   href: "/dashboard/bar-code-generator",
   //   icon: TicketPercent,
   // },
- 
+
   // {
   //   title: "Reservations",
   //   href: "/dashboard/reservations",
@@ -163,12 +161,12 @@ const userNavItems = [
   {
     title: "Booking",
     href: "/dashboard/booking",
-    icon: CalendarCheck ,
+    icon: CalendarCheck,
   },
   {
     title: "Tracking Report",
     href: "/dashboard/tracking-report",
-    icon: Timer ,
+    icon: Timer,
   },
 
   {
@@ -176,7 +174,7 @@ const userNavItems = [
     href: "/dashboard/pricing",
     icon: DollarSign,
   },
- 
+
   // {
   //   title: "Settings",
   //   icon: Settings,
@@ -196,7 +194,7 @@ const userNavItems = [
   //     //   href: "/dashboard/settings/countries",
   //     //   icon: Globe,
   //     // },
-    
+
   //     {
   //       title: "Users",
   //       href: "/dashboard/settings/users",
@@ -207,7 +205,7 @@ const userNavItems = [
   //       href: "/dashboard/settings/customer-types",
   //       icon: Users ,
   //     },
-     
+
   //   ],
   // },
 ];
@@ -216,7 +214,12 @@ function NestedSubmenu({ item, pathname, level = 0 }) {
   const [isOpen, setIsOpen] = useState(false);
   const hasNestedSubmenu = item.submenu && item.submenu.length > 0;
   const isActive = item.submenu
-    ? item.submenu.some(sub => sub.href === pathname || (sub.submenu && sub.submenu.some(nested => nested.href === pathname)))
+    ? item.submenu.some(
+        (sub) =>
+          sub.href === pathname ||
+          (sub.submenu &&
+            sub.submenu.some((nested) => nested.href === pathname))
+      )
     : pathname === item.href;
 
   const toggleOpen = (e) => {
@@ -227,17 +230,17 @@ function NestedSubmenu({ item, pathname, level = 0 }) {
 
   // Define text sizes based on level
   const textSizes = [
-    'text-sm',    // Level 0 (first level)
-    'text-sm',    // Level 1 (second level)
-    'text-xs',    // Level 2 (third level)
-    'text-xs',    // Level 3 (fourth level)
+    "text-sm", // Level 0 (first level)
+    "text-sm", // Level 1 (second level)
+    "text-xs", // Level 2 (third level)
+    "text-xs", // Level 3 (fourth level)
   ];
   const textSize = textSizes[Math.min(level, textSizes.length - 1)];
   const iconSizes = [
-    'h-4 w-4',    // Level 0 (first level)
-    'h-3.5 w-3.5', // Level 1 (second level)
-    'h-3 w-3',    // Level 2 (third level)
-    'h-3 w-3',    // Level 3 (fourth level)
+    "h-4 w-4", // Level 0 (first level)
+    "h-3.5 w-3.5", // Level 1 (second level)
+    "h-3 w-3", // Level 2 (third level)
+    "h-3 w-3", // Level 3 (fourth level)
   ];
   const iconSize = iconSizes[Math.min(level, iconSizes.length - 1)];
 
@@ -245,8 +248,10 @@ function NestedSubmenu({ item, pathname, level = 0 }) {
     <div className="w-full">
       <div className="flex items-center justify-between w-full">
         <Link
-          href={item.href || '#'}
-          className={`flex-1 flex items-center gap-2 py-2 px-3 rounded-md hover:bg-accent ${isActive ? 'bg-accent' : ''}`}
+          href={item.href || "#"}
+          className={`flex-1 flex items-center gap-2 py-2 px-3 rounded-md hover:bg-accent ${
+            isActive ? "bg-accent" : ""
+          }`}
         >
           {item.icon && <item.icon className={`${iconSize} shrink-0`} />}
           <span className={`truncate ${textSize}`}>{item.title}</span>
@@ -257,7 +262,9 @@ function NestedSubmenu({ item, pathname, level = 0 }) {
             className="p-1 rounded-md hover:bg-accent"
           >
             <ChevronDown
-              className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              className={`h-4 w-4 transition-transform ${
+                isOpen ? "rotate-180" : ""
+              }`}
             />
           </button>
         )}
@@ -283,7 +290,12 @@ function NavItem(props) {
   const pathname = usePathname();
   const hasSubmenu = item.submenu && item.submenu.length > 0;
   const isActive = hasSubmenu
-    ? item.submenu.some(sub => sub.href === pathname || (sub.submenu && sub.submenu.some(nested => nested.href === pathname)))
+    ? item.submenu.some(
+        (sub) =>
+          sub.href === pathname ||
+          (sub.submenu &&
+            sub.submenu.some((nested) => nested.href === pathname))
+      )
     : pathname === item.href;
 
   if (hasSubmenu) {
@@ -291,11 +303,7 @@ function NavItem(props) {
       <SidebarMenuItem key={item.title}>
         <Collapsible>
           <CollapsibleTrigger asChild>
-            <SidebarMenuButton
-              className="w-full"
-              isActive={isActive}
-              asChild
-            >
+            <SidebarMenuButton className="w-full" isActive={isActive} asChild>
               <div>
                 <item.icon className="h-4 w-4 shrink-0" />
                 <span className="truncate">{item.title}</span>
@@ -307,10 +315,7 @@ function NavItem(props) {
             <SidebarMenuSub>
               {item.submenu.map((subItem) => (
                 <SidebarMenuSubItem key={subItem.title}>
-                  <NestedSubmenu
-                    item={subItem}
-                    pathname={pathname}
-                  />
+                  <NestedSubmenu item={subItem} pathname={pathname} />
                 </SidebarMenuSubItem>
               ))}
             </SidebarMenuSub>
@@ -352,10 +357,10 @@ export function AppSidebar(props) {
   //               : [];
   const displayNavItems =
     user?.user_type === "ADMIN"
-          ? adminNavItems
-          : user?.user_type === "USER"
-            ? userNavItems
-           : [];
+      ? adminNavItems
+      : user?.user_type === "USER"
+      ? userNavItems
+      : [];
 
   return (
     <Sidebar className="border-r z-3" collapsible="icon" data-state={state}>
@@ -368,7 +373,15 @@ export function AppSidebar(props) {
         )}
       >
         <div className="w-full flex items-center justify-center">
-          <img src="/re_logo.png" alt="Logo" style={{ height: "50px" }} />
+          {/* <img src="/re_logo.png" alt="Logo" style={{ height: "50px" }} /> */}
+          <div className="flex items-center gap-2 py-2">
+            <div className="bg-blue-100 rounded-full p-2 flex items-center justify-center shadow-md">
+              <Play className="h-8 w-8 text-blue-500" />
+            </div>
+            <span className="text-2xl font-extrabold tracking-tight text-gray-800 select-none">
+              Play
+            </span>
+          </div>
         </div>
       </SidebarHeader>
 

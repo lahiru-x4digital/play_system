@@ -41,6 +41,8 @@ const useGetPlayReservations = () => {
       const response = await api.get(`play/play-reservation`, {
         params: {
           ...paramsNullCleaner(params),
+          skip: (params.page - 1) * params.pageSize,
+          limit: params.pageSize,
         },
         signal: controller.signal,
       });
