@@ -5,8 +5,7 @@ import { branchService } from "@/services/branch.service";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import { useIsAdmin } from "@/lib/getuserData";
 
-const useGetBranches = (brandId,open) => {
-
+const useGetBranches = (brandId, open) => {
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -31,7 +30,9 @@ const useGetBranches = (brandId,open) => {
       const filterParams = {
         ...paramsNullCleaner(params),
       };
-      const response = await branchService.getAllBranchesWithoutFiles(filterParams)
+      const response = await branchService.getAllBranchesWithoutFiles(
+        filterParams
+      );
       if (!controller.signal.aborted) {
         setDataList(response.data || []);
       }
@@ -40,6 +41,7 @@ const useGetBranches = (brandId,open) => {
         setDataList([]);
         extractErrorMessage(err);
         setError(true);
+        setLoading(false);
       }
     } finally {
       setLoading(false);
@@ -54,7 +56,7 @@ const useGetBranches = (brandId,open) => {
   };
 
   useEffect(() => {
-    if(open){
+    if (open) {
       loadData();
     }
     return () => {
@@ -64,10 +66,7 @@ const useGetBranches = (brandId,open) => {
     };
   }, [loadData]);
 
-
-
   return {
-
     branchList: dataList,
     branchListLoading: loading,
     branchListError: error,
@@ -76,4 +75,4 @@ const useGetBranches = (brandId,open) => {
   };
 };
 
-export default useGetBranches; 
+export default useGetBranches;

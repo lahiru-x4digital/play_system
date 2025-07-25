@@ -14,6 +14,7 @@ import { useIsAdmin } from "@/lib/getuserData";
 import useGetCountryList from "@/hooks/useGetCountryList";
 import useGetBrandList from "@/hooks/useGetBrandList";
 import useGetBranches from "@/hooks/useGetBranches";
+import { PLAY_BRAND_ID } from "@/utils/static-variables";
 
 const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
   const { data: session } = useSession();
@@ -24,10 +25,10 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
   const branchId = user?.branchId;
 
   const { branchList, branchListLoading, branchListError, branchFilter } =
-    useGetBranches(brandId, isAdmin);
+    useGetBranches(PLAY_BRAND_ID, isAdmin);
 
-  const { countryList, countryListLoading } = useGetCountryList();
-  const { brandList, brandListLoading, brandListRefresh } = useGetBrandList();
+  // const { countryList, countryListLoading } = useGetCountryList();
+  // const { brandList, brandListLoading, brandListRefresh } = useGetBrandList();
   // If not admin, auto-select user's branchId on mount
   useEffect(() => {
     if (!isAdmin && branchId && onChange) {
@@ -55,7 +56,7 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
 
   return (
     <>
-      <div>
+      {/* <div>
         <Label>Country </Label>
         <Select
           value={
@@ -102,7 +103,7 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
           </SelectContent>
         </Select>
         {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-      </div>
+      </div> */}
       <div style={{ width: "100%", minWidth: "300px" }}>
         <Label>{label}</Label>
         <Select
@@ -110,7 +111,7 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
             value !== undefined && value !== null ? String(value) : undefined
           }
           onValueChange={(val) => onChange(Number(val))}
-          disabled={branchListLoading}
+          // disabled={branchListLoading}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select branch" />

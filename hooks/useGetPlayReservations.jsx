@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { extractErrorMessage } from "../utils/extractErrorMessage";
 import axios from "axios";
@@ -7,14 +7,13 @@ import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import useSessionUser from "@/lib/getuserData";
 import useIsAdmin from "@/lib/getuserData";
 
-
 const useGetPlayReservations = () => {
   //use null or [] base on scenario
-  const user=useSessionUser()
-  const isAdmin=useIsAdmin()
+  const user = useSessionUser();
+  const isAdmin = useIsAdmin();
   const [dataList, SetDataList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [params, setParams] = useState({
@@ -23,9 +22,13 @@ const useGetPlayReservations = () => {
     search: null,
     branch_id: isAdmin ? null : user?.branchId,
     order_id: null,
+    time_duration_id: null,
+    start_date: null,
+    end_date: null,
+    mobile_number: null,
   });
   const abortControllerRef = useRef(null);
-
+  console.log("PARAMS", params);
   const loadData = useCallback(async () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -34,18 +37,16 @@ const useGetPlayReservations = () => {
     abortControllerRef.current = controller;
     setLoading(true);
     try {
-      const response =
-        await api.get(`play/play-reservation`, {
-          params: {
-            ...paramsNullCleaner(params),
-          },
-          signal: controller.signal,
-        });
+      const response = await api.get(`play/play-reservation`, {
+        params: {
+          ...paramsNullCleaner(params),
+        },
+        signal: controller.signal,
+      });
       // Only update state if this request wasn't aborted
       if (!controller.signal.aborted) {
         SetDataList(response.data?.data);
         setTotalCount(response.data?.total);
-       
       }
 
       // setTotalCount(response.data.count);

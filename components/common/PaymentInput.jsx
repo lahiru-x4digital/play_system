@@ -24,7 +24,7 @@ export default function PaymentInput() {
   return (
     <div className="flex gap-4 items-end">
       <FormItem className="flex-1">
-        <FormLabel> Method</FormLabel>
+        <FormLabel> Payment</FormLabel>
         <FormControl>
           <Controller
             name={"payment_method"}
@@ -42,7 +42,7 @@ export default function PaymentInput() {
           />
         </FormControl>
       </FormItem>
-      <FormItem className="flex-1">
+      {/* <FormItem className="flex-1">
         <FormLabel>Amount</FormLabel>
         <FormControl>
           <Controller
@@ -77,7 +77,7 @@ export default function PaymentInput() {
             )}
           />
         </FormControl>
-      </FormItem>
+      </FormItem> */}
     </div>
   );
 }

@@ -30,7 +30,7 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Order ID</TableHead>
+            <TableHead>Reservation ID</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Mobile Number</TableHead>
             <TableHead>Branch</TableHead>

@@ -30,7 +30,7 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Order ID</TableHead>
+            <TableHead>Reservation ID</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Mobile Number</TableHead>
             <TableHead>Branch</TableHead>
@@ -95,7 +95,7 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
                     className="text-primary hover:text-primary"
                     onClick={() => handleScanClick(item.id)}
                   >
-                    <Printer className="h-4 w-4"/>
+                    <Printer className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"

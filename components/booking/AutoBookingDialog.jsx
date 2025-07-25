@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -10,11 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { CirclePlus, ScanBarcode } from "lucide-react"
+import { CirclePlus, ScanBarcode } from "lucide-react";
 import AutoGenarateReservationForm from "./AutoGenarateReservationForm";
 import BarcodePrintView from "./BarcodePrintView";
 
@@ -39,8 +39,8 @@ export function AutoBookingDialog() {
           <Button variant="outline">Create Booking</Button>
         </DialogTrigger>
         <DialogContent
-          onInteractOutside={e => e.preventDefault()}
-          className="sm:max-w-[425px]"
+          onInteractOutside={(e) => e.preventDefault()}
+          className="sm:min-w-[425px]"
         >
           <DialogHeader>
             <DialogTitle>Create Reservation</DialogTitle>
@@ -48,14 +48,16 @@ export function AutoBookingDialog() {
               Create a new reservation for a customer.
             </DialogDescription>
           </DialogHeader>
-          <div className="max-h-[70vh] overflow-y-auto">
+          <div className="max-h-[75vh] overflow-y-auto">
             {printBarcodes ? (
-              <BarcodePrintView reservation={reservation}/>
+              <BarcodePrintView reservation={reservation} />
             ) : (
-              <AutoGenarateReservationForm onSuccess={(res)=>{
-                setPrintBarcodes(true);
-                setReservation(res);
-              }}/>
+              <AutoGenarateReservationForm
+                onSuccess={(res) => {
+                  setPrintBarcodes(true);
+                  setReservation(res);
+                }}
+              />
             )}
           </div>
           <DialogFooter>

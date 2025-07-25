@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import SelectBranch from "./selectBranch";
 import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
@@ -7,10 +8,11 @@ import { KIDS_ID } from "@/utils/static-variables";
 import { Button } from "../ui/button";
 import { FilterIcon } from "lucide-react";
 
-export default function ReservationFilter({ value, onChange }) {
-  const [selectedBranchId, setSelectedBranchId] = useState(
-    value?.branch ?? null
-  );
+export default function ReservationFilter({ onSubmit }) {
+  const [selectedBranchId, setSelectedBranchId] = useState(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTimeDurationId, setSelectedTimeDurationId] = useState("");
+  const [selectedMobileNumber, setSelectedMobileNumber] = useState(null);
   const { data: session } = useSession();
   const user = session?.user;
   const isAdmin = useIsAdmin();
@@ -20,13 +22,12 @@ export default function ReservationFilter({ value, onChange }) {
 
   const handleBranchChange = (branchId) => {
     setSelectedBranchId(branchId);
-    onChange?.({ ...value, branch: branchId });
   };
   const handleDateChange = (date) => {
-    onChange?.({ ...value, date });
+    setSelectedDate(date);
   };
   const handleTimeDurationChange = (timeDurationId) => {
-    onChange?.({ ...value, timeDurationId });
+    setSelectedTimeDurationId(timeDurationId);
   };
 
   useEffect(() => {
@@ -35,13 +36,35 @@ export default function ReservationFilter({ value, onChange }) {
     }
   }, [selectedBranchId]);
 
+  const handleFilter = () => {
+    onSubmit?.({
+      branch: selectedBranchId || null,
+      date: selectedDate || null,
+      timeDurationId: selectedTimeDurationId || null,
+      mobileNumber: selectedMobileNumber || null,
+    });
+  };
+
+  const handleReset = () => {
+    setSelectedBranchId(null);
+    setSelectedDate("");
+    setSelectedTimeDurationId("");
+    setSelectedMobileNumber(null);
+    onSubmit?.({
+      branch: null,
+      date: null,
+      timeDurationId: null,
+      mobileNumber: null,
+    });
+  };
+
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6">
       <div className="">
         {/* Branch */}
         <div className="flex-1 min-w-[200px] flex gap-2">
           <SelectBranch
-            value={value?.branch ?? null}
+            value={selectedBranchId}
             onChange={handleBranchChange}
             label="Branch"
           />
@@ -56,10 +79,8 @@ export default function ReservationFilter({ value, onChange }) {
               type="date"
               id="end-date"
               className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              value={value?.date?.toLocaleDateString?.() || ""}
-              onChange={(e) =>
-                handleDateChange(new Date(e.target.value).toLocaleDateString())
-              }
+              value={selectedDate}
+              onChange={(e) => handleDateChange(e.target.value)}
             />
           </div>
           {/* Duration */}
@@ -69,7 +90,7 @@ export default function ReservationFilter({ value, onChange }) {
             </label>
             <select
               className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              value={value?.timeDurationId || ""}
+              value={selectedTimeDurationId}
               onChange={(e) => handleTimeDurationChange(Number(e.target.value))}
             >
               <option value="" disabled>
@@ -84,17 +105,35 @@ export default function ReservationFilter({ value, onChange }) {
                 ))}
             </select>
           </div>
+          <div className="flex-1 min-w-[200px]">
+            <label className="block mb-2 font-semibold text-gray-700">
+              Mobile Number
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              value={selectedMobileNumber}
+              onChange={(e) => handleMobileNumberChange(e.target.value)}
+            />
+          </div>
         </div>
-        <Button
-          size="sm"
-          className=" text-white px-4 rounded-md mt-2"
-          onClick={() => {
-            onChange?.({ ...value, branch: selectedBranchId });
-            setSelectedBranchId(null);
-          }}
-        >
-          <FilterIcon className="h-4 w-4" /> Filter
-        </Button>
+        <div className="flex gap-2 mt-2">
+          <Button
+            size="sm"
+            className=" text-white rounded-md"
+            onClick={handleFilter}
+          >
+            <FilterIcon className="h-4 w-4" /> Filter
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="rounded-md"
+            onClick={handleReset}
+          >
+            Reset
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -33,6 +33,7 @@ export default function Booking() {
     playReservationsError,
     playReservationsTotalCount,
     playReservationsTotalPages,
+    playReservationsSearch,
     playReservationsPageNavigation,
     playReservationsChangePageSize,
     currentPage,
@@ -41,6 +42,19 @@ export default function Booking() {
   return (
     <div>
       <AutoBookingDialog />
+      <ReservationFilter
+        onSubmit={(data) => {
+          const { branch, date, timeDurationId } = data;
+          playReservationsSearch({
+            search: null,
+            branch_id: branch,
+            order_id: null,
+            time_duration_id: timeDurationId,
+            start_date: date,
+            end_date: null,
+          });
+        }}
+      />
       <div className="mt-8">
         {playReservationsLoading ? (
           <div className="text-center py-8">Loading reservations...</div>
@@ -50,7 +64,6 @@ export default function Booking() {
           </div>
         ) : (
           <>
-            <ReservationFilter />
             <PlayReservationTable
               data={playReservations}
               onRefresh={playReservationsRefres}
