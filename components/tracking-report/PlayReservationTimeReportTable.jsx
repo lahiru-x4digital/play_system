@@ -78,7 +78,7 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
                 <TableCell>
                   <TimerCountDown
                     startTime={item.created_date}
-                    duration={item.play_pricing.duration}
+                    duration={item?.play_pricing?.duration || 0}
                   />
                 </TableCell>
 
@@ -94,7 +94,10 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  {getEndTime(item.created_date, item.play_pricing.duration)}
+                  {getEndTime(
+                    item.created_date,
+                    item?.play_pricing?.duration || 0
+                  )}
                 </TableCell>
                 <TableCell>
                   <Button

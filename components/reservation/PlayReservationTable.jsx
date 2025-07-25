@@ -86,7 +86,10 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  {getEndTime(item.created_date, item.play_pricing.duration)}
+                  {getEndTime(
+                    item.created_date,
+                    item?.play_pricing?.duration || 0
+                  )}
                 </TableCell>
                 <TableCell>
                   <Button

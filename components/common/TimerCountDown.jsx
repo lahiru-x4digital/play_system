@@ -1,5 +1,5 @@
 // play_system/components/common/Timer.jsx
-'use client'
+"use client";
 import React, { useEffect, useState } from "react";
 
 const pad = (num) => num.toString().padStart(2, "0");
@@ -20,14 +20,21 @@ const TimerCountDown = ({ startTime, duration }) => {
     // eslint-disable-next-line
   }, [startTime, duration]);
 
-  if (remaining <= 0) return <span>00:00:00</span>;
+  if (remaining <= 0)
+    return <span className="text-red-500 font-bold">EXPIRED</span>;
 
   const hours = Math.floor(remaining / (1000 * 60 * 60));
   const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
+  // If less than 15 minutes, show red, else green
+  const isRed = remaining < 15 * 60 * 1000;
+  const timerClass = isRed
+    ? "text-red-500 font-bold"
+    : "text-green-600 font-bold";
+
   return (
-    <span>
+    <span className={timerClass}>
       {pad(hours)}:{pad(minutes)}:{pad(seconds)}
     </span>
   );
