@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { PhoneNumberField } from "@/components/coustomer-mobile-input";
@@ -22,11 +22,22 @@ import PlayReservationTable from "@/components/reservation/PlayReservationTable"
 import { Pagination } from "@/components/ui/pagination";
 import { ReservationDialog } from "@/components/reservation/ReservationDialog";
 import { AutoBookingDialog } from "@/components/booking/AutoBookingDialog";
+import ReservationFilter from "@/components/common/ReservationFilter";
 
 export default function Booking() {
- 
-  const {playReservations,playReservationsLoading,playReservationsRefres,playReservationsLimit,playReservationsError,playReservationsTotalCount,playReservationsTotalPages,playReservationsPageNavigation,playReservationsChangePageSize,currentPage}=useGetPlayReservations()
-  
+  const {
+    playReservations,
+    playReservationsLoading,
+    playReservationsRefres,
+    playReservationsLimit,
+    playReservationsError,
+    playReservationsTotalCount,
+    playReservationsTotalPages,
+    playReservationsPageNavigation,
+    playReservationsChangePageSize,
+    currentPage,
+  } = useGetPlayReservations();
+
   return (
     <div>
       <AutoBookingDialog />
@@ -34,10 +45,16 @@ export default function Booking() {
         {playReservationsLoading ? (
           <div className="text-center py-8">Loading reservations...</div>
         ) : playReservationsError ? (
-          <div className="text-center py-8 text-red-500">Failed to load reservations.</div>
+          <div className="text-center py-8 text-red-500">
+            Failed to load reservations.
+          </div>
         ) : (
           <>
-            <PlayReservationTable data={playReservations} onRefresh={playReservationsRefres} />
+            <ReservationFilter />
+            <PlayReservationTable
+              data={playReservations}
+              onRefresh={playReservationsRefres}
+            />
             <Pagination
               currentPage={currentPage}
               totalPages={playReservationsTotalPages}

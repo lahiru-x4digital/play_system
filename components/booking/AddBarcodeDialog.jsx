@@ -114,8 +114,11 @@ export function AddBarcodeDialog() {
           <Button variant="outline">Add Barcod</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Add Barcode</DialogTitle>
+        <DialogHeader>
+            <DialogTitle>Create Reservation</DialogTitle>
+            <DialogDescription>
+              Create a new reservation for a customer.
+            </DialogDescription>
           </DialogHeader>
           <FormProvider {...methods}>
              <form

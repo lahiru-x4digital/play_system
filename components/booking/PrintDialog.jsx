@@ -1,5 +1,5 @@
-'use client'
-import { Button } from "@/components/ui/button"
+"use client";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -9,32 +9,38 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import BarcodePrintView from "./BarcodePrintView"
-import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation"
-import { useEffect } from "react"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import BarcodePrintView from "./BarcodePrintView";
+import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation";
+import { useEffect } from "react";
 
-export function PrintDialog({
-    reservation_id,open,onOpenChange
-}) {
-    const {playReservation,playReservationLoading,playReservationRefresh} = useGetSinglePlayReservation()
+export function PrintDialog({ reservation_id, open, onOpenChange }) {
+  const { playReservation, playReservationLoading, playReservationRefresh } =
+    useGetSinglePlayReservation();
 
- useEffect(()=>{
-     if(reservation_id){
-         playReservationRefresh(reservation_id)
-     }
- },[reservation_id])
+  useEffect(() => {
+    if (reservation_id) {
+      playReservationRefresh(reservation_id);
+    }
+  }, [reservation_id]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        {/* <DialogTrigger asChild>
+      {/* <DialogTrigger asChild>
           <Button variant="outline">Open Dialog</Button>
         </DialogTrigger> */}
-        <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto ">
-         <BarcodePrintView reservation={playReservation}/>
-        </DialogContent>
+
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto ">
+        <DialogHeader>
+          <DialogTitle>Print Barcodes</DialogTitle>
+          <DialogDescription>
+            Print barcodes for the reservation.
+          </DialogDescription>
+        </DialogHeader>
+        <BarcodePrintView reservation={playReservation} />
+      </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -1,6 +1,11 @@
 import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 const PAYMENT_METHODS = [
@@ -22,19 +27,20 @@ export default function PaymentInput() {
         <FormLabel> Method</FormLabel>
         <FormControl>
           <Controller
-            name={'payment_method'}
+            name={"payment_method"}
             control={control}
             defaultValue={PAYMENT_METHODS[0].value}
             render={({ field }) => (
               <select {...field} className="border rounded px-2 py-1 w-full">
                 {PAYMENT_METHODS.map((m) => (
-                  <option key={m.value} value={m.value}>{m.label}</option>
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
                 ))}
               </select>
             )}
           />
         </FormControl>
-
       </FormItem>
       <FormItem className="flex-1">
         <FormLabel>Amount</FormLabel>
@@ -51,13 +57,17 @@ export default function PaymentInput() {
                 step="any"
                 placeholder="Enter amount"
                 className="w-full"
-                onChange={e => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
-                onFocus={e => {
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value === "" ? "" : Number(e.target.value)
+                  )
+                }
+                onFocus={(e) => {
                   if (e.target.value === "0") {
                     field.onChange("");
                   }
                 }}
-                onBlur={e => {
+                onBlur={(e) => {
                   if (e.target.value === "") {
                     field.onChange(0);
                   }
@@ -66,11 +76,8 @@ export default function PaymentInput() {
               />
             )}
           />
-          
         </FormControl>
-    
       </FormItem>
-
     </div>
   );
 }
