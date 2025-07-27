@@ -257,7 +257,7 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
                     Select duration
                   </option>
                   {timeDurationPricing
-                    .filter((p) => p.play_customer_type_id === KIDS_ID)
+                    // .filter((p) => p.play_customer_type_id === KIDS_ID)
                     .map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.duration} min - {p.price}
