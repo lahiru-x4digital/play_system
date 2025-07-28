@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useForm, FormProvider, Controller, useFieldArray } from "react-hook-form";
 import { PhoneNumberField } from "@/components/coustomer-mobile-input";
 import {
@@ -19,6 +19,7 @@ import PaymentInput from "../common/PaymentInput";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useGetplayCustomerType from "@/hooks/useGetplayCustomerType";
+import { Plus } from "lucide-react";
 
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
@@ -42,7 +43,7 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
   } = useGetTimeDurationPricing();
   const { postHandler, postHandlerloading } = useAxiosPost();
 const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
-
+ const [selectedPricing,setSelectedPricing]=useState(null)
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
   const [open, setOpen] = useState(false);
@@ -65,6 +66,7 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
     control:methods.control,
     name: "customer_types",
   });
+  const selectRef = useRef(null);
   useEffect(() => {
     if (open) {
       if (!isAdmin) {
@@ -82,24 +84,10 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
     }
   }, [methods.watch("branch_id")]);
 
-  // Simple price calculation: $10/adult, $5/kid, $20/hour
-  const watch = methods.watch;
-  const adults = watch("adults") || 0;
-  const kids = watch("kids") || 0;
-  const adults_time_pricing_id = watch("adults_time_pricing_id");
-  const kids_time_pricing_id = watch("kids_time_pricing_id");
-
-  // Find selected pricing objects
-  const adultsPricing = timeDurationPricing.find(
-    (p) => p.id === Number(adults_time_pricing_id)
-  );
-  const kidsPricing = timeDurationPricing.find(
-    (p) => p.id === Number(kids_time_pricing_id)
-  );
-
-  // Calculate price
-  const price =
-    adults * (adultsPricing?.price || 0) + kids * (kidsPricing?.price || 0);
+  // Calculate total price from all customer types
+  const totalPrice = methods.watch("customer_types")?.reduce((sum, item) => {
+    return sum + (item.price * item.count);
+  }, 0) || 0;
 
   const onSubmit = async (data) => {
     const payload = {
@@ -107,23 +95,17 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
       last_name: data.last_name,
       mobile_number: data.mobile_number,
       branch_id: isAdmin ? data.branch_id : user?.branchId,
-      total_price: price,
-      play_pricing_id: kids_time_pricing_id,
-      customer_types: [
-        {
-          playCustomerTypeId: ADULTS_ID,
-          count: data.adults,
-        },
-        {
-          playCustomerTypeId: KIDS_ID,
-          count: data.kids,
-        },
-      ],
+      total_price: totalPrice,
+      play_pricing_id: data.kids_time_pricing_id,
+      customer_types: data.customer_types?.map(item => ({
+        playCustomerTypeId: item.play_customer_type_id,
+        count: item.count
+      })) || []
     };
     if (data.payment_method === "CASH") {
-      payload.cash = price;
+      payload.cash = totalPrice;
     } else if (data.payment_method === "CARD") {
-      payload.card = price;
+      payload.card = totalPrice;
     }
 
     try {
@@ -191,96 +173,112 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
             </FormItem>
           </div>
           {/* Adults: Count & Time Pricing */}
-          <div>
-            <div className="font-semibold mb-1">Count</div>
-            <div className="flex gap-4">
-              <FormItem className="flex-1">
-                <FormLabel>Adults</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={0}
-                    {...methods.register("adults", {
-                      valueAsNumber: true,
-                      min: 0,
-                    })}
-                    className="border rounded px-2 py-1 w-full"
-                    onFocus={(e) => {
-                      if (e.target.value === "0") {
-                        methods.setValue("adults", "");
-                      }
-                    }}
-                    onBlur={(e) => {
-                      if (e.target.value === "") {
-                        methods.setValue("adults", 0);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-              <FormItem className="flex-1">
-                <FormLabel>Kids</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={0}
-                    {...methods.register("kids", {
-                      valueAsNumber: true,
-                      min: 0,
-                    })}
-                    onFocus={(e) => {
-                      if (e.target.value === "0") {
-                        methods.setValue("kids", "");
-                      }
-                    }}
-                    onBlur={(e) => {
-                      if (e.target.value === "") {
-                        methods.setValue("kids", 0);
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            </div>
-          </div>
-          <div>
-       
-          </div>
+        
           {/* Kids: Count & Time Pricing */}
-          <div>
+          <div className="flex items-end gap-2">
             <FormItem className="flex-1">
               <FormLabel>Time & Price</FormLabel>
               <FormControl>
-                <select
-                  {...methods.register("kids_time_pricing_id", {
-                    required: true,
-                    valueAsNumber: true,
-                  })}
-                  className="border rounded px-2 py-1 w-full"
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select duration
+              <select
+                ref={selectRef}
+                onChange={(e) => {
+                  const selectedId = parseInt(e.target.value);
+                  const selectedItem = timeDurationPricing.find(item => item.id === selectedId);
+                  setSelectedPricing({
+                    play_customer_type_id: selectedItem.play_customer_type_id,
+                    play_customer_type_name: selectedItem.play_customer_type.name,
+                    duration: selectedItem.duration,
+                    price: selectedItem.price,
+                    count:0
+                  })
+                }}
+                className="border rounded px-2 py-1 w-full"
+                value={selectedPricing?.play_customer_type_id || ""}
+              >
+                <option value="" disabled className="text-gray-500">
+                  Select duration
+                </option>
+                {timeDurationPricing.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    <span className="font-semibold">{p.play_customer_type.name}</span> - {p.duration} min - {p.price}
                   </option>
-                  {timeDurationPricing
-                    // .filter((p) => p.play_customer_type_id === KIDS_ID)
-                    .map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.duration} min - {p.price}
-                      </option>
-                    ))}
-                </select>
+                ))}
+              </select>
+       
               </FormControl>
               <FormMessage />
             </FormItem>
+            <div className="">
+              <FormLabel className="mb-2">Count</FormLabel>
+            <Input
+                className="w-24"
+                type="number"
+                  value={selectedPricing?.count||""}
+                  onChange={(e) => {
+                    setSelectedPricing({
+                      ...selectedPricing,
+                      count: parseInt(e.target.value ||"0")
+                    })
+                  }}
+              />
+            </div>
+            <Button
+                onClick={() => {
+              if(selectedPricing?.play_customer_type_id){
+                append(selectedPricing)
+                setSelectedPricing(null)
+                if (selectRef.current) {
+                  selectRef.current.value = ""; // Reset select to default value
+                }
+              }
+                }}
+                className="ml-2"
+              >
+                <Plus/>
+              </Button>
           </div>
-          <div className="flex gap-4 items-end">
+          <div className="mt-4 space-y-3">
+            {methods.watch("customer_types")?.map((item, index) => (
+              <div 
+                key={index}
+                className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+              >
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900">{item.play_customer_type_name}</h4>
+                  <div className="flex items-center text-sm text-gray-500 mt-1">
+                    <span>Duration: {item.duration} min</span>
+                    <span className="mx-2">•</span>
+                    <span>Count: {item.count}</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-semibold text-indigo-600">
+                    {item.price * item.count}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {item.price} per person
+                  </div>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => remove(index)}
+                  className="ml-4 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  aria-label="Remove"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-4 items-end justify-between mt-6 p-4 bg-gray-50 rounded-lg">
             <PaymentInput />
-            <div>
-              <span className="font-semibold">Price: </span>
-              <span>{price} </span>
+            <div className="text-right">
+              <div className="text-sm font-medium text-gray-500 mb-1">Total Price</div>
+              <div className="text-2xl font-bold text-indigo-600">
+                {totalPrice}
+              </div>
             </div>
           </div>
           {/* Calculated Price */}
