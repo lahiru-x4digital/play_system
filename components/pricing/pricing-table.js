@@ -67,6 +67,12 @@ const PricingTable = ({ data = [], onRefresh }) => {
                   >
                     Edit
                   </button>
+                  {/* <button
+                    className="px-2 py-1 border rounded text-sm hover:bg-gray-100"
+                    onClick={() => deleteHandler(`pricing/?id=${item.id}`)}
+                  >
+                    Delete
+                  </button> */}
                 </TableCell>
               </TableRow>
             ))

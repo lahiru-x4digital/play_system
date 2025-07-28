@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 
 const useGetplayCustomerType = (open) => {
-  console.log(open)
+  
   const [params, setParams] = useState({
 
   });
@@ -13,7 +13,7 @@ const useGetplayCustomerType = (open) => {
   const [error, setError] = useState(null);
   const controllerRef = useRef(null);
 
- 
+  console.log(data)
 
   const loadData = useCallback(async () => {
     if (controllerRef.current) {

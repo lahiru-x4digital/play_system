@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { useForm, FormProvider, Controller, useFieldArray } from "react-hook-form";
 import { PhoneNumberField } from "@/components/coustomer-mobile-input";
 import {
   FormItem,
@@ -18,6 +18,7 @@ import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
 import PaymentInput from "../common/PaymentInput";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useGetplayCustomerType from "@/hooks/useGetplayCustomerType";
 
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
@@ -40,6 +41,7 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
     timeDurationPricingRefres,
   } = useGetTimeDurationPricing();
   const { postHandler, postHandlerloading } = useAxiosPost();
+const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
 
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
@@ -58,6 +60,10 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
       payment_method: "CASH",
       amount: 0,
     },
+  });
+  const { fields, append, remove } = useFieldArray({
+    control:methods.control,
+    name: "customer_types",
   });
   useEffect(() => {
     if (open) {
@@ -239,7 +245,9 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
               </FormItem>
             </div>
           </div>
-          <div></div>
+          <div>
+       
+          </div>
           {/* Kids: Count & Time Pricing */}
           <div>
             <FormItem className="flex-1">

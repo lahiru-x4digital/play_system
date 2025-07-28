@@ -92,7 +92,7 @@ export function LoginForm() {
   return (
     <div className="w-[521px] flex flex-col justify-center items-center px-[32px] py-[48px] gap-[32px]">
 
-      <h1 className="text-[30px] font-semibold">Sign in to Restroengage</h1>
+      <h1 className="text-[30px] font-semibold">Sign in to Play</h1>
 
 
       <Form  {...form}>

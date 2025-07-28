@@ -6,6 +6,7 @@ import { Pagination } from '@/components/ui/pagination'
 import CreatePricingDialog from '@/components/pricing/CreatePricingDialog';
 import useGetTimeDurationPricingInitial from '@/hooks/useGetTimeDurationPricingInitial'
 
+
 export default function PricingPage() {
     const {
       timeDurationPricing,
