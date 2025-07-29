@@ -23,17 +23,19 @@ import { Plus } from "lucide-react";
 
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
-  adults: z.number().min(1, { message: "Adults is required" }),
-  kids: z.number().min(1, { message: "Kids is required" }),
-  // adults_time_pricing_id: z.string().min(1, { message: "Adults time pricing is required" }),
-  kids_time_pricing_id: z
-    .number()
-    .min(1, { message: "Kids time pricing is required" }),
   payment_method: z.string().min(1, { message: "Payment method is required" }),
   amount: z.number().min(0, { message: "Amount is required" }),
   first_name: z.string(),
   last_name: z.string(),
   branch_id: z.number().min(1, { message: "Branch is required" }),
+  customer_types: z.array(z.object({
+    play_customer_type_id: z.number(),
+    pricing_id: z.number(),
+    play_customer_type_name: z.string(),
+    duration: z.number(),
+    price: z.number(),
+    count:z.number(),
+  })),
 });
 export default function AutoGenarateReservationForm({ onSuccess }) {
   const {
@@ -51,15 +53,12 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
     resolver: zodResolver(reservationSchema),
     defaultValues: {
       mobile_number: "",
-      adults: 1,
-      kids: 0,
-      // adults_time_pricing_id: "",
-      kids_time_pricing_id: "",
       first_name: "",
       last_name: "",
       branch_id: user?.branchId,
       payment_method: "CASH",
       amount: 0,
+      customer_types: [],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -88,7 +87,7 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
   const totalPrice = methods.watch("customer_types")?.reduce((sum, item) => {
     return sum + (item.price * item.count);
   }, 0) || 0;
-
+//form state error consoel log
   const onSubmit = async (data) => {
     const payload = {
       first_name: data.first_name,
@@ -96,10 +95,12 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
       mobile_number: data.mobile_number,
       branch_id: isAdmin ? data.branch_id : user?.branchId,
       total_price: totalPrice,
-      play_pricing_id: data.kids_time_pricing_id,
       customer_types: data.customer_types?.map(item => ({
         playCustomerTypeId: item.play_customer_type_id,
-        count: item.count
+        playPricingId: item.pricing_id,
+        price: item.price,
+        duration:item.duration, 
+        count: item.count,
       })) || []
     };
     if (data.payment_method === "CASH") {
@@ -186,10 +187,12 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
                   const selectedItem = timeDurationPricing.find(item => item.id === selectedId);
                   setSelectedPricing({
                     play_customer_type_id: selectedItem.play_customer_type_id,
+                    pricing_id: selectedItem.id,
                     play_customer_type_name: selectedItem.play_customer_type.name,
                     duration: selectedItem.duration,
                     price: selectedItem.price,
-                    count:0
+                    count:0,
+
                   })
                 }}
                 className="border rounded px-2 py-1 w-full"
@@ -217,15 +220,17 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
                   onChange={(e) => {
                     setSelectedPricing({
                       ...selectedPricing,
-                      count: parseInt(e.target.value ||"0")
+                      count: parseInt(e.target.value ||"0"),
+                     
                     })
                   }}
               />
             </div>
             <Button
+             type="button"
                 onClick={() => {
               if(selectedPricing?.play_customer_type_id){
-                append(selectedPricing)
+                append({...selectedPricing,additional_hours:0,additional_hours_price_id:null})
                 setSelectedPricing(null)
                 if (selectRef.current) {
                   selectRef.current.value = ""; // Reset select to default value
@@ -259,8 +264,8 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
                     {item.price} per person
                   </div>
                 </div>
-                <button 
-                  type="button"
+                <Button 
+                 type="button"
                   onClick={() => remove(index)}
                   className="ml-4 p-1 text-gray-400 hover:text-red-500 transition-colors"
                   aria-label="Remove"
@@ -268,7 +273,7 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
-                </button>
+                </Button>
               </div>
             ))}
           </div>

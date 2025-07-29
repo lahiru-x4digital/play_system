@@ -13,7 +13,6 @@ const useGetplayCustomerType = (open) => {
   const [error, setError] = useState(null);
   const controllerRef = useRef(null);
 
-  console.log(data)
 
   const loadData = useCallback(async () => {
     if (controllerRef.current) {
