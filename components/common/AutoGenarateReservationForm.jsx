@@ -15,11 +15,12 @@ import SelectBranch from "@/components/common/selectBranch";
 import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
 import { useAxiosPost } from "@/hooks/useAxiosPost";
 import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
-import PaymentInput from "../common/PaymentInput";
+import PaymentInput from "./PaymentInput";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useGetplayCustomerType from "@/hooks/useGetplayCustomerType";
 import { Plus } from "lucide-react";
+import AdditionalHoursSelect from "../booking/AdditionalHoursSelect";
 
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
@@ -35,6 +36,9 @@ const reservationSchema = z.object({
     duration: z.number(),
     price: z.number(),
     count:z.number(),
+    additional_hours:z.number(),
+    additional_hours_price:z.number(),
+    additional_hours_price_id:z.number().optional(),
   })),
 });
 export default function AutoGenarateReservationForm({ onSuccess }) {
@@ -133,8 +137,6 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
                 value={field.value}
                 onChange={(e) => {
                   field.onChange(e);
-                  methods.setValue("adults_time_pricing_id", "");
-                  methods.setValue("kids_time_pricing_id", "");
                 }}
                 error={fieldState.error?.message}
                 label="Branch"
@@ -255,6 +257,22 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
                     <span className="mx-2">•</span>
                     <span>Count: {item.count}</span>
                   </div>
+                  {/* drop down to select additional hours */}
+                
+                  <Controller
+                    name="additional_hours_price_id"
+                    control={methods.control}
+                    render={({ field, fieldState }) => (
+                      <AdditionalHoursSelect
+                        value={field.value}
+                        onChange={(e) => {
+                          field.onChange(e);
+                        }}
+                       branchId={methods.watch("branch_id")}
+                       userType={item.play_customer_type_id}
+                      />
+                    )}
+                  />
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-semibold text-indigo-600">
