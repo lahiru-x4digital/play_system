@@ -8,9 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import EditPricingDialog from "./EditPricingDialog";
+import EditProductDialog from './EditProductDialog';
 
-const PricingTable = ({ data = [], onRefresh }) => {
+const ProductTable = ({ data = [], onRefresh }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedPricing, setSelectedPricing] = useState(null);
 
@@ -29,8 +29,7 @@ const PricingTable = ({ data = [], onRefresh }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Type</TableHead>
-            <TableHead>Duration (Min)</TableHead>
+            <TableHead>Name</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Created at</TableHead>
             <TableHead>Action</TableHead>
@@ -46,8 +45,7 @@ const PricingTable = ({ data = [], onRefresh }) => {
           ) : (
             data.map((item, index) => (
               <TableRow key={index}>
-                <TableCell className="font-medium">{item.play_customer_type?.name || '-'}</TableCell>
-                <TableCell>{item.duration || '-'}</TableCell>
+                <TableCell className="font-medium">{item.name || '-'}</TableCell>
                 <TableCell>{item.price != null ? item.price : '-'}</TableCell>
                 <TableCell>
                   {item.created_date
@@ -79,17 +77,18 @@ const PricingTable = ({ data = [], onRefresh }) => {
           )}
         </TableBody>
       </Table>
-      <EditPricingDialog
-        pricing={selectedPricing || {}}
+      <EditProductDialog
+        product={selectedPricing || {}}
         open={editDialogOpen}
         setOpen={setEditDialogOpen}
         onSuccess={() => {
           handleDialogClose();
           onRefresh?.();
+          
         }}
       />
     </div>
   );
 };
 
-export default PricingTable; 
+export default ProductTable; 
