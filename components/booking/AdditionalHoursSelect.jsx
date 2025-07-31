@@ -1,5 +1,7 @@
 import useGetExtraHours from '@/hooks/useGetExtraHours'
 import React, { useEffect } from 'react'
+import { Label } from '../ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 
 export default function AdditionalHoursSelect({ value, onChange ,branchId,userType}) {
     const {extraHoursList,extraHoursListRefresh,extraHoursListLoading}=useGetExtraHours()
@@ -7,10 +9,9 @@ export default function AdditionalHoursSelect({ value, onChange ,branchId,userTy
   useEffect(()=>{
     extraHoursListRefresh({branch_id:branchId,play_customer_type_id:userType})
   },[branchId,userType])
-  console.log(extraHoursList)
+ 
     return (
-    <div>
-        <div style={{ width: "100%", maxWidth: "400px" }}>
+        <div style={{ width: "250px", maxWidth: "250px" }}>
         <Label>Additional Hours</Label>
         <Select
           value={value !== undefined && value !== null ? String(value) : ""}
@@ -23,13 +24,12 @@ export default function AdditionalHoursSelect({ value, onChange ,branchId,userTy
           <SelectContent>
             {extraHoursList.map((extraHour) => (
               <SelectItem key={extraHour.id} value={String(extraHour.id)}>
-                {extraHour.duration || extraHour.price}
+                {`min ${extraHour.duration} price ${extraHour.price}`}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+        {/* {error && <p className="text-red-500 text-xs mt-1">{error}</p>} */}
       </div>
-    </div>
   )
 }

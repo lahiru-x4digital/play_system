@@ -19,7 +19,7 @@ import PaymentInput from "./PaymentInput";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useGetplayCustomerType from "@/hooks/useGetplayCustomerType";
-import { Plus } from "lucide-react";
+import { Delete, Plus, Trash } from "lucide-react";
 import AdditionalHoursSelect from "../booking/AdditionalHoursSelect";
 
 const reservationSchema = z.object({
@@ -39,6 +39,7 @@ const reservationSchema = z.object({
     additional_hours:z.number(),
     additional_hours_price:z.number(),
     additional_hours_price_id:z.number().optional(),
+    hours_qty:z.number()
   })),
 });
 export default function AutoGenarateReservationForm({ onSuccess }) {
@@ -244,57 +245,75 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
                 <Plus/>
               </Button>
           </div>
-          <div className="mt-4 space-y-3">
-            {methods.watch("customer_types")?.map((item, index) => (
-              <div 
-                key={index}
-                className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-              >
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900">{item.play_customer_type_name}</h4>
-                  <div className="flex items-center text-sm text-gray-500 mt-1">
-                    <span>Duration: {item.duration} min</span>
-                    <span className="mx-2">•</span>
-                    <span>Count: {item.count}</span>
-                  </div>
-                  {/* drop down to select additional hours */}
-                
+        <div className="mt-2 space-y-5">
+          {methods.watch("customer_types")?.map((item, index) => (
+            <div
+              key={index}
+              className="p-2 bg-white rounded-xl shadow border border-gray-200 hover:shadow-md transition-all"
+            >
+             <div className="flex">
+               {/* Left Block */}
+               <div className="flex-1 space-y-2">
+                <h4 className="text-lg font-semibold text-gray-800">{item.play_customer_type_name}</h4>
+                <div className="text-sm text-gray-500 flex flex-wrap gap-2">
+                  <span>Duration: {item.duration} min</span>
+                  <span>•</span>
+                  <span>Count: {item.count}</span>
+                </div>
+              </div>
+
+              {/* Right Block */}
+              <div className="flex items-center sm:flex-col sm:items-end justify-between sm:justify-center gap-3 sm:gap-1 text-right min-w-[120px]">
+                <div>
+                <span className=" font-semibold"> per person </span>
+
+                  <span className="font-semibold">{item.price * item.count}</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span>Extra {methods.watch(`customer_types.${index}.hours_qty`)*methods.watch(`customer_types.${index}.price`)}</span>
+                </div>
+                <div>
+                <span className="font-semibold">Total</span>
+                  <span className="text-xl font-semibold"> {item.price * item.count + methods.watch(`customer_types.${index}.hours_qty`)*methods.watch(`customer_types.${index}.price`)}</span>
+                </div>
+              </div>
+             </div>
+              <div className="flex gap-2 items-end justify-between">
+                  {/* Dropdown */}
                   <Controller
-                    name="additional_hours_price_id"
+                    name={`customer_types.${index}.additional_hours_price_id`}
                     control={methods.control}
-                    render={({ field, fieldState }) => (
+                    render={({ field }) => (
                       <AdditionalHoursSelect
                         value={field.value}
-                        onChange={(e) => {
-                          field.onChange(e);
-                        }}
-                       branchId={methods.watch("branch_id")}
-                       userType={item.play_customer_type_id}
+                        onChange={field.onChange}
+                        branchId={methods.watch("branch_id")}
+                        userType={item.play_customer_type_id}
                       />
                     )}
                   />
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-semibold text-indigo-600">
-                    {item.price * item.count}
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    {item.price} per person
-                  </div>
-                </div>
-                <Button 
-                 type="button"
+
+                  {/* Quantity input */}
+                  <Input
+                    type="number"
+                    {...methods.register(`customer_types.${index}.hours_qty`)}
+                    defaultValue={0}
+                    placeholder="Hours quantity"
+                    className="border rounded w-20 focus:ring-2 focus:ring-indigo-500"
+                  />
+                   <button
+                className="p-1 border-2 rounded hover:bg-red-500 hover:text-white cursor-pointer "
+                  type="button"
                   onClick={() => remove(index)}
-                  className="ml-4 p-1 text-gray-400 hover:text-red-500 transition-colors"
-                  aria-label="Remove"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </Button>
-              </div>
-            ))}
-          </div>
+                <Trash className="w-4 h-4 "/>
+                </button>
+                  
+                </div>
+            </div>
+          ))}
+        </div>
+
           <div className="flex gap-4 items-end justify-between mt-6 p-4 bg-gray-50 rounded-lg">
             <PaymentInput />
             <div className="text-right">
