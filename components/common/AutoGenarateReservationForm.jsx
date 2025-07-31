@@ -21,6 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useGetplayCustomerType from "@/hooks/useGetplayCustomerType";
 import { Delete, Plus, Trash } from "lucide-react";
 import AdditionalHoursSelect from "../booking/AdditionalHoursSelect";
+import AdditionalProductSelect from "../booking/AdditionalProductSelect";
 
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
@@ -41,6 +42,12 @@ const reservationSchema = z.object({
     additional_hours_price_id:z.number().optional(),
     hours_qty:z.number()
   })),
+  additional_products:z.array(z.object({
+    id:z.number(),
+    name:z.string(),
+    price:z.number(),
+    qty:z.number()
+  }))
 });
 export default function AutoGenarateReservationForm({ onSuccess }) {
   const {
@@ -51,6 +58,8 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
   const { postHandler, postHandlerloading } = useAxiosPost();
 const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
  const [selectedPricing,setSelectedPricing]=useState(null)
+ const [selectedAdditionalProduct,setSelectedAdditionalProduct]=useState(null)
+ console.log(selectedAdditionalProduct)
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
   const [open, setOpen] = useState(false);
@@ -64,11 +73,16 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
       payment_method: "CASH",
       amount: 0,
       customer_types: [],
+      additional_products:[]
     },
   });
   const { fields, append, remove } = useFieldArray({
     control:methods.control,
     name: "customer_types",
+  });
+  const { fields: additionalProducts, append: appendAdditionalProduct, remove: removeAdditionalProduct } = useFieldArray({
+    control: methods.control,
+    name: "additional_products",
   });
   const selectRef = useRef(null);
   useEffect(() => {
@@ -88,11 +102,17 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
     }
   }, [methods.watch("branch_id")]);
 
-  // Calculate total price from all customer types
-  const totalPrice = methods.watch("customer_types")?.reduce((sum, item) => {
-    return sum + (item.price * item.count);
-  }, 0) || 0;
-//form state error consoel log
+  // Calculate total price from all customer types and additional products
+  const totalPrice = (methods.watch("customer_types")?.reduce((sum, item) => {
+    const basePrice = item.price * item.count;
+    const additionalHoursPrice = (item.additional_hours_price || 0) * (item.hours_qty || 0);
+    return sum + basePrice + additionalHoursPrice;
+  }, 0) || 0) + 
+  (methods.watch("additional_products")?.reduce((sum, product) => {
+    return sum + (product.price * (product.qty || 0));
+  }, 0) || 0);
+
+  //form state error consoel log
   const onSubmit = async (data) => {
     const payload = {
       first_name: data.first_name,
@@ -106,7 +126,11 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
         price: item.price,
         duration:item.duration, 
         count: item.count,
-      })) || []
+      })) || [],
+      additional_products:data.additional_products?.map(item=>({
+        id:item.id,
+        qty:item.qty
+      }))||[]
     };
     if (data.payment_method === "CASH") {
       payload.cash = totalPrice;
@@ -245,75 +269,173 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
                 <Plus/>
               </Button>
           </div>
-        <div className="mt-2 space-y-5">
-          {methods.watch("customer_types")?.map((item, index) => (
-            <div
-              key={index}
-              className="p-2 bg-white rounded-xl shadow border border-gray-200 hover:shadow-md transition-all"
-            >
-             <div className="flex">
-               {/* Left Block */}
-               <div className="flex-1 space-y-2">
-                <h4 className="text-lg font-semibold text-gray-800">{item.play_customer_type_name}</h4>
-                <div className="text-sm text-gray-500 flex flex-wrap gap-2">
-                  <span>Duration: {item.duration} min</span>
-                  <span>•</span>
-                  <span>Count: {item.count}</span>
-                </div>
-              </div>
-
-              {/* Right Block */}
-              <div className="flex items-center sm:flex-col sm:items-end justify-between sm:justify-center gap-3 sm:gap-1 text-right min-w-[120px]">
-                <div>
-                <span className=" font-semibold"> per person </span>
-
-                  <span className="font-semibold">{item.price * item.count}</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <span>Extra {methods.watch(`customer_types.${index}.hours_qty`)*methods.watch(`customer_types.${index}.price`)}</span>
-                </div>
-                <div>
-                <span className="font-semibold">Total</span>
-                  <span className="text-xl font-semibold"> {item.price * item.count + methods.watch(`customer_types.${index}.hours_qty`)*methods.watch(`customer_types.${index}.price`)}</span>
-                </div>
-              </div>
-             </div>
-              <div className="flex gap-2 items-end justify-between">
-                  {/* Dropdown */}
-                  <Controller
-                    name={`customer_types.${index}.additional_hours_price_id`}
-                    control={methods.control}
-                    render={({ field }) => (
-                      <AdditionalHoursSelect
-                        value={field.value}
-                        onChange={field.onChange}
-                        branchId={methods.watch("branch_id")}
-                        userType={item.play_customer_type_id}
-                      />
-                    )}
-                  />
-
-                  {/* Quantity input */}
-                  <Input
-                    type="number"
-                    {...methods.register(`customer_types.${index}.hours_qty`)}
-                    defaultValue={0}
-                    placeholder="Hours quantity"
-                    className="border rounded w-20 focus:ring-2 focus:ring-indigo-500"
-                  />
-                   <button
-                className="p-1 border-2 rounded hover:bg-red-500 hover:text-white cursor-pointer "
-                  type="button"
-                  onClick={() => remove(index)}
+          <div className="mt-4 space-y-6">
+            {methods.watch("customer_types")?.map((item, index) => {
+              const hoursQty = Number(methods.watch(`customer_types.${index}.hours_qty`) || 0)
+              const baseTotal = item.price * item.count
+              const extra = (methods.watch(`customer_types.${index}.hours_qty`)||0 )* (methods.watch(`customer_types.${index}.additional_hours_price`)||0)
+              const total = baseTotal + extra
+              return (
+                <div
+                  key={index}
+                  className="p-4 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all"
                 >
-                <Trash className="w-4 h-4 "/>
-                </button>
+                  {/* Header Row */}
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                    {/* Left */}
+                    <div className="space-y-1">
+                      <h4 className="text-lg font-semibold text-gray-900">
+                        {item.play_customer_type_name}
+                      </h4>
+                      <div className="text-sm text-gray-500 flex flex-wrap gap-2">
+                        <span>Duration: {item.duration} min</span>
+                        <span>•</span>
+                        <span>Count: {item.count}</span>
+                      </div>
+                    </div>
+
+                    {/* Right Summary */}
+                    <div className="grid grid-cols-3 text-right gap-4 min-w-[280px]">
+                      <div>
+                        <div className="text-xs text-gray-500">Base Total</div>
+                        <div className="text-md font-medium text-gray-800">{baseTotal.toFixed(2)}</div>
+                        <div className="text-xs text-gray-400">{item.price} per person</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">Extra</div>
+                        <div className="text-md font-medium text-orange-600">{extra.toFixed(2)}</div>
+                        <div className="text-xs text-gray-400">x {hoursQty} hr</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">Total</div>
+                        <div className="text-xl font-semibold text-indigo-600">{total.toFixed(2)}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Controls Row */}
+                  <div className="mt-4 flex flex-wrap items-end gap-3 justify-between sm:justify-start">
+                    {/* Select Dropdown */}
+                    <Controller
+                      name={`customer_types.${index}.additional_hours_price_id`}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <AdditionalHoursSelect
+                          value={field.value}
+                          onChange={(value) => {
+                            // Update both the price_id and price in the form
+                            field.onChange(value);
+                            methods.setValue(`customer_types.${index}.additional_hours_price`, value?.price || 0);
+                          }}
+                          branchId={methods.watch("branch_id")}
+                          userType={item.play_customer_type_id}
+                        />
+                      )}
+                    />
+
+                    {/* Quantity Input */}
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1">Extra Hours</label>
+                      <Input
+                        type="number"
+                        min={0}
+                        {...methods.register(`customer_types.${index}.hours_qty`)}
+                        defaultValue={0}
+                        placeholder="0"
+                        className="border rounded w-24 px-2 py-1 focus:ring-2 focus:ring-indigo-500"
+                        onMouseWheel={(e) => e.target.blur()}
+                      />
+                    </div>
+
+                    {/* Remove Button */}
+                    <button
+                      type="button"
+                      onClick={() => remove(index)}
+                      className="flex items-center gap-1 px-3 py-2 border text-sm rounded text-red-600 border-red-300 hover:bg-red-50 transition-colors"
+                    >
+                      <Trash className="w-4 h-4" />
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="flex gap-2 items-end justify-between">
+            <AdditionalProductSelect
+              value={selectedAdditionalProduct}
+              onChange={(value)=>{
+                setSelectedAdditionalProduct({...value,qty:1})
+              }}
+              branchId={methods.watch("branch_id")}
+            />
+            <Input
+              type="number"
+              min={0}
+              onChange={(e)=>{
+                setSelectedAdditionalProduct({...selectedAdditionalProduct,qty:Number(e.target.value)})
+              }}
+              value={selectedAdditionalProduct?.qty||""
+              }
+              placeholder="0"
+              className="border rounded w-24 px-2 py-1 focus:ring-2 "
+              onMouseWheel={(e) => e.target.blur()}
+            />
+            <Button
+             type="button"
+                onClick={() => {
+              if(selectedAdditionalProduct?.id){
+                appendAdditionalProduct({...selectedAdditionalProduct})
+                setSelectedAdditionalProduct(null)
+                
+              
+              }
+                }}
+                className="ml-2"
+              >
+                <Plus/>
+              </Button>
+          </div>
+          <div className="mt-4 space-y-3">
+            {methods.watch("additional_products")?.map((item, index) => {
+              const total = item.price * item.qty
+
+              return (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-white border rounded-lg shadow-sm hover:shadow-md transition-all"
+                >
+                  {/* Product Info */}
+                  <div className="flex-1">
+                    <h5 className="text-sm font-medium text-gray-900">{item.name}</h5>
+                    <div className="text-xs text-gray-500 flex gap-2 mt-1">
+                      <span>Price: {item.price}</span>
+                      <span>Qty: {item.qty}</span>
+                    </div>
+                    {/* Remove Button */}
+                  <button
+                    type="button"
+                    onClick={() => removeAdditionalProduct(index)}
+                    className="flex items-center gap-1 px-2 py-1 border rounded text-sm text-red-600 border-red-300 hover:bg-red-50 transition-colors"
+                  >
+                    <Trash className="w-4 h-4" />
+                    
+                  </button>
+                  </div>
+
+                  {/* Total Block */}
+                  <div className="text-right">
+                    <div className="text-xl font-semibold text-indigo-600">
+                      {total.toFixed(2)}
+                    </div>
+                    <div className="text-xs text-gray-400">Total</div>
+                  </div>
+
                   
                 </div>
-            </div>
-          ))}
-        </div>
-
+              )
+            })}
+          </div>
           <div className="flex gap-4 items-end justify-between mt-6 p-4 bg-gray-50 rounded-lg">
             <PaymentInput />
             <div className="text-right">
