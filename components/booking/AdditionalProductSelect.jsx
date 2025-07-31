@@ -35,7 +35,7 @@ export default function AdditionalProductSelect({ value, onChange, branchId }) {
                 <SelectContent>
                     {productsList.map((product) => (
                         <SelectItem key={product.id} value={String(product.id)}>
-                            {`min ${product.name} price ${product.price}`}
+                            {`${product.name} - price ${product.price}`}
                         </SelectItem>
                     ))}
                 </SelectContent>

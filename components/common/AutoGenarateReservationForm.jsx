@@ -37,10 +37,10 @@ const reservationSchema = z.object({
     duration: z.number(),
     price: z.number(),
     count:z.number(),
-    additional_hours:z.number(),
-    additional_hours_price:z.number(),
-    additional_hours_price_id:z.number().optional(),
-    hours_qty:z.number()
+    additional_hours:z.number().optional(),
+    additional_hours_price:z.number().optional(),
+    additional_hours_price_id:z.number().nullable(),
+    hours_qty:z.number().optional()
   })),
   additional_products:z.array(z.object({
     id:z.number(),
@@ -59,7 +59,7 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
 const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
  const [selectedPricing,setSelectedPricing]=useState(null)
  const [selectedAdditionalProduct,setSelectedAdditionalProduct]=useState(null)
- console.log(selectedAdditionalProduct)
+
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
   const [open, setOpen] = useState(false);
@@ -76,6 +76,8 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
       additional_products:[]
     },
   });
+  //log form state error
+  console.log(methods.formState.errors)
   const { fields, append, remove } = useFieldArray({
     control:methods.control,
     name: "customer_types",
@@ -112,6 +114,10 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
     return sum + (product.price * (product.qty || 0));
   }, 0) || 0);
 
+  //! debug the relations are they working corectly 
+  //! check edge cases of calculations 
+  //!check customer hooks data fetichng infinite loop api calls 
+console.log(methods.watch("customer_types"))
   //form state error consoel log
   const onSubmit = async (data) => {
     const payload = {
@@ -127,10 +133,18 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
         duration:item.duration, 
         count: item.count,
       })) || [],
-      additional_products:data.additional_products?.map(item=>({
-        id:item.id,
-        qty:item.qty
-      }))||[]
+      products:data.additional_products?.map(item=>({
+        play_product_id:item.id,
+        quantity:item.qty,
+      }))||[],
+      extra_hours: data.customer_types
+        ?.filter(item => item.additional_hours_price_id !== null && item.additional_hours_price_id !== undefined)
+        .map(item => ({
+          duration: item.additional_hours || 0,
+          price: item.additional_hours_price || 0,
+          play_additional_hours_pricing_id: item.additional_hours_price_id,
+          play_reservation_customer_type_id: item.play_customer_type_id
+        })) || []
     };
     if (data.payment_method === "CASH") {
       payload.cash = totalPrice;
@@ -257,7 +271,13 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
              type="button"
                 onClick={() => {
               if(selectedPricing?.play_customer_type_id){
-                append({...selectedPricing,additional_hours:0,additional_hours_price_id:null})
+                append({
+                  ...selectedPricing,
+                  additional_hours: 0,
+                  additional_hours_price: 0,
+                  additional_hours_price_id: null,
+                  hours_qty: 0
+                })
                 setSelectedPricing(null)
                 if (selectRef.current) {
                   selectRef.current.value = ""; // Reset select to default value
@@ -315,22 +335,11 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
 
                   {/* Controls Row */}
                   <div className="mt-4 flex flex-wrap items-end gap-3 justify-between sm:justify-start">
-                    {/* Select Dropdown */}
-                    <Controller
-                      name={`customer_types.${index}.additional_hours_price_id`}
-                      control={methods.control}
-                      render={({ field }) => (
-                        <AdditionalHoursSelect
-                          value={field.value}
-                          onChange={(value) => {
-                            // Update both the price_id and price in the form
-                            field.onChange(value);
-                            methods.setValue(`customer_types.${index}.additional_hours_price`, value?.price || 0);
-                          }}
-                          branchId={methods.watch("branch_id")}
-                          userType={item.play_customer_type_id}
-                        />
-                      )}
+                    {/* Additional Hours Select */}
+                    <AdditionalHoursSelect
+                      name={`customer_types.${index}`}
+                      branchId={methods.watch("branch_id")}
+                      userType={item.play_customer_type_id}
                     />
 
                     {/* Quantity Input */}
@@ -339,7 +348,9 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
                       <Input
                         type="number"
                         min={0}
-                        {...methods.register(`customer_types.${index}.hours_qty`)}
+                        {...methods.register(`customer_types.${index}.hours_qty`, {
+                          valueAsNumber: true
+                        })}
                         defaultValue={0}
                         placeholder="0"
                         className="border rounded w-24 px-2 py-1 focus:ring-2 focus:ring-indigo-500"
