@@ -37,10 +37,10 @@ const reservationSchema = z.object({
     duration: z.number(),
     price: z.number(),
     count:z.number(),
-    additional_hours:z.number().optional(),
-    additional_hours_price:z.number().optional(),
-    additional_hours_price_id:z.number().nullable(),
-    hours_qty:z.number().optional()
+    additional_minutes:z.number().optional(),
+    additional_minutes_price:z.number().optional(),
+    additional_minutes_price_id:z.number().nullable(),
+    minutes_qty:z.number().optional()
   })),
   additional_products:z.array(z.object({
     id:z.number(),
@@ -77,7 +77,7 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
     },
   });
   //log form state error
-  console.log(methods.formState.errors)
+
   const { fields, append, remove } = useFieldArray({
     control:methods.control,
     name: "customer_types",
@@ -107,8 +107,8 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
   // Calculate total price from all customer types and additional products
   const totalPrice = (methods.watch("customer_types")?.reduce((sum, item) => {
     const basePrice = item.price * item.count;
-    const additionalHoursPrice = (item.additional_hours_price || 0) * (item.hours_qty || 0);
-    return sum + basePrice + additionalHoursPrice;
+    const additionalMinutesPrice = (item.additional_minutes_price || 0) * (item.minutes_qty || 0);
+    return sum + basePrice + additionalMinutesPrice;
   }, 0) || 0) + 
   (methods.watch("additional_products")?.reduce((sum, product) => {
     return sum + (product.price * (product.qty || 0));
@@ -132,19 +132,15 @@ console.log(methods.watch("customer_types"))
         price: item.price,
         duration:item.duration, 
         count: item.count,
+        additional_minutes_price_id:item.additional_minutes_price_id,
+        additional_minutes_price:item.additional_minutes_price,
+        additional_minutes:item.additional_minutes,
+        minutes_qty:item.minutes_qty
       })) || [],
       products:data.additional_products?.map(item=>({
         play_product_id:item.id,
         quantity:item.qty,
       }))||[],
-      extra_hours: data.customer_types
-        ?.filter(item => item.additional_hours_price_id !== null && item.additional_hours_price_id !== undefined)
-        .map(item => ({
-          duration: item.additional_hours || 0,
-          price: item.additional_hours_price || 0,
-          play_additional_hours_pricing_id: item.additional_hours_price_id,
-          play_reservation_customer_type_id: item.play_customer_type_id
-        })) || []
     };
     if (data.payment_method === "CASH") {
       payload.cash = totalPrice;
@@ -273,10 +269,10 @@ console.log(methods.watch("customer_types"))
               if(selectedPricing?.play_customer_type_id){
                 append({
                   ...selectedPricing,
-                  additional_hours: 0,
-                  additional_hours_price: 0,
-                  additional_hours_price_id: null,
-                  hours_qty: 0
+                  additional_minutes: 0,
+                  additional_minutes_price: 0,
+                  additional_minutes_price_id: null,
+                  minutes_qty: 0
                 })
                 setSelectedPricing(null)
                 if (selectRef.current) {
@@ -291,9 +287,9 @@ console.log(methods.watch("customer_types"))
           </div>
           <div className="mt-4 space-y-6">
             {methods.watch("customer_types")?.map((item, index) => {
-              const hoursQty = Number(methods.watch(`customer_types.${index}.hours_qty`) || 0)
+              const minutesQty = Number(methods.watch(`customer_types.${index}.minutes_qty`) || 0)
               const baseTotal = item.price * item.count
-              const extra = (methods.watch(`customer_types.${index}.hours_qty`)||0 )* (methods.watch(`customer_types.${index}.additional_hours_price`)||0)
+              const extra = (methods.watch(`customer_types.${index}.minutes_qty`)||0 )* (methods.watch(`customer_types.${index}.additional_minutes_price`)||0)
               const total = baseTotal + extra
               return (
                 <div
@@ -323,8 +319,8 @@ console.log(methods.watch("customer_types"))
                       </div>
                       <div>
                         <div className="text-xs text-gray-500">Extra</div>
-                        <div className="text-md font-medium text-orange-600">{extra.toFixed(2)}</div>
-                        <div className="text-xs text-gray-400">x {hoursQty} hr</div>
+                        <div className="text-md font-medium text-orange-600">{extra} min</div>
+                        <div className="text-xs text-gray-400"> x {minutesQty} Qty</div>
                       </div>
                       <div>
                         <div className="text-xs text-gray-500">Total</div>
@@ -344,11 +340,11 @@ console.log(methods.watch("customer_types"))
 
                     {/* Quantity Input */}
                     <div>
-                      <label className="block text-sm text-gray-600 mb-1">Extra Hours</label>
+                      <label className="block text-sm text-gray-600 mb-1">Extra Qty</label>
                       <Input
                         type="number"
                         min={0}
-                        {...methods.register(`customer_types.${index}.hours_qty`, {
+                        {...methods.register(`customer_types.${index}.minutes_qty`, {
                           valueAsNumber: true
                         })}
                         defaultValue={0}
