@@ -1,44 +1,45 @@
 'use client'
 import useGetSinglePlayReservation from '@/hooks/useGetSinglePlayReservation'
 import React, { useEffect } from 'react'
-import { use } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Plus, Printer } from 'lucide-react';
-import { AddBarcodeDialog } from '@/components/booking/AddBarcodeDialog';
+import { use } from 'react'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
+import { AddBarcodeDialog } from '@/components/booking/AddBarcodeDialog'
 
 function formatDate(dateStr) {
-  if (!dateStr) return '-';
-  return new Date(dateStr).toLocaleString();
+  if (!dateStr) return '-'
+  return new Date(dateStr).toLocaleString()
 }
 
 function LabelValue({ label, value }) {
   return (
     <div className="flex gap-2">
       <span className="text-muted-foreground">{label}:</span>
-      <span className="">{value || '-'}</span>
+      <span>{value || '-'}</span>
     </div>
   )
 }
 
 export default function Page({ params }) {
-  const { reservation_id } = use(params);
-  const { playReservation, playReservationLoading, playReservationRefresh } = useGetSinglePlayReservation();
+  const { reservation_id } = use(params)
+  const { playReservation, playReservationLoading, playReservationRefresh } = useGetSinglePlayReservation()
 
   useEffect(() => {
     if (reservation_id) {
-      playReservationRefresh(reservation_id);
+      playReservationRefresh(reservation_id)
     }
-  }, [reservation_id]);
+  }, [reservation_id])
 
-  if (playReservationLoading) return <div className="flex justify-center items-center h-64 text-lg">Loading...</div>;
-  if (!playReservation) return <div className="flex justify-center items-center h-64 text-lg">No reservation found.</div>;
+  if (playReservationLoading)
+    return <div className="flex justify-center items-center h-64 text-lg">Loading...</div>
 
+  if (!playReservation)
+    return <div className="flex justify-center items-center h-64 text-lg">No reservation found.</div>
+console.log(playReservation)
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
-      {/* Reservation Overview */}
+      {/* Reservation Summary */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-xl font-bold">Reservation Summary</CardTitle>
@@ -53,27 +54,28 @@ export default function Page({ params }) {
                 value={`${playReservation.customer.first_name} ${playReservation.customer.last_name || ''}`}
               />
               <LabelValue label="Mobile" value={playReservation.customer.mobile_number} />
+              <LabelValue label="Level" value={playReservation.customer.customer_level} />
             </div>
           )}
 
-          {/* Branch Info & Dates */}
+          {/* Branch Info */}
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">Branch Info</h3>
             <LabelValue label="Branch" value={playReservation.branch?.branch_name} />
-            <LabelValue label="Code" value={playReservation.branch?.branch_code} />
+            <LabelValue label="Code" value={playReservation.branch?.branch_code || '-'} />
             <LabelValue label="Created" value={formatDate(playReservation.created_date)} />
             <LabelValue label="Updated" value={formatDate(playReservation.updated_date)} />
           </div>
         </CardContent>
       </Card>
 
-      {/* Pricing + Payments */}
+      {/* Pricing and Payments */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-xl font-bold">Pricing & Payments</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 text-sm md:text-base">
-          {/* Pricing */}
+          {/* Pricing if available */}
           {playReservation.play_pricing && (
             <div className="flex flex-wrap items-center gap-4">
               <LabelValue label="Duration" value={`${playReservation.play_pricing.duration} min`} />
@@ -97,8 +99,10 @@ export default function Page({ params }) {
               <ul className="space-y-2">
                 {playReservation.play_reservation_customer_types.map((ct) => (
                   <div key={ct.id} className="flex gap-2">
-                    <span className="text-muted-foreground">{ct.playCustomerType?.name}:</span>
-                    <span >{ct.count}</span>
+                    <span className="text-muted-foreground">
+                      {ct.playCustomerType?.name || `Type ID ${ct.playCustomerTypeId}`}:
+                    </span>
+                    <span>{ct.count}</span>
                   </div>
                 ))}
               </ul>
@@ -130,22 +134,75 @@ export default function Page({ params }) {
       {/* Barcodes */}
       <Card>
         <CardHeader className="pb-2">
-          <div className='flex justify-between items-center'>
-          <CardTitle className="text-xl font-bold">Barcodes</CardTitle>
-          <AddBarcodeDialog/>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl font-bold">Barcodes</CardTitle>
+            {/* <AddBarcodeDialog /> */}
           </div>
         </CardHeader>
         <CardContent className="text-sm md:text-base">
-          {playReservation.barcodes?.length > 0 ? (
+          {playReservation.play_reservation_barcodes?.length > 0 ? (
             <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {playReservation.barcodes.map((b) => (
+              {playReservation.play_reservation_barcodes.map((b) => (
                 <li key={b.id} className="border rounded-md p-3 space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">Barcode:</span>
-                    <Badge variant="outline">{b.barcode_number}</Badge>
+                    <Badge variant="outline">{b.barcode?.barcode_number}</Badge>
                   </div>
-                  <LabelValue label="Duration" value={`${b.time_duration} min`} />
-                  <LabelValue label="Customer Type" value={b.play_customer_type.name} />
+                  <LabelValue label="Duration" value={`${b.barcode?.time_duration || '-'} min`} />
+                  <LabelValue label="Customer Type" value={b.barcode?.play_customer_type?.name || '-'} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-muted-foreground">No barcodes found.</div>
+          )}
+        </CardContent>
+      </Card>
+      {/* Extrahours */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl font-bold">Extra Hours</CardTitle>
+            {/* <AddBarcodeDialog /> */}
+          </div>
+        </CardHeader>
+        <CardContent className="text-sm md:text-base">
+          {playReservation.play_reservation_additional_hours?.length > 0 ? (
+            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {playReservation.play_reservation_additional_hours.map((b) => (
+                <li key={b.id} className="border rounded-md p-3 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Duration:</span>
+                    <Badge variant="outline">{b.duration}</Badge>
+                  </div>
+                  <LabelValue label="Price" value={`${b.price || '-'} min`} />
+                  <LabelValue label="Customer Type" value={b.play_additional_hours_pricing?.play_customer_type?.name || '-'} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-muted-foreground">No barcodes found.</div>
+          )}
+        </CardContent>
+      </Card>
+      {/* play_reservation_products */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-xl font-bold">Products</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="text-sm md:text-base">
+          {playReservation.play_reservation_products?.length > 0 ? (
+            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {playReservation.play_reservation_products.map((b) => (
+                <li key={b.id} className="border rounded-md p-3 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Product:</span>
+                    <Badge variant="outline">{b.play_product?.name}</Badge>
+                  </div>
+                  <LabelValue label="Price" value={`${b.play_product?.price || '-'} min`} />
+                  <LabelValue label="Quantity" value={b?.quantity || '-'} />
                 </li>
               ))}
             </ul>
@@ -155,5 +212,5 @@ export default function Page({ params }) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

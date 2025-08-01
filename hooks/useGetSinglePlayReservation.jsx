@@ -14,7 +14,7 @@ const useGetSinglePlayReservation = () => {
 
   const abortControllerRef = useRef(null);
 
-  const loadData = async (order_id) => {
+  const loadData = async (reservation_id) => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -23,15 +23,12 @@ const useGetSinglePlayReservation = () => {
     setLoading(true);
     try {
       const response =
-        await api.get(`play/play-reservation`, {
-          params: {
-            order_id: order_id,
-          },
+        await api.get(`play/play-reservation/${reservation_id}`, {
           signal: controller.signal,
         });
       // Only update state if this request wasn't aborted
       if (!controller.signal.aborted) {
-        SetData(response.data.data[0]||null);
+        SetData(response.data.data||null);
         
       }
 
