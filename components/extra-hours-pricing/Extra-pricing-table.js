@@ -8,9 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import EditPricingDialog from "./EditPricingDialog";
+import EditExtraPricingDialog from './EditExtraPricingDialog';
 
-const PricingTable = ({ data = [], onRefresh }) => {
+const ExtraHoursPricingTable = ({ data = [], onRefresh }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedPricing, setSelectedPricing] = useState(null);
 
@@ -37,7 +37,7 @@ const PricingTable = ({ data = [], onRefresh }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.length === 0 ? (
+          {data.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="text-center text-muted-foreground">
                 No pricing found
@@ -79,7 +79,7 @@ const PricingTable = ({ data = [], onRefresh }) => {
           )}
         </TableBody>
       </Table>
-      <EditPricingDialog
+      <EditExtraPricingDialog
         pricing={selectedPricing || {}}
         open={editDialogOpen}
         setOpen={setEditDialogOpen}
@@ -92,4 +92,4 @@ const PricingTable = ({ data = [], onRefresh }) => {
   );
 };
 
-export default PricingTable; 
+export default ExtraHoursPricingTable; 

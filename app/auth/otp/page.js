@@ -224,11 +224,11 @@ export default function OTPPage() {
   };
 
   return (
-    <div className="w-screen h-screen flex min-h-svh flex-col items-center justify-center bg-background bg-[url('/bg-login.png')] bg-cover bg-center">
-      <div className="absolute top-0 left-0 w-full h-screen bg-[#000] opacity-50" />
+    <div className="w-screen h-screen flex min-h-svh flex-col items-center justify-center bg-background  bg-cover bg-center">
+      <div className="absolute top-0 left-0 w-full h-screen " />
       <div className="w-screen h-screen flex items-center justify-evenly px-[72px] py-[32px] gap-[32px] z-10">
-        <Image src="/re_logo.png" alt="logo" width={461} height={144} />
-        <div className="w-[521px] bg-[#fff] rounded-[10px] flex flex-col justify-center items-center px-[32px] py-[48px] gap-[32px]">
+        {/* <Image src="/re_logo.png" alt="logo" width={461} height={144} /> */}
+        <div className="w-[521px] bg-[#fff] rounded-[10px] flex flex-col justify-center items-center px-[32px] py-[48px] gap-[32px] border-2">
           <div className="flex flex-col items-center justify-center leading-[22px] gap-[16px]">
             <h1 className="text-[30px] font-semibold">Enter OTP</h1>
             <p className="text-[14px] text-[#6B6E73] text-center">

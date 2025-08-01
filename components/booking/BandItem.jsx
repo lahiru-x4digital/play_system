@@ -88,7 +88,7 @@ export default function BandItem({ barcode, reservation }) {
             textAlign: "center",
           }}
         >
-          {getEndTime(barcode?.created_date, barcode?.time_duration)}
+          {getEndTime(barcode?.created_date, barcode?.time_duration, barcode?.extra_minutes || 0)}
         </div>
         <QRCode
           value={barcode.barcode_number}

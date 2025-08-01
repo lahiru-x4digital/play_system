@@ -76,10 +76,10 @@ export default function LoginPage() {
 
   // Only render if not authenticated or while checking status
   return (
-    <div className="w-screen h-screen flex min-h-svh flex-col items-center justify-center bg-background bg-[url('/bg-login.png')] bg-cover bg-center">
-      <div className="absolute top-0 left-0 w-full h-screen bg-[#000] opacity-50" />
+    <div className="w-screen h-screen flex min-h-svh flex-col items-center justify-center bg-white">
+      <div className="absolute top-0 left-0 w-full h-screen" />
       <div className="w-screen h-screen flex items-center justify-evenly px-[72px] py-[32px] gap-[32px] z-10">
-        <Image src="/re_logo.png" alt="logo" width={461} height={144} />
+        {/* <Image src="/re_logo.png" alt="logo" width={461} height={144} />/ */}
         <Card>
           <CardContent>
             <LoginForm />
