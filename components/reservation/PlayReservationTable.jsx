@@ -10,19 +10,48 @@ import {
 } from "@/components/ui/table";
 import { ScanReservationDialog } from "./ScanReservationDialog"; // Import the dialog
 import { Button } from "../ui/button";
-import { Eye, Printer } from "lucide-react";
+import { Eye, Printer, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PrintDialog } from "../booking/PrintDialog";
 import { getEndTime } from "@/lib/getEndTime";
+import { BookingEditDialog } from "../booking/BookingEditDialog";
 
 const PlayReservationTable = ({ data = [], onRefresh }) => {
   const router = useRouter();
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   const handleScanClick = (reservationId) => {
     setSelectedReservationId(reservationId);
     setScanDialogOpen(true);
+  };
+
+  const handleEditClick = (booking) => {
+    setSelectedBooking(booking);
+    setEditDialogOpen(true);
+  };
+
+  const handleDialogOpenChange = (open) => {
+    setEditDialogOpen(open);
+    if (!open) {
+      setSelectedBooking(null);
+      onRefresh?.();
+    }
+  };
+
+  const handleSaveBooking = async (updatedData) => {
+    try {
+      // Call your API to update the booking here
+      // Example: await updateBooking(selectedBooking.id, updatedData);
+      
+      // Refresh the table data
+      onRefresh?.();
+      setEditDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to update booking:', error);
+    }
   };
 
   return (
@@ -35,10 +64,11 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
             <TableHead>Mobile Number</TableHead>
             <TableHead>Branch</TableHead>
             <TableHead>Total Price</TableHead>
-            <TableHead>Total Payment</TableHead>
+            {/* <TableHead>Total Payment</TableHead> */}
+            <TableHead>Status</TableHead>
             <TableHead>Start At</TableHead>
             <TableHead>End Time</TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead className='text-center'>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -71,8 +101,11 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
                 <TableCell>
                   {item.total_price != null ? item.total_price : "-"}
                 </TableCell>
-                <TableCell>
+                {/* <TableCell>
                   {item.total_payment != null ? item.total_payment : "-"}
+                </TableCell> */}
+                <TableCell>
+                  {item.status != null ? item.status : "-"}
                 </TableCell>
                 <TableCell>
                   {item.created_date
@@ -92,36 +125,56 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-primary hover:text-primary"
-                    onClick={() => handleScanClick(item.id)}
-                  >
-                    <Printer className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-primary hover:text-primary"
-                    onClick={() => {
-                      //navigate to the reservation id page
-                      router.push(`/dashboard/booking/${item.id}`);
-                    }}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-primary hover:text-primary"
+                      onClick={() => handleEditClick(item)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-primary hover:text-primary"
+                      onClick={() => handleScanClick(item.id)}
+                    >
+                      <Printer className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-primary hover:text-primary"
+                      onClick={() => {
+                        //navigate to the reservation id page
+                        router.push(`/dashboard/booking/${item.id}`);
+                      }}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
-      {/* Scan dialog outside the map, controlled by state */}
+      
+      {/* Print Dialog */}
       <PrintDialog
         reservation_id={selectedReservationId}
         open={scanDialogOpen}
         onOpenChange={setScanDialogOpen}
+      />
+      
+      {/* Edit Booking Dialog */}
+      <BookingEditDialog
+     
+        open={editDialogOpen}
+        onOpenChange={handleDialogOpenChange}
+        bookingData={selectedBooking}
+        onSave={handleSaveBooking}
       />
     </div>
   );

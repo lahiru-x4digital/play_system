@@ -40,7 +40,7 @@ export function PhoneNumberField({
  
     // if number exists → error
     if (success) {
-      setError(name, { type: "manual", message: "Number already exists" });
+      setError(name, { type: "manual", message: "Number Found" });
       setIsFree(false);
     } else if (getValues(name).replace(/\D/g, "") === digits) {
       // number NOT in DB → green banner
@@ -97,7 +97,7 @@ export function PhoneNumberField({
               />
             </FormControl>
 
-            <FormMessage>{fieldState.error?.message || error}</FormMessage>
+            <p className="text-xs mt-1 text-gray-600">{fieldState.error?.message || error}</p>
             {isFree && (
               <p className="text-xs mt-1 text-gray-600">
                 Number does not exist

@@ -18,9 +18,7 @@ import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
 import PaymentInput from "./PaymentInput";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import useGetplayCustomerType from "@/hooks/useGetplayCustomerType";
-import { Delete, Plus, Trash } from "lucide-react";
-import AdditionalHoursSelect from "../booking/AdditionalHoursSelect";
+import { Plus, Trash } from "lucide-react";
 import AdditionalProductSelect from "../booking/AdditionalProductSelect";
 
 const reservationSchema = z.object({
@@ -40,7 +38,8 @@ const reservationSchema = z.object({
     additional_minutes:z.number().optional(),
     additional_minutes_price:z.number().optional(),
     additional_minutes_price_id:z.number().nullable(),
-    minutes_qty:z.number().optional()
+    minutes_qty:z.number().optional(),
+    names:z.array(z.string().optional())
   })),
   additional_products:z.array(z.object({
     id:z.number(),
@@ -56,7 +55,6 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
     timeDurationPricingRefres,
   } = useGetTimeDurationPricing();
   const { postHandler, postHandlerloading } = useAxiosPost();
-const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
  const [selectedPricing,setSelectedPricing]=useState(null)
  const [selectedAdditionalProduct,setSelectedAdditionalProduct]=useState(null)
 
@@ -117,7 +115,7 @@ const {customerTypes,customerTypesLoading,}=useGetplayCustomerType(true)
   //! debug the relations are they working corectly 
   //! check edge cases of calculations 
   //!check customer hooks data fetichng infinite loop api calls 
-console.log(methods.watch("customer_types"))
+console.log(methods.formState.errors)
   //form state error consoel log
   const onSubmit = async (data) => {
     const payload = {
@@ -135,7 +133,8 @@ console.log(methods.watch("customer_types"))
         additional_minutes_price_id:item.additional_minutes_price_id,
         additional_minutes_price:item.additional_minutes_price,
         additional_minutes:item.additional_minutes,
-        minutes_qty:item.minutes_qty
+        minutes_qty:item.minutes_qty,
+        names:item.names.filter(name => name !== ""&& name !== undefined && name !== null)
       })) || [],
       products:data.additional_products?.map(item=>({
         play_product_id:item.id,
@@ -272,7 +271,8 @@ console.log(methods.watch("customer_types"))
                   additional_minutes: 0,
                   additional_minutes_price: 0,
                   additional_minutes_price_id: null,
-                  minutes_qty: 0
+                  minutes_qty: 0,
+                  names:[]
                 })
                 setSelectedPricing(null)
                 if (selectRef.current) {
@@ -311,35 +311,49 @@ console.log(methods.watch("customer_types"))
                     </div>
 
                     {/* Right Summary */}
-                    <div className="grid grid-cols-3 text-right gap-4 min-w-[280px]">
-                      <div>
+                    <div className="grid grid-cols-1 text-right gap-4 min-w-[80px]">
+                      {/* <div>
                         <div className="text-xs text-gray-500">Base Total</div>
                         <div className="text-md font-medium text-gray-800">{baseTotal.toFixed(2)}</div>
                         <div className="text-xs text-gray-400">{item.price} per person</div>
-                      </div>
-                      <div>
+                      </div> */}
+                      {/* <div>
                         <div className="text-xs text-gray-500">Extra</div>
                         <div className="text-md font-medium text-orange-600">{extra} min</div>
                         <div className="text-xs text-gray-400"> x {minutesQty} Qty</div>
-                      </div>
+                      </div> */}
                       <div>
                         <div className="text-xs text-gray-500">Total</div>
                         <div className="text-xl font-semibold text-indigo-600">{total.toFixed(2)}</div>
                       </div>
                     </div>
                   </div>
-
+                  {methods.watch(`customer_types.${index}.count`) > 0 && (
+                    <div className="mt-2 space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">{item.play_customer_type_name} Names</label>
+                      {Array.from({ length: methods.watch(`customer_types.${index}.count`) || 0 }).map((_, nameIndex) => (
+                        <Input
+                          key={nameIndex}
+                          type="text"
+                          placeholder={`Name ${nameIndex + 1}`}
+                          {...methods.register(`customer_types.${index}.names.${nameIndex}`)}
+                          className="border rounded w-full px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+                          onMouseWheel={(e) => e.target.blur()}
+                        />
+                      ))}
+                    </div>
+                  )}
                   {/* Controls Row */}
                   <div className="mt-4 flex flex-wrap items-end gap-3 justify-between sm:justify-start">
                     {/* Additional Hours Select */}
-                    <AdditionalHoursSelect
+                    {/* <AdditionalHoursSelect
                       name={`customer_types.${index}`}
                       branchId={methods.watch("branch_id")}
                       userType={item.play_customer_type_id}
-                    />
+                    /> */}
 
                     {/* Quantity Input */}
-                    <div>
+                    {/* <div>
                       <label className="block text-sm text-gray-600 mb-1">Extra Qty</label>
                       <Input
                         type="number"
@@ -352,8 +366,8 @@ console.log(methods.watch("customer_types"))
                         className="border rounded w-24 px-2 py-1 focus:ring-2 focus:ring-indigo-500"
                         onMouseWheel={(e) => e.target.blur()}
                       />
-                    </div>
-
+                    </div> */}
+                   
                     {/* Remove Button */}
                     <button
                       type="button"
@@ -455,7 +469,7 @@ console.log(methods.watch("customer_types"))
           {/* Calculated Price */}
 
           <div className="flex gap-2 mt-4">
-            <Button className={"w-full"} type="submit">
+            <Button disabled={methods.watch('customer_types')?.length === 0 ||postHandlerloading} className={"w-full"} type="submit">
               Create
             </Button>
             {/* <Button type="button" variant="outline" onClick={() => setOpen(false)}>
