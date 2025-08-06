@@ -24,7 +24,7 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
     setSelectedReservationId(reservationId);
     setScanDialogOpen(true);
   };
-
+console.log(data)
   return (
     <div className="rounded-md border">
       <Table>
@@ -32,12 +32,12 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
           <TableRow>
             <TableHead>Reservation ID</TableHead>
             <TableHead>Customer</TableHead>
-            <TableHead>Mobile Number</TableHead>
             <TableHead>Branch</TableHead>
+            <TableHead>Total Pax</TableHead>
             <TableHead>Total Price</TableHead>
-            <TableHead>Total Payment</TableHead>
-            <TableHead>Remaining Time</TableHead>
-            <TableHead>Start At</TableHead>
+            {/* <TableHead>Total Payment</TableHead> */}
+            <TableHead>Remaining Time</TableHead> 
+            <TableHead>Start Time</TableHead>
             <TableHead>End Time</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
@@ -56,29 +56,35 @@ const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
             data.map((item, index) => (
               <TableRow key={item.id || index}>
                 <TableCell className="font-medium">{item.id}</TableCell>
-                <TableCell>
+                <TableCell className="flex flex-col">
+                  <span>
                   {item.customer
                     ? `${item.customer.first_name || ""} ${
                         item.customer.last_name || ""
                       }`
                     : "-"}
-                </TableCell>
-                <TableCell>
+                  </span>
+                  <span className="text-xs text-muted-foreground">
                   {item.customer ? item.customer.mobile_number : "-"}
+                  </span>
                 </TableCell>
                 <TableCell>
                   {item.branch ? `${item.branch.branch_name}` : "-"}
                 </TableCell>
                 <TableCell>
-                  {item.total_price != null ? item.total_price : "-"}
+                  {item?.play_reservation_customer_types?.reduce((sum, item) => sum + item.count, 0)}
                 </TableCell>
                 <TableCell>
-                  {item.total_payment != null ? item.total_payment : "-"}
+                  {item.total_price != null ? item.total_price : "-"}
                 </TableCell>
+                {/* <TableCell>
+                  {item.total_payment != null ? item.total_payment : "-"}
+                </TableCell> */}
                 <TableCell>
                   <TimerCountDown
                     startTime={item.created_date}
                     duration={item?.play_pricing?.duration || 0}
+                    endTime={item.end_time}
                   />
                 </TableCell>
 

@@ -10,7 +10,7 @@ import BandItem from "./BandItem";
 export default function BarcodePrintView({ reservation = null }) {
   const printRef = useRef(null);
   const reactToPrintFn = useReactToPrint({ contentRef: printRef });
-
+console.log(reservation)
   return (
     <div className="">
       <Button

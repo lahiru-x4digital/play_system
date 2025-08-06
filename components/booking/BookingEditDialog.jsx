@@ -25,7 +25,7 @@ import ExtraHoursSelectInput from '../common/ExtraHoursSelectInput';
 
 export function BookingEditDialog({ open, onOpenChange, bookingData}) {
 
-  const statuses = ["PENDING", "PAID", "REFUND", "CENCELED"];
+  const statuses = ["PENDING", "PAID", "REFUND", "CENCELED", "CONFIRMED"];
   const[status, setStatus] = React.useState(bookingData?.status || "");
   const {patchHandler,patchHandlerloading,patchHandlerError}=useAxiosPatch()
  const [extraHours, setExtraHours] = React.useState([]);
@@ -35,12 +35,24 @@ export function BookingEditDialog({ open, onOpenChange, bookingData}) {
     }
   }, [bookingData]);
 const handleUpdate = async() => {
+  // Filter out null/undefined values and ensure proper structure
+  const filteredExtraHours = extraHours
+    .filter(item => item && item.extra_hours_id) // Only keep valid items with extra_hours_id
+    .map(({ extra_hours_id, extra_pricing, play_customer_type_id, duration, hours_qty }) => ({
+      extra_hours_id,
+      extra_pricing,
+      play_customer_type_id,
+      duration,
+      hours_qty
+    }));
+  
   const data = {
     status: status,
-    extra_hours: extraHours,
-  }
-await  patchHandler(`play/auto-booking/${bookingData?.id}`, data)
-  onOpenChange(false)
+    extra_hours: filteredExtraHours,
+  };
+  
+  await patchHandler(`play/auto-booking/${bookingData?.id}`, data);
+  onOpenChange(false);
 }
 
   return (
@@ -75,46 +87,56 @@ await  patchHandler(`play/auto-booking/${bookingData?.id}`, data)
                 </Select>
             </div>
             {
-              bookingData?.play_reservation_customer_types?.map((item,index)=>(
-              <div className="grid gap-2 p-2 border" key={item.id}>
-                <h1 className="text-lg font-semibold">{item.playCustomerType.name} /  Pax- {item.count}</h1>
-                {/*count*/}
-                <ExtraHoursSelectInput
-                value={extraHours[index]?.extra_hours_id || null}
-                onChange={(val) => setExtraHours(prev => {
-                  const newExtraHours = [...prev];
-                  newExtraHours[index] = {
-                    ...newExtraHours[index],
-                    extra_hours_id: val.id,
-                    extra_pricing:val.price,
-                    play_customer_type_id:item.playCustomerTypeId,
-                    duration:val.duration
-                  };
-                  return newExtraHours;
-                })}
-                label="Extra Hours"
-                branchId={bookingData?.branch_id}
-                customerTypeId={item.playCustomerType.id}
-              /> 
-             <div>
-             <Label className="text-sm font-medium">Hours Qty</Label>
-             <Input
-                type="number"
-                name="extra_hours"
-                value={extraHours[index]?.hours_qty || ""}
-                onChange={(e) => setExtraHours(prev => {
-                  const newExtraHours = [...prev];
-                  newExtraHours[index] = {
-                    ...newExtraHours[index],
-                    hours_qty: parseInt(e.target.value)
-                  };
-                  return newExtraHours;
-                })}
-                placeholder="Enter Hours Qty"/>
-             </div>
+              bookingData?.play_reservation_customer_types?.map((item, index) => {
+                const itemTotal = extraHours[index]?.extra_pricing && extraHours[index]?.hours_qty 
+                  ? extraHours[index].extra_pricing * extraHours[index].hours_qty 
+                  : 0;
                 
-              </div>
-              ))
+                return (
+                  <div className="grid gap-2 p-2 border" key={item.id}>
+                    <h1 className="text-lg font-semibold">{item.playCustomerType.name} /  Pax- {item.count}</h1>
+                    <ExtraHoursSelectInput
+                      value={extraHours[index]?.extra_hours_id || null}
+                      onChange={(val) => setExtraHours(prev => {
+                        const newExtraHours = [...prev];
+                        newExtraHours[index] = {
+                          ...newExtraHours[index],
+                          extra_hours_id: val.id,
+                          extra_pricing: val.price,
+                          play_customer_type_id: item.playCustomerTypeId,
+                          duration: val.duration,
+                          hours_qty: 1
+                        };
+                        return newExtraHours;
+                      })}
+                      label="Extra Hours"
+                      branchId={bookingData?.branch_id}
+                      customerTypeId={item.playCustomerType.id}
+                    /> 
+                    <div>
+                      <Label className="text-sm font-medium">Hours Qty</Label>
+                      <Input
+                        type="number"
+                        name="extra_hours"
+                        value={extraHours[index]?.hours_qty || ""}
+                        onChange={(e) => setExtraHours(prev => {
+                          const newExtraHours = [...prev];
+                          newExtraHours[index] = {
+                            ...newExtraHours[index],
+                            hours_qty: parseInt(e.target.value) || 1
+                          };
+                          return newExtraHours;
+                        })}
+                        placeholder="Enter Hours Qty"
+                        min="0"
+                      />
+                    </div>
+                    <div className="font-medium">
+                      Total: {itemTotal.toFixed(2)}
+                    </div>
+                  </div>
+                );
+              })
             }
             {/* <ExtraHoursSelectInput
               value={bookingData?.extra_hours || ""}

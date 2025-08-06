@@ -124,6 +124,7 @@ console.log(methods.formState.errors)
       mobile_number: data.mobile_number,
       branch_id: isAdmin ? data.branch_id : user?.branchId,
       total_price: totalPrice,
+      status:"CONFIRMED",
       customer_types: data.customer_types?.map(item => ({
         playCustomerTypeId: item.play_customer_type_id,
         playPricingId: item.pricing_id,
@@ -228,7 +229,6 @@ console.log(methods.formState.errors)
                     duration: selectedItem.duration,
                     price: selectedItem.price,
                     count:0,
-
                   })
                 }}
                 className="border rounded px-2 py-1 w-full"

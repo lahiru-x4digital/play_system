@@ -9,6 +9,7 @@ import { AddBarcodeDialog } from '@/components/booking/AddBarcodeDialog'
 import { AddExtraTimeDialog } from '@/components/booking/AddExtraTimeDialog'
 import { Button } from '@/components/ui/button'
 import { PlusCircle } from 'lucide-react'
+import { getEndTime } from '@/lib/getEndTime'
 
 function formatDate(dateStr) {
   if (!dateStr) return '-'
@@ -44,6 +45,7 @@ export default function Page({ params }) {
 
   const handleDialogSuccess = (res) => {
     playReservationRefresh(reservation_id)
+    setSelectedBarcode(null)
   }
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export default function Page({ params }) {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-2">
             <LabelValue label="Total Price" value={playReservation.total_price} />
             <LabelValue label="Total Payment" value={playReservation.total_payment} />
           </div>
@@ -154,35 +156,74 @@ export default function Page({ params }) {
           </div>
         </CardHeader>
         <CardContent>
-          {playReservation.play_reservation_barcodes?.length > 0 ? (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              {playReservation.play_reservation_barcodes.map((b) => (
-                <li key={b.id} className="border rounded-md p-3 space-y-1 bg-muted/10">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Barcode</span>
-                    <Badge variant="outline">{b.barcode?.barcode_number}</Badge>
-                  </div>
-                  <LabelValue label="Duration" value={`${b.barcode?.time_duration || '-'} min`} />
-                  <LabelValue label="Customer Type" value={b.barcode?.play_customer_type?.name || '-'} />
-                  <LabelValue label="Extra Time" value={`${b.extra_minutes || '-'} min`} />
-                  <LabelValue label="Extra Time Price" value={`${b.extra_minute_price || '-'}`} />
-                  <div className="pt-2 flex justify-end">
-                  <Button
-                    className="px-2"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenDialog(b)}
-                  >
-                    <PlusCircle className="mr-1" size={16} />
-                    Add Extra Time
-                  </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="text-muted-foreground text-sm">No barcodes found.</div>
-          )}
+        {playReservation.play_reservation_barcodes?.length > 0 ? (
+  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+    {playReservation.play_reservation_barcodes.map((b) => (
+      <li
+        key={b.id}
+        className="border rounded-xl p-4 space-y-3 bg-muted/10 shadow-sm transition hover:shadow-md"
+      >
+        <div className="flex items-center justify-between">
+          <div className="font-medium text-muted-foreground truncate">
+            Name: {b.name}
+          </div>
+          <Badge variant="outline" className="text-xs">
+            {b.barcode?.barcode_number}
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-1 gap-1 text-muted-foreground">
+          <LabelValue
+            label="Customer Type"
+            value={b.barcode?.play_customer_type?.name || '-'}
+          />
+          <LabelValue
+            label="Start Time"
+            value={`${new Date(b.createdAt).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}`}
+          />
+          <LabelValue
+            label="End Time"
+            value={`${getEndTime(
+              b.createdAt,
+              b.initial_minutes,
+              b.extra_minutes || 0
+            )}`}
+          />
+          <LabelValue
+            label="Duration"
+            value={`${b.barcode?.time_duration || '-'} min`}
+          />
+          <LabelValue
+            label="Extra Time"
+            value={`${b.extra_minutes || '-'} min`}
+          />
+          <LabelValue
+            label="Extra Time Price"
+            value={b.extra_minute_price ? `Rs. ${b.extra_minute_price}` : '-'}
+          />
+        </div>
+
+        <div className="pt-3 flex justify-end">
+          <Button
+            className="px-3"
+            variant="outline"
+            size="sm"
+            onClick={() => handleOpenDialog(b)}
+          >
+            <PlusCircle className="mr-1 h-4 w-4" />
+            Add Extra Time
+          </Button>
+        </div>
+      </li>
+    ))}
+  </ul>
+) : (
+  <div className="text-muted-foreground text-sm">No barcodes found.</div>
+)}
+
         
         </CardContent>
       </Card>

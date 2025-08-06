@@ -61,12 +61,12 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
           <TableRow>
             <TableHead>Reservation ID</TableHead>
             <TableHead>Customer</TableHead>
-            <TableHead>Mobile Number</TableHead>
             <TableHead>Branch</TableHead>
+             <TableHead>Total Pax</TableHead>
             <TableHead>Total Price</TableHead>
             {/* <TableHead>Total Payment</TableHead> */}
             <TableHead>Status</TableHead>
-            <TableHead>Start At</TableHead>
+            <TableHead>Start Time</TableHead>
             <TableHead>End Time</TableHead>
             <TableHead className='text-center'>Action</TableHead>
           </TableRow>
@@ -85,18 +85,23 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
             data.map((item, index) => (
               <TableRow key={item.id || index}>
                 <TableCell className="font-medium">{item.id}</TableCell>
-                <TableCell>
-                  {item.customer
-                    ? `${item.customer.first_name || ""} ${
-                        item.customer.last_name || ""
-                      }`
-                    : "-"}
-                </TableCell>
-                <TableCell>
-                  {item.customer ? item.customer.mobile_number : "-"}
-                </TableCell>
+                 <TableCell className="flex flex-col">
+                   <span>
+                   {item.customer
+                     ? `${item.customer.first_name || ""} ${
+                         item.customer.last_name || ""
+                       }`
+                     : "-"}
+                   </span>
+                   <span className="text-xs text-muted-foreground">
+                   {item.customer ? item.customer.mobile_number : "-"}
+                   </span>
+                 </TableCell>
                 <TableCell>
                   {item.branch ? `${item.branch.branch_name}` : "-"}
+                </TableCell>
+                <TableCell>
+                  {item?.play_reservation_customer_types?.reduce((sum, item) => sum + item.count, 0)}
                 </TableCell>
                 <TableCell>
                   {item.total_price != null ? item.total_price : "-"}
@@ -119,10 +124,12 @@ const PlayReservationTable = ({ data = [], onRefresh }) => {
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  {getEndTime(
-                    item.created_date,
-                    item?.play_pricing?.duration || 0
-                  )}
+                  {item.end_time
+                    ? new Date(item.end_time).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "-"}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">

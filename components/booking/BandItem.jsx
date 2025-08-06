@@ -15,7 +15,7 @@ export default function BandItem({ barcode, reservation }) {
     }, 100); // Wait for DOM update
   };
   if (!barcode || !reservation) return null;
-
+console.log(barcode)
   return (
     <div className="flex flex-col items-center justify-center">
       <Button
@@ -88,7 +88,7 @@ export default function BandItem({ barcode, reservation }) {
             textAlign: "center",
           }}
         >
-          {getEndTime(barcode?.barcode?.created_date, barcode?.barcode?.time_duration, barcode?.barcode?.extra_minutes || 0)}
+          {getEndTime(barcode?.createdAt, barcode?.initial_minutes, barcode?.extra_minutes || 0)}
         </div>
         <QRCode
           value={barcode?.barcode?.barcode_number}
