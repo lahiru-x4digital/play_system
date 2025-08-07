@@ -48,7 +48,7 @@ const reservationSchema = z.object({
     qty:z.number()
   }))
 });
-export default function AutoGenarateReservationForm({ onSuccess }) {
+export default function AutoGenarateReservationForm({ onSuccess,open }) {
   const {
     timeDurationPricing = [],
     timeDurationPricingLoading,
@@ -60,7 +60,6 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
 
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
-  const [open, setOpen] = useState(false);
   const methods = useForm({
     resolver: zodResolver(reservationSchema),
     defaultValues: {
@@ -85,9 +84,12 @@ export default function AutoGenarateReservationForm({ onSuccess }) {
     name: "additional_products",
   });
   const selectRef = useRef(null);
+  console.log(open)
   useEffect(() => {
     if (open) {
+   
       if (!isAdmin) {
+      
         timeDurationPricingRefres({
           branch_id: user?.branchId,
         });
@@ -154,7 +156,7 @@ console.log(methods.formState.errors)
       if (onSuccess) onSuccess(res?.data);
     } catch (error) {}
     // handle create order logic here
-    setOpen(false);
+   
     methods.reset();
   };
 

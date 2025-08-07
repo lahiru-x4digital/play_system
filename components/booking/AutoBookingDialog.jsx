@@ -67,7 +67,7 @@ useEffect(() => {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <form>
         <DialogTrigger asChild>
-          <Button variant="outline">Create Booking</Button>
+          <Button className="bg-primary text-white mb-2">Create Booking</Button>
         </DialogTrigger>
         <DialogContent
           onInteractOutside={(e) => e.preventDefault()}
@@ -91,6 +91,7 @@ useEffect(() => {
                   setPrintBarcodes(true);
                   setReservation_id(res?.playReservation?.id);
                 }}
+                open={open}
               />
             )}
           </div>

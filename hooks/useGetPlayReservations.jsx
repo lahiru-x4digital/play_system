@@ -20,7 +20,7 @@ const useGetPlayReservations = () => {
     pageSize: 10,
     page: 1,
     search: null,
-    branch_id: isAdmin ? null : user?.branchId,
+    branch_id: user?.branchId || null,
     order_id: null,
     time_duration_id: null,
     start_date: null,
