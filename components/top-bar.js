@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { UserNav } from "@/components/user-nav"
 import { usePathname } from "next/navigation"
 import { BackButton } from "@/components/back-button"
+import { AutoBookingDialog } from "./booking/AutoBookingDialog"
 
 export function TopBar({ user }) {
   const pathname = usePathname()
@@ -43,9 +44,12 @@ export function TopBar({ user }) {
             {breadcrumb}
           </p>
         </div>
+      
 
         <div className="flex-1" />
-        
+        <div>
+       <AutoBookingDialog playReservationsRefres={() => {}} />
+        </div>
         <div className="flex items-end gap-4">
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="hidden relative w-8 h-8 top-0.5">

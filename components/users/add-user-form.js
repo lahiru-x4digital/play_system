@@ -155,7 +155,7 @@ export function AddUserForm({ open, onOpenChange, onSuccess }) {
       form.setValue('branch_id', session.user.branchId.toString(), { shouldValidate: true });
     }
   }, [userType, session, form])
-
+console.log('[AddUserForm] session:', session);
   const onFormSubmit = async (data) => {
     console.log('[AddUserForm] Form submission started with data:', data);
     
@@ -169,6 +169,21 @@ export function AddUserForm({ open, onOpenChange, onSuccess }) {
         toast({
           title: "Error",
           description: "Your account does not have an associated branch. Cannot create Care Team user.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (data.user_type === 'ADMIN' && !data.branch_id) {
+      // For ADMIN users, ensure branch_id is set from the form
+      const formBranchId = form.getValues('branch_id');
+      if (formBranchId) {
+        data.branch_id = formBranchId;
+        console.log('[AddUserForm] Using branch_id from form for ADMIN:', data.branch_id);
+      } else {
+        console.warn('[AddUserForm] No branch selected for ADMIN user');
+        toast({
+          title: "Error",
+          description: "Please select a branch for the ADMIN user.",
           variant: "destructive",
         });
         return;
@@ -229,13 +244,13 @@ export function AddUserForm({ open, onOpenChange, onSuccess }) {
         brand_id: data.brand_id ? parseInt(data.brand_id, 10) : undefined,
         preferred_language: data.preferred_language || undefined,
         user_type: data.user_type,
-        password: data.password
+        password: data.password,
+        organization_id: 1
       };
+      console.log('[AddUserForm] User data:', userData);
 
       // For SUPERADMIN, always send organization_id: 1
-      if (data.user_type === 'SUPERADMIN') {
-        userData.organization_id = 1;
-      }
+    
 
       // Remove any undefined or empty values
       const formattedData = Object.fromEntries(

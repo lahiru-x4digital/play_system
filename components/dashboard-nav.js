@@ -186,7 +186,16 @@ const userNavItems = [
     href: "/dashboard/pricing",
     icon: DollarSign,
   },
-
+  {
+    title: "Extra Hours Pricing",
+    href: "/dashboard/extra-hours-pricing",
+    icon: DollarSign,
+  },
+  {
+    title: "Products",
+    href: "/dashboard/products",
+    icon: PackageSearch 
+  },
 
   // {
   //   title: "Settings",
