@@ -15,9 +15,9 @@ export default function BandItem({ barcode, reservation }) {
     }, 100); // Wait for DOM update
   };
   if (!barcode || !reservation) return null;
-  console.log(barcode);
+console.log(barcode)
   return (
-    <div className="flex flex-col items-center justify-center" key={barcode.id}>
+    <div className="flex flex-col items-center justify-center">
       <Button
         className={"mb-2 btn-print-barcode"}
         onClick={handleSinglePrint}
@@ -65,7 +65,7 @@ export default function BandItem({ barcode, reservation }) {
             textAlign: "center",
           }}
         >
-          {new Date(barcode?.created_date).toLocaleDateString()}
+          {new Date(barcode?.barcode?.created_date).toLocaleDateString()}
         </div>
         {/* <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>From</div> */}
         <div
@@ -75,7 +75,7 @@ export default function BandItem({ barcode, reservation }) {
             textAlign: "center",
           }}
         >
-          {new Date(barcode?.created_date).toLocaleTimeString([], {
+          {new Date(barcode?.barcode?.created_date).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           })}
@@ -88,10 +88,10 @@ export default function BandItem({ barcode, reservation }) {
             textAlign: "center",
           }}
         >
-          {getEndTime(barcode?.created_date, barcode?.time_duration, barcode?.extra_minutes || 0)}
+          {getEndTime(barcode?.createdAt, barcode?.initial_minutes, barcode?.extra_minutes || 0)}
         </div>
         <QRCode
-          value={barcode.barcode_number}
+          value={barcode?.barcode?.barcode_number}
           size={60}
           style={{ marginBottom: "2mm" }}
         />
@@ -102,17 +102,19 @@ export default function BandItem({ barcode, reservation }) {
             textAlign: "center",
           }}
         >
-          {barcode.barcode_number}
+          {barcode?.barcode?.barcode_number}
         </div>
         <div
+        className="text-wrap"
           style={{
             fontSize: "8pt",
             wordBreak: "break-all",
             textAlign: "center",
           }}
         >
-          {barcode.play_customer_type?.name}
+          {barcode?.barcode?.play_customer_type?.name}
         </div>
+        <p className="text-center text-wrap text-sm text-gray-500 font-semibold">{barcode.name}</p>
       </div>
     </div>
   );

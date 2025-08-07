@@ -41,7 +41,7 @@ export default function Booking() {
 
   return (
     <div>
-      <AutoBookingDialog />
+      <AutoBookingDialog playReservationsRefres={playReservationsRefres} />
       <ReservationFilter
         onSubmit={(data) => {
           const { branch, date, timeDurationId } = data;
@@ -79,6 +79,7 @@ export default function Booking() {
           </>
         )}
       </div>
+      
     </div>
   );
 }

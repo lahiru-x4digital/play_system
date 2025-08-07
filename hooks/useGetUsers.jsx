@@ -4,7 +4,7 @@ import { extractErrorMessage } from "../utils/extractErrorMessage";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import api from "@/services/api";
 
-const useGetExtraHours = () => {
+const useGetUsers = () => {
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -12,7 +12,8 @@ const useGetExtraHours = () => {
   const abortControllerRef = useRef(null);
 
   const loadData = async (params) => {
-    console.log(params)
+    //PARAMS
+    // branch_id,name
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -22,7 +23,7 @@ const useGetExtraHours = () => {
     try {
      
       const response =
-        await api.get(`play/pricing/extra-hours-pricing`, {
+        await api.get(`play/user`, {
           params: {
             ...paramsNullCleaner(params),
           },
@@ -31,7 +32,7 @@ const useGetExtraHours = () => {
       if (!controller.signal.aborted) {
         // console.log(response.data)
         setDataList(response.data || []);
-        console.log(response)
+      
       }
     } catch (err) {
       if (!controller.signal.aborted) {
@@ -43,13 +44,16 @@ const useGetExtraHours = () => {
       setLoading(false);
     }
   }
-  
+
+
+
+
   return {
-    extraHoursList: dataList,
-    extraHoursListLoading: loading,
-    extraHoursListError: error,
-    extraHoursListRefresh: loadData,
+    usersList: dataList,
+    usersListLoading: loading,
+    usersListError: error,
+    usersListRefresh: loadData,
   };
 };
 
-export default useGetExtraHours; 
+export default useGetUsers; 

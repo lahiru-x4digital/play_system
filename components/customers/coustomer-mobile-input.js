@@ -37,7 +37,7 @@ export function PhoneNumberField({
 
     // if number exists → error
     if (success) {
-      setError(name, { type: "manual", message: "Number already exists" });
+      setError(name, { type: "manual", message: "Number Found" });
       setIsFree(false);
     } else if (getValues(name).replace(/\D/g, "") === digits) {
       // number NOT in DB → green banner

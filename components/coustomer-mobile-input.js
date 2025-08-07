@@ -27,24 +27,22 @@ export function PhoneNumberField({
   defaultCountry = "ae",
   preferred = ["ae", "sa", "lk", "us", "gb"],
 }) {
-  const { setError, clearErrors, getValues ,setValue} = useFormContext();
+  const { setError, clearErrors, getValues, setValue } = useFormContext();
   const timer = useRef(null);
   const [isFree, setIsFree] = useState(false); // banner flag
 
   /* ----- debounced uniqueness check ------------------ */
   const checkUniqueness = async (digits) => {
-    const { success,data } = await customerService.searchCustomerByMobile(digits);
-    setValue("first_name", data?.customers[0]?.first_name||"");
-    setValue("last_name", data?.customers[0]?.last_name||"");
-
- 
-    // if number exists → error
-    if (success) {
-      setError(name, { type: "manual", message: "Number already exists" });
+    const { success, data } = await customerService.searchCustomerByMobile(digits);
+    
+    if (success && data?.customers?.[0]) {
+      // Only update fields if we found a customer
+      setValue("first_name", data.customers[0].first_name || "");
+      setValue("last_name", data.customers[0].last_name || "");
+      setError(name, { type: "manual", message: "Number Found" });
       setIsFree(false);
-    } else if (getValues(name).replace(/\D/g, "") === digits) {
-      // number NOT in DB → green banner
-      setError(name, { type: "manual", message: "Number not found" });
+    } else if (getValues(name)?.replace(/\D/g, "") === digits) {
+      // Only clear errors if the current value matches what we just checked
       clearErrors(name);
       setIsFree(true);
     }
@@ -97,7 +95,7 @@ export function PhoneNumberField({
               />
             </FormControl>
 
-            <FormMessage>{fieldState.error?.message || error}</FormMessage>
+            <p className="text-xs mt-1 text-gray-600">{fieldState.error?.message || error}</p>
             {isFree && (
               <p className="text-xs mt-1 text-gray-600">
                 Number does not exist

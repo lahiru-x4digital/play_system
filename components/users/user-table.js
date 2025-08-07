@@ -40,13 +40,14 @@ import { sortData, createSortFields, defaultComparators } from "@/lib/table-sort
 import { AddUserForm } from "./add-user-form"
 import { useRouter } from "next/navigation"
 import { LocationFilter } from "@/components/filters/location-filter"
+import SelectBranch from "../common/selectBranch"
 
 const userTypes = [
-  { value: "SUPERADMIN", label: "Super Admin" },
-  { value: "BRANCH_USER", label: "Branch User" },
-  { value: "BRANCH_MANAGER", label: "Branch Manager" },
+  // { value: "SUPERADMIN", label: "Super Admin" },
+  // { value: "BRANCH_USER", label: "Branch User" },
+  // { value: "BRANCH_MANAGER", label: "Branch Manager" },
   { value: "ADMIN", label: "Admin" },
-  { value: "USER", label: "Care Team" },
+  { value: "USER", label: "User" },
 ]
 
 export function UsersTable({
@@ -73,6 +74,7 @@ export function UsersTable({
   const [isLoading, setIsLoading] = useState(false)
   const [userTypeFilter, setUserTypeFilter] = useState("all")
   const [selectedLocation, setSelectedLocation] = useState(null)
+  const [selectedBranchId, setSelectedBranchId] = useState(null)
   const [isBranchChanging, setIsBranchChanging] = useState(false)
 
   const [localSortConfig, setLocalSortConfig] = useState({
@@ -137,12 +139,12 @@ export function UsersTable({
     }
     
     // Apply location filter
-    if (selectedLocation?.id) {
-      users = users.filter(user => user?.branch_id === selectedLocation.id)
+    if (selectedBranchId) {
+      users = users.filter(user => user?.branch_id === selectedBranchId)
     }
     
     return users
-  }, [searchResults, localUsers, mounted, userTypeFilter, selectedLocation])
+  }, [searchResults, localUsers, mounted, userTypeFilter, selectedBranchId])
 
   const sortedUsers = useMemo(() => {
     if (!mounted) return []
@@ -265,14 +267,12 @@ export function UsersTable({
     }
   }
 
-  const handleLocationChange = async ({ branchId, branchObj }) => {
+  const handleLocationChange = async ({ branchId }) => {
     // Prevent multiple rapid branch changes
     if (isBranchChanging) return;
 
     try {
       setIsBranchChanging(true);
-      setSelectedLocation(branchObj);
-      
       // Clear search results when location changes
       if (searchResults) {
         setSearchResults(null);
@@ -293,6 +293,11 @@ export function UsersTable({
       setIsBranchChanging(false);
     }
   };
+  useEffect(()=>{
+    if(selectedBranchId){
+      handleLocationChange({ branchId: selectedBranchId })
+    }
+  },[selectedBranchId])
 
   const handleSortFieldChange = (field) => {
     setLocalSortConfig(current => ({
@@ -319,9 +324,6 @@ export function UsersTable({
     await onRefresh?.()
   }
 
-  const handleViewDetails = (userId) => {
-    router.push(`/dashboard/users/${userId}`)
-  }
 
   // Don't render anything until after hydration
   if (!mounted) {
@@ -340,12 +342,14 @@ export function UsersTable({
     <div>
       {/* Location filter component */}
       <div className="mb-2">
-        <LocationFilter
-          userType={userType || "SUPERADMIN"}
-          userBranchId={userBranchId}
-          onSearch={handleLocationChange}
-          showOnlyForSuperadmin={false}
-        />
+       <SelectBranch
+        value={selectedBranchId}
+        onChange={(e)=>{
+         setSelectedBranchId(e)
+        }}
+       
+        label="Branch"
+      />
       </div>
       <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
