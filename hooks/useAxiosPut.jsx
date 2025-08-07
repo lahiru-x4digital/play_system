@@ -17,7 +17,7 @@ export const useAxiosPut = () => {
     setputHandlerError(false);
 
     try {
-      const responce = await api.put(url, data);
+      const responce = await api.put(`play/${url}`, data);
       return responce;
     } catch (error) {
       setputHandlerError(true);

@@ -6,14 +6,21 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAxiosPost } from "@/hooks/useAxiosPost";
-import useGetBrandList from '@/hooks/useGetBrandList';
+import { Pencil } from 'lucide-react';
+import CustomerTypeEditDialog from '@/components/customer-types/CustomerTypeEditDialog';
+import { useAxiosPut } from '@/hooks/useAxiosPut';
 
 export default function page() {
-    const {customerTypes,customerTypesLoading,customerTypesRefresh}=useGetplayCustomerType(true)
+    const { customerTypes, customerTypesLoading, customerTypesRefresh } = useGetplayCustomerType(true)
     const { postHandler, postHandlerloading } = useAxiosPost();
+    const { putHandler } = useAxiosPut();
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [error, setError] = useState("");
+    
+    // Edit dialog state
+    const [editingCustomerType, setEditingCustomerType] = useState(null);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,72 +29,102 @@ export default function page() {
             await postHandler("customer-type", { name });
             setOpen(false);
             setName("");
-            customerTypesRefresh()
-            // Optionally, refetch customer types here if needed
+            customerTypesRefresh();
         } catch (err) {
             setError("Failed to create customer type");
         }
     };
 
+    const handleEditCustomerType = async (updatedCustomerType) => {
+        try {
+            await putHandler(`customer-type`, { 
+                name: updatedCustomerType.name,
+                id: updatedCustomerType.id
+            });
+            setIsEditDialogOpen(false);
+            customerTypesRefresh();
+        } catch (err) {
+            console.error("Failed to update customer type", err);
+        }
+    };
 
     if (customerTypesLoading) {
         return <div>Loading...</div>;
     }
 
     return (
-        <div className="rounded-md border">
-            {/* Add Dialog Trigger Button */}
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                    <Button className="m-4">Add Customer Type</Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Add Customer Type</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <Input
-                            placeholder="Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                        />
-                        {error && <div className="text-red-500 text-sm">{error}</div>}
-                        <DialogFooter>
-                            <Button type="submit" disabled={postHandlerloading}>
-                                {postHandlerloading ? "Saving..." : "Save"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
-            <Table>
-            
-                <TableHeader>
-                    <TableRow>
-                        {/* <TableHead>ID</TableHead> */}
-                        <TableHead>Name</TableHead>
-                        <TableHead>Created Date</TableHead>
-                      
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {Array.isArray(customerTypes) && customerTypes.length > 0 ? (
-                        customerTypes.map((type) => (
-                            <TableRow key={type.id}>
-                                {/* <TableCell>{type.id}</TableCell> */}
-                                <TableCell>{type.name}</TableCell>
-                                <TableCell>{new Date(type.created_date).toLocaleString()}</TableCell>
-                                {/* <TableCell>{new Date(type.updated_date).toLocaleString()}</TableCell> */}
-                            </TableRow>
-                        ))
-                    ) : (
+        <div className="p-4">
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Customer Types</h1>
+                <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
+                        <Button>Add Customer Type</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Add Customer Type</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="space-y-2">
+                                <Input
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Enter customer type name"
+                                    required
+                                />
+                                {error && <p className="text-red-500 text-sm">{error}</p>}
+                            </div>
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={postHandlerloading}>
+                                    {postHandlerloading ? 'Saving...' : 'Save'}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+            </div>
+
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
                         <TableRow>
-                            <TableCell colSpan={4} style={{ textAlign: 'center' }}>No customer types found.</TableCell>
+                            <TableHead>Name</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+                    </TableHeader>
+                    <TableBody>
+                        {customerTypes?.map((type) => (
+                            <TableRow key={type.id}>
+                                <TableCell className="font-medium">{type.name}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm"
+                                        onClick={() => {
+                                            setEditingCustomerType(type);
+                                            setIsEditDialogOpen(true);
+                                        }}
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Edit Dialog */}
+            <CustomerTypeEditDialog
+                open={isEditDialogOpen}
+                onOpenChange={setIsEditDialogOpen}
+                customerType={editingCustomerType}
+                onSave={handleEditCustomerType}
+                loading={postHandlerloading}
+            />
         </div>
-    );
+    )
 }

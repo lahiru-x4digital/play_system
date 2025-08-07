@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import PhoneInput from 'react-phone-input-2'
@@ -44,6 +44,7 @@ import { countryService } from "@/services/country.service"
 import { Loader2, Eye, EyeOff, Filter } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Checkbox } from "@/components/ui/checkbox"
+import SelectBranch from "../common/selectBranch"
 
 const formSchema = z.object({
   mobile_number: z
@@ -411,6 +412,7 @@ export function AddUserForm({ open, onOpenChange, onSuccess }) {
       fetchCountries()
     }
   }, [open])
+  console.log(form.watch('branch_id'));
 
   // useEffect(() => {
   //   const fetchBrands = async () => {
@@ -547,123 +549,18 @@ export function AddUserForm({ open, onOpenChange, onSuccess }) {
               )}
             />
 
-            {form.watch('user_type') !== 'USER' && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="country_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm sm:text-base">Country</FormLabel>
-                        <Select
-                          onValueChange={handleCountryChange}
-                          value={selectedCountry}
-                          disabled={isLoadingCountries}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={
-                                isLoadingCountries ? "Loading countries..." : "Select country"
-                              } />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem key={country.id} value={country.id.toString()}>
-                                {country.country_name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="brand_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm sm:text-base">Brand {form.watch('user_type') === 'SUPERADMIN' ? '(Optional)' : ''}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          disabled={isLoadingBrands || !selectedCountry || form.watch('user_type') === 'SUPERADMIN'}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={
-                                isLoadingBrands ? "Loading brands..." :
-                                  !selectedCountry ? "Select country first" :
-                                    form.watch('user_type') === 'SUPERADMIN' ? "Not required for Super Admin" : "Select a brand"
-                              } />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {brands.map((brand) => (
-                              <SelectItem key={brand.id} value={brand.id.toString()}>
-                                {brand.brand_name || brand.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="branch_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm sm:text-base">Branch {form.watch('user_type') === 'SUPERADMIN' ? '(Optional)' : '*'}</FormLabel>
-                      <div className="relative">
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          disabled={isLoadingBranches || form.watch('user_type') === 'SUPERADMIN'}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={
-                                isLoadingBranches ? "Loading branches..." :
-                                  form.watch('user_type') === 'SUPERADMIN' ? "Not required for Super Admin" :
-                                    branches.length === 0 ? "No branches found" : "Select a branch"
-                              } />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {branches.length > 0 ? (
-                              branches.map((branch) => (
-                                <SelectItem key={branch.id} value={branch.id.toString()}>
-                                  {branch.branch_code} - {branch.branch_name || branch.name}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-                                {form.watch('brand_id') ? "No branches found for this brand" : "Select a brand first to filter branches"}
-                              </div>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        {isLoadingBranches && (
-                          <div className="absolute right-8 top-1/2 -translate-y-1/2">
-                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      {form.watch('user_type') === 'SUPERADMIN' && (
-                        <p className="text-xs text-muted-foreground">Super Admins have access to all branches</p>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
+            <Controller
+              name="branch_id"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <SelectBranch
+                  value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                  onChange={(val) => field.onChange(val.toString())}
+                  error={fieldState.error?.message}
+                  label="Branch"
                 />
-              </>
-            )}
+              )}
+            />
 
             <FormField
               control={form.control}
