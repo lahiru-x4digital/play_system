@@ -6,6 +6,7 @@ import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import { useIsAdmin } from "@/lib/getuserData";
 
 const useGetBranches = (brandId, open) => {
+
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -33,6 +34,7 @@ const useGetBranches = (brandId, open) => {
       const response = await branchService.getAllBranchesWithoutFiles(
         filterParams
       );
+      console.log(response)
       if (!controller.signal.aborted) {
         setDataList(response.data || []);
       }
@@ -56,9 +58,9 @@ const useGetBranches = (brandId, open) => {
   };
 
   useEffect(() => {
-    if (open) {
+   
       loadData();
-    }
+    
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();

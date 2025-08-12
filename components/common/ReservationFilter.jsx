@@ -116,7 +116,7 @@ export default function ReservationFilter({ onSubmit }) {
             <input
               type="text"
               className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              value={selectedMobileNumber}
+              value={selectedMobileNumber || ""}
               onChange={(e) => handleMobileNumberChange(e.target.value)}
             />
           </div>

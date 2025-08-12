@@ -43,13 +43,17 @@ export default function page() {
           <div className="text-center py-8">Loading reservations...</div>
         ) : (
           <PlayReservationTimeReportTable
+          playReservationsLoading={playReservationsLoading}
             data={playReservations}
             onRefresh={playReservationsRefres}
+            playReservationsChangePageSize={playReservationsChangePageSize}
+            playReservationsTotalCount={playReservationsTotalCount}
           />
         )}
       </div>
 
       <Pagination
+      
         currentPage={currentPage}
         totalPages={playReservationsTotalPages}
         onPageChange={playReservationsPageNavigation}

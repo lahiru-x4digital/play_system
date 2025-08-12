@@ -42,44 +42,48 @@ export default function Booking() {
   return (
     <div>
       <AutoBookingDialog playReservationsRefres={playReservationsRefres} />
-      <ReservationFilter
-        onSubmit={(data) => {
-          const { branch, date, timeDurationId } = data;
-          playReservationsSearch({
-            search: null,
-            branch_id: branch,
-            order_id: null,
-            time_duration_id: timeDurationId,
-            start_date: date,
-            end_date: null,
-          });
-        }}
-      />
-      <div className="mt-8">
-        {playReservationsLoading ? (
-          <div className="text-center py-8">Loading reservations...</div>
-        ) : playReservationsError ? (
-          <div className="text-center py-8 text-red-500">
-            Failed to load reservations.
-          </div>
-        ) : (
-          <>
-            <PlayReservationTable
-              data={playReservations}
-              onRefresh={playReservationsRefres}
-            />
-            <Pagination
-              currentPage={currentPage}
-              totalPages={playReservationsTotalPages}
-              onPageChange={playReservationsPageNavigation}
-              pageSize={playReservationsLimit}
-              onPageSizeChange={playReservationsChangePageSize}
-              total={playReservationsTotalCount}
-            />
-          </>
-        )}
+      <div className="space-y-4">
+        <ReservationFilter
+          onSubmit={(data) => {
+            const { branch, date, timeDurationId } = data;
+            playReservationsSearch({
+              search: null,
+              branch_id: branch,
+              order_id: null,
+              time_duration_id: timeDurationId,
+              start_date: date,
+              end_date: null,
+            });
+          }}
+        />
+        <div className="rounded-md border">
+          {playReservationsLoading ? (
+            <div className="text-center py-8">Loading reservations...</div>
+          ) : playReservationsError ? (
+            <div className="text-center py-8 text-red-500">
+              Failed to load reservations.
+            </div>
+          ) : (
+            <>
+              <PlayReservationTable
+                data={playReservations}
+                onRefresh={playReservationsRefres}
+                playReservationsLoading={playReservationsLoading}
+                playReservationsChangePageSize={playReservationsChangePageSize}
+                playReservationsTotalCount={playReservationsTotalCount}
+              />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={playReservationsTotalPages}
+                onPageChange={playReservationsPageNavigation}
+                pageSize={playReservationsLimit}
+                onPageSizeChange={playReservationsChangePageSize}
+                total={playReservationsTotalCount}
+              />
+            </>
+          )}
+        </div>
       </div>
-      
     </div>
   );
 }

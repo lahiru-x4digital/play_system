@@ -34,29 +34,32 @@ const reservationSchema = z.object({
     play_customer_type_name: z.string(),
     duration: z.number(),
     price: z.number(),
-    count:z.number(),
-    additional_minutes:z.number().optional(),
-    additional_minutes_price:z.number().optional(),
-    additional_minutes_price_id:z.number().nullable(),
-    minutes_qty:z.number().optional(),
-    names:z.array(z.string().optional())
+    count: z.number(),
+    additional_minutes: z.number().optional(),
+    additional_minutes_price: z.number().optional(),
+    additional_minutes_price_id: z.number().nullable(),
+    minutes_qty: z.number().optional(),
+    customers: z.array(z.object({
+      name: z.string().optional(),
+      birthday: z.string().optional()
+    }))
   })),
-  additional_products:z.array(z.object({
-    id:z.number(),
-    name:z.string(),
-    price:z.number(),
-    qty:z.number()
+  additional_products: z.array(z.object({
+    id: z.number(),
+    name: z.string(),
+    price: z.number(),
+    qty: z.number()
   }))
 });
-export default function AutoGenarateReservationForm({ onSuccess,open }) {
+export default function AutoGenarateReservationForm({ onSuccess, open }) {
   const {
     timeDurationPricing = [],
     timeDurationPricingLoading,
     timeDurationPricingRefres,
   } = useGetTimeDurationPricing();
   const { postHandler, postHandlerloading } = useAxiosPost();
- const [selectedPricing,setSelectedPricing]=useState(null)
- const [selectedAdditionalProduct,setSelectedAdditionalProduct]=useState(null)
+  const [selectedPricing, setSelectedPricing] = useState(null)
+  const [selectedAdditionalProduct, setSelectedAdditionalProduct] = useState(null)
 
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
@@ -70,13 +73,13 @@ export default function AutoGenarateReservationForm({ onSuccess,open }) {
       payment_method: "CASH",
       amount: 0,
       customer_types: [],
-      additional_products:[]
+      additional_products: []
     },
   });
   //log form state error
 
   const { fields, append, remove } = useFieldArray({
-    control:methods.control,
+    control: methods.control,
     name: "customer_types",
   });
   const { fields: additionalProducts, append: appendAdditionalProduct, remove: removeAdditionalProduct } = useFieldArray({
@@ -87,9 +90,9 @@ export default function AutoGenarateReservationForm({ onSuccess,open }) {
   console.log(open)
   useEffect(() => {
     if (open) {
-   
+
       if (!isAdmin) {
-      
+
         timeDurationPricingRefres({
           branch_id: user?.branchId,
         });
@@ -109,15 +112,16 @@ export default function AutoGenarateReservationForm({ onSuccess,open }) {
     const basePrice = item.price * item.count;
     const additionalMinutesPrice = (item.additional_minutes_price || 0) * (item.minutes_qty || 0);
     return sum + basePrice + additionalMinutesPrice;
-  }, 0) || 0) + 
-  (methods.watch("additional_products")?.reduce((sum, product) => {
-    return sum + (product.price * (product.qty || 0));
-  }, 0) || 0);
+  }, 0) || 0) +
+    (methods.watch("additional_products")?.reduce((sum, product) => {
+      return sum + (product.price * (product.qty || 0));
+    }, 0) || 0);
 
   //! debug the relations are they working corectly 
   //! check edge cases of calculations 
   //!check customer hooks data fetichng infinite loop api calls 
-console.log(methods.formState.errors)
+  console.log(methods.formState.errors)
+  console.log(methods.watch("customer_types")[0])
   //form state error consoel log
   const onSubmit = async (data) => {
     const payload = {
@@ -126,24 +130,25 @@ console.log(methods.formState.errors)
       mobile_number: data.mobile_number,
       branch_id: isAdmin ? data.branch_id : user?.branchId,
       total_price: totalPrice,
-      status:"CONFIRMED",
+      status: "CONFIRMED",
       customer_types: data.customer_types?.map(item => ({
         playCustomerTypeId: item.play_customer_type_id,
         playPricingId: item.pricing_id,
         price: item.price,
-        duration:item.duration, 
+        duration: item.duration,
         count: item.count,
-        additional_minutes_price_id:item.additional_minutes_price_id,
-        additional_minutes_price:item.additional_minutes_price,
-        additional_minutes:item.additional_minutes,
-        minutes_qty:item.minutes_qty,
-        names:item.names.filter(name => name !== ""&& name !== undefined && name !== null)
+        additional_minutes_price_id: item.additional_minutes_price_id,
+        additional_minutes_price: item.additional_minutes_price,
+        additional_minutes: item.additional_minutes,
+        minutes_qty: item.minutes_qty,
+        customers: item.customers?.filter?.(customer => customer.name !== "" && customer.name !== undefined && customer.name !== null) || []
       })) || [],
-      products:data.additional_products?.map(item=>({
-        play_product_id:item.id,
-        quantity:item.qty,
-      }))||[],
+      products: data.additional_products?.map(item => ({
+        play_product_id: item.id,
+        quantity: item.qty,
+      })) || [],
     };
+    console.log("payload", payload)
     if (data.payment_method === "CASH") {
       payload.cash = totalPrice;
     } else if (data.payment_method === "CARD") {
@@ -154,7 +159,7 @@ console.log(methods.formState.errors)
       const res = await postHandler(`auto-booking`, payload);
 
       if (onSuccess) onSuccess(res?.data);
-    } catch (error) {}
+    } catch (error) { }
     // handle create order logic here
    
     methods.reset();
@@ -219,79 +224,79 @@ console.log(methods.formState.errors)
             <FormItem className="flex-1">
               <FormLabel>Time & Price</FormLabel>
               <FormControl>
-              <select
-                ref={selectRef}
-                onChange={(e) => {
-                  const selectedId = parseInt(e.target.value);
-                  const selectedItem = timeDurationPricing.find(item => item.id === selectedId);
-                  setSelectedPricing({
-                    play_customer_type_id: selectedItem.play_customer_type_id,
-                    pricing_id: selectedItem.id,
-                    play_customer_type_name: selectedItem.play_customer_type.name,
-                    duration: selectedItem.duration,
-                    price: selectedItem.price,
-                    count:0,
-                  })
-                }}
-                className="border rounded px-2 py-1 w-full"
-                value={selectedPricing?.play_customer_type_id || ""}
-              >
-                <option value="" disabled className="text-gray-500">
-                  Select duration
-                </option>
-                {timeDurationPricing.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    <span className="font-semibold">{p.play_customer_type.name}</span> - {p.duration} min - {p.price}
+                <select
+                  ref={selectRef}
+                  onChange={(e) => {
+                    const selectedId = parseInt(e.target.value);
+                    const selectedItem = timeDurationPricing.find(item => item.id === selectedId);
+                    setSelectedPricing({
+                      play_customer_type_id: selectedItem.play_customer_type_id,
+                      pricing_id: selectedItem.id,
+                      play_customer_type_name: selectedItem.play_customer_type.name,
+                      duration: selectedItem.duration,
+                      price: selectedItem.price,
+                      count: 0,
+                    })
+                  }}
+                  className="border rounded px-2 py-1 w-full"
+                  value={selectedPricing?.play_customer_type_id || ""}
+                >
+                  <option value="" disabled className="text-gray-500">
+                    Select duration
                   </option>
-                ))}
-              </select>
+                  {timeDurationPricing.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      <span className="font-semibold">{p.play_customer_type.name}</span> - {p.duration} min - {p.price}
+                    </option>
+                  ))}
+                </select>
        
               </FormControl>
               <FormMessage />
             </FormItem>
             <div className="">
               <FormLabel className="mb-2">Count</FormLabel>
-            <Input
+              <Input
                 className="w-24"
                 type="number"
-                  value={selectedPricing?.count||""}
-                  onChange={(e) => {
-                    setSelectedPricing({
-                      ...selectedPricing,
-                      count: parseInt(e.target.value ||"0"),
-                     
-                    })
-                  }}
+                value={selectedPricing?.count || ""}
+                onChange={(e) => {
+                  setSelectedPricing({
+                    ...selectedPricing,
+                    count: parseInt(e.target.value || "0"),
+                    
+                  })
+                }}
               />
             </div>
             <Button
-             type="button"
-                onClick={() => {
-              if(selectedPricing?.play_customer_type_id){
-                append({
-                  ...selectedPricing,
-                  additional_minutes: 0,
-                  additional_minutes_price: 0,
-                  additional_minutes_price_id: null,
-                  minutes_qty: 0,
-                  names:[]
-                })
-                setSelectedPricing(null)
-                if (selectRef.current) {
-                  selectRef.current.value = ""; // Reset select to default value
+              type="button"
+              onClick={() => {
+                if (selectedPricing?.play_customer_type_id) {
+                  append({
+                    ...selectedPricing,
+                    additional_minutes: 0,
+                    additional_minutes_price: 0,
+                    additional_minutes_price_id: null,
+                    minutes_qty: 0,
+                    customers: Array(selectedPricing.count).fill({ name: '', birthday: '' })
+                  })
+                  setSelectedPricing(null)
+                  if (selectRef.current) {
+                    selectRef.current.value = ""; // Reset select to default value
+                  }
                 }
-              }
-                }}
-                className="ml-2"
-              >
-                <Plus/>
-              </Button>
+              }}
+              className="ml-2"
+            >
+              <Plus />
+            </Button>
           </div>
           <div className="mt-4 space-y-6">
             {methods.watch("customer_types")?.map((item, index) => {
               const minutesQty = Number(methods.watch(`customer_types.${index}.minutes_qty`) || 0)
               const baseTotal = item.price * item.count
-              const extra = (methods.watch(`customer_types.${index}.minutes_qty`)||0 )* (methods.watch(`customer_types.${index}.additional_minutes_price`)||0)
+              const extra = (methods.watch(`customer_types.${index}.minutes_qty`) || 0) * (methods.watch(`customer_types.${index}.additional_minutes_price`) || 0)
               const total = baseTotal + extra
               return (
                 <div
@@ -332,16 +337,21 @@ console.log(methods.formState.errors)
                   </div>
                   {methods.watch(`customer_types.${index}.count`) > 0 && (
                     <div className="mt-2 space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">{item.play_customer_type_name} Names</label>
-                      {Array.from({ length: methods.watch(`customer_types.${index}.count`) || 0 }).map((_, nameIndex) => (
-                        <Input
-                          key={nameIndex}
-                          type="text"
-                          placeholder={`Name ${nameIndex + 1}`}
-                          {...methods.register(`customer_types.${index}.names.${nameIndex}`)}
-                          className="border rounded w-full px-3 py-2 focus:ring-2 focus:ring-indigo-500"
-                          onMouseWheel={(e) => e.target.blur()}
-                        />
+                      {Array.from({ length: methods.watch(`customer_types.${index}.count`) || 0 }).map((_, customerIndex) => (
+                        <div key={customerIndex} className="flex items-center gap-2">
+                          <Input
+                            type="text"
+                            placeholder={`Customer ${customerIndex + 1} Name`}
+                            {...methods.register(`customer_types.${index}.customers.${customerIndex}.name`)}
+                            className="border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-500 flex-1"
+                            onMouseWheel={(e) => e.target.blur()}
+                          />
+                          <Input
+                            type="date"
+                            {...methods.register(`customer_types.${index}.customers.${customerIndex}.birthday`)}
+                            className="border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-500 w-40"
+                          />
+                        </div>
                       ))}
                     </div>
                   )}
@@ -387,37 +397,36 @@ console.log(methods.formState.errors)
           <div className="flex gap-2 items-end justify-between">
             <AdditionalProductSelect
               value={selectedAdditionalProduct}
-              onChange={(value)=>{
-                setSelectedAdditionalProduct({...value,qty:1})
+              onChange={(value) => {
+                setSelectedAdditionalProduct({ ...value, qty: 1 })
               }}
               branchId={methods.watch("branch_id")}
             />
             <Input
               type="number"
               min={0}
-              onChange={(e)=>{
-                setSelectedAdditionalProduct({...selectedAdditionalProduct,qty:Number(e.target.value)})
+              onChange={(e) => {
+                setSelectedAdditionalProduct({ ...selectedAdditionalProduct, qty: Number(e.target.value) })
               }}
-              value={selectedAdditionalProduct?.qty||""
-              }
+              value={selectedAdditionalProduct?.qty || ""}
               placeholder="0"
               className="border rounded w-24 px-2 py-1 focus:ring-2 "
               onMouseWheel={(e) => e.target.blur()}
             />
             <Button
-             type="button"
-                onClick={() => {
-              if(selectedAdditionalProduct?.id){
-                appendAdditionalProduct({...selectedAdditionalProduct})
-                setSelectedAdditionalProduct(null)
+              type="button"
+              onClick={() => {
+                if (selectedAdditionalProduct?.id) {
+                  appendAdditionalProduct({ ...selectedAdditionalProduct })
+                  setSelectedAdditionalProduct(null)
                 
               
-              }
-                }}
-                className="ml-2"
-              >
-                <Plus/>
-              </Button>
+                }
+              }}
+              className="ml-2"
+            >
+              <Plus />
+            </Button>
           </div>
           <div className="mt-4 space-y-3">
             {methods.watch("additional_products")?.map((item, index) => {
@@ -471,7 +480,7 @@ console.log(methods.formState.errors)
           {/* Calculated Price */}
 
           <div className="flex gap-2 mt-4">
-            <Button disabled={methods.watch('customer_types')?.length === 0 ||postHandlerloading} className={"w-full"} type="submit">
+            <Button disabled={methods.watch('customer_types')?.length === 0 || postHandlerloading} className={"w-full"} type="submit">
               Create
             </Button>
             {/* <Button type="button" variant="outline" onClick={() => setOpen(false)}>
