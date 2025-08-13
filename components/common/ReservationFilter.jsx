@@ -8,7 +8,10 @@ import { KIDS_ID } from "@/utils/static-variables";
 import { Button } from "../ui/button";
 import { FilterIcon } from "lucide-react";
 
-export default function ReservationFilter({ onSubmit }) {
+export default function ReservationFilter({ onSubmit, onExport }) {
+  const statuses = ["PENDING", "REFUND", "CENCELED", "CONFIRMED","ALL"];
+  const[reservationStatus, setReservationStatus] = React.useState("ALL");
+
   const [selectedBranchId, setSelectedBranchId] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeDurationId, setSelectedTimeDurationId] = useState("");
@@ -44,6 +47,17 @@ export default function ReservationFilter({ onSubmit }) {
       timeDurationId: selectedTimeDurationId || null,
       mobileNumber: selectedMobileNumber || null,
       ressStatus: selectedStatus !== "all" ? selectedStatus : null, // <-- Add this line
+      reservationStatus: reservationStatus !== "ALL" ? reservationStatus : null,
+    });
+  };
+  const handleExport = () => {
+    onExport?.({
+      branch: selectedBranchId || null,
+      date: selectedDate || null,
+      timeDurationId: selectedTimeDurationId || null,
+      mobileNumber: selectedMobileNumber || null,
+      ressStatus: selectedStatus !== "all" ? selectedStatus : null, // <-- Add this line
+      reservationStatus: reservationStatus !== "ALL" ? reservationStatus : null,
     });
   };
 
@@ -127,6 +141,22 @@ export default function ReservationFilter({ onSubmit }) {
             </label>
             <select
               className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              value={reservationStatus}
+              onChange={(e) => setReservationStatus(e.target.value)}
+            >
+             {statuses.map((statusItem) => (
+              <option key={statusItem} value={statusItem}>
+                  {statusItem}
+              </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <label className="block mb-2 font-semibold text-gray-700">
+              Status
+            </label>
+            <select
+              className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
             >
@@ -151,6 +181,14 @@ export default function ReservationFilter({ onSubmit }) {
             onClick={handleReset}
           >
             Reset
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="rounded-md"
+            onClick={handleExport}
+          >
+            Export to Excel
           </Button>
         </div>
       </div>

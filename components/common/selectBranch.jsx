@@ -53,7 +53,7 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
     // No UI, just auto-select branchId
     return null;
   }
-console.log(branchList)
+// console.log(branchList)
   return (
     <>
       {/* <div>

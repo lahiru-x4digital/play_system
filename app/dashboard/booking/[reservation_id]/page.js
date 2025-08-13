@@ -167,11 +167,14 @@ export default function Page({ params }) {
           <div className="font-medium text-muted-foreground truncate">
             Name: {b.name}
           </div>
+          
           <Badge variant="outline" className="text-xs">
             {b.barcode?.barcode_number}
           </Badge>
         </div>
-
+        <div className="font-medium text-muted-foreground truncate">
+            Birth Day: {new Date(b?.birth_date).toDateString()||"_"}
+          </div>
         <div className="grid grid-cols-1 gap-1 text-muted-foreground">
           <LabelValue
             label="Customer Type"

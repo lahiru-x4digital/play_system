@@ -14,13 +14,10 @@ import { useRouter } from "next/navigation";
 import { PrintDialog } from "../booking/PrintDialog";
 import { getEndTime } from "@/lib/getEndTime";
 import { BookingEditDialog } from "../booking/BookingEditDialog";
-import * as XLSX from 'xlsx';
+import TimerCountDown from "../common/TimerCountDown";
 
 const PlayReservationTable = ({ 
   data = [], 
-  onRefresh, 
-  playReservationsChangePageSize, 
-  playReservationsTotalCount, 
   playReservationsLoading 
 }) => {
   const router = useRouter();
@@ -28,7 +25,6 @@ const PlayReservationTable = ({
   const [selectedReservationId, setSelectedReservationId] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
-  const [isExporting, setIsExporting] = useState(false);
 
 
   const handleScanClick = (reservationId) => {
@@ -40,52 +36,6 @@ const PlayReservationTable = ({
     setSelectedBooking(booking);
     setEditDialogOpen(true);
   };
-console.log("dataset",data);
-  // Function to generate Excel file
-  const generateExcel = (exportData) => {
-    const excelData = exportData.map(item => ({
-      'Reservation ID': item.id,
-      'Customer': item.customer ? `${item.customer.first_name || ''} ${item.customer.last_name || ''}`.trim() : '-',
-      'Mobile': item.customer?.mobile_number || '-',
-      'Branch': item.branch?.branch_name || '-',
-      'Total Pax': item.play_reservation_customer_types.reduce((sum, item) => sum + item.count, 0) || 0,
-      'Total Price': item.total_price || '-',
-      'Status': item.status || '-',
-      'Start Time': item?.created_date ? new Date(item?.created_date).toLocaleString() : '-',
-      'End Time': item.end_time ? new Date(item.end_time).toLocaleString() : '-',
-      'Payment': item?.play_playment?.reduce((sum, item) => sum + item.amount, 0) || 0,
-      'Payment Method': item?.play_playment?.[0]?.payment_method || '-'
-    }));
-
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(excelData);
-    XLSX.utils.book_append_sheet(wb, ws, 'Reservations');
-    XLSX.writeFile(wb, `reservations_${new Date().toISOString().split('T')[0]}.xlsx`);
-  };
-
-  // Handle export to Excel
-  const exportToExcel = async () => {
-    if (isExporting) return;
-    
-    setIsExporting(true);
-    
-    try {
-      // First, update to get all records
-      playReservationsChangePageSize(playReservationsTotalCount);
-      
-      // Wait for a short time to allow the parent component to fetch all data
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Generate Excel with all data
-      generateExcel(data?.length > 0 ? data : []);
-    } catch (error) {
-      console.error('Error exporting to Excel:', error);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-
 
   const handleDialogOpenChange = (open) => {
     setEditDialogOpen(open);
@@ -110,28 +60,6 @@ console.log("dataset",data);
 
   return (
     <>
-      <div className="flex justify-end p-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex items-center gap-2"
-          onClick={exportToExcel}
-          disabled={isExporting || playReservationsLoading}
-        >
-          {isExporting ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Exporting...
-            </>
-          ) : (
-            <>
-              <Download className="h-4 w-4" />
-              Export to Excel
-            </>
-          )}
-        </Button>
-      </div>
-      
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -143,6 +71,7 @@ console.log("dataset",data);
               <TableHead>Total Price</TableHead>
               {/* <TableHead>Total Payment</TableHead> */}
               <TableHead>Status</TableHead>
+              <TableHead className="text-center">Remaining Time</TableHead> 
               <TableHead>Start Time</TableHead>
               <TableHead>End Time</TableHead>
               <TableHead className='text-center'>Action</TableHead>
@@ -188,6 +117,13 @@ console.log("dataset",data);
                   </TableCell> */}
                   <TableCell>
                     {item.status != null ? item.status : "-"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <TimerCountDown
+                    startTime={item.created_date}
+                    duration={item?.play_pricing?.duration || 0}
+                    endTime={item.end_time}
+                  />
                   </TableCell>
                   <TableCell>
                     {item.created_date
