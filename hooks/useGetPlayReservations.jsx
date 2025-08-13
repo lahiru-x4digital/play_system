@@ -27,9 +27,10 @@ const useGetPlayReservations = () => {
     end_date: null,
     mobile_number: null,
     ress_status: null,
+    reservationStatus: null,
   });
   const abortControllerRef = useRef(null);
-  console.log("PARAMS", params);
+  // console.log("PARAMS", params);
   const loadData = useCallback(async () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();

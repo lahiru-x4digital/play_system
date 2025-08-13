@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -9,22 +9,60 @@ import {
 } from "@/components/ui/table";
 import { ScanReservationDialog } from "../reservation/ScanReservationDialog"; // Import the dialog
 import { Button } from "../ui/button";
-import { Eye, Printer } from "lucide-react";
+import { Eye, Printer, Download, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PrintDialog } from "../booking/PrintDialog";
 import { getEndTime } from "@/lib/getEndTime";
-import TimerCountDown from "../common/TimerCountDown";
+import TimerCountDown from "../common/TimerCountDown"
 
-const PlayReservationTimeReportTable = ({ data = [], onRefresh }) => {
+const PlayReservationTimeReportTable = ({ data = [],  }) => {
   const router = useRouter();
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [allData, setAllData] = useState([]);
 
+  // Handle scan click
   const handleScanClick = (reservationId) => {
     setSelectedReservationId(reservationId);
     setScanDialogOpen(true);
   };
-console.log(data)
+
+ 
+  // Handle export to Excel
+  const exportToExcel = async () => {
+    if (isExporting) return;
+    
+    setIsExporting(true);
+    
+    try {
+      // First, update to get all records
+      playReservationsChangePageSize(playReservationsTotalCount);
+      
+      // Wait for a short time to allow the parent component to fetch all data
+      // This is a simple approach - you might want to implement a more robust solution
+      // by passing a callback from the parent or using a state management solution
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generate Excel with all data
+      generateExcel(allData.length > 0 ? allData : data);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Effect to update allData when data changes
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setAllData(prevData => {
+        // Only update if we have more data than before
+        return data.length > prevData.length ? data : prevData;
+      });
+    }
+  }, [data]);
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -36,10 +74,10 @@ console.log(data)
             <TableHead>Total Pax</TableHead>
             <TableHead>Total Price</TableHead>
             {/* <TableHead>Total Payment</TableHead> */}
-            <TableHead>Remaining Time</TableHead> 
+            <TableHead className="text-center">Remaining Time</TableHead> 
             <TableHead>Start Time</TableHead>
             <TableHead>End Time</TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead className="text-center">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -80,7 +118,7 @@ console.log(data)
                 {/* <TableCell>
                   {item.total_payment != null ? item.total_payment : "-"}
                 </TableCell> */}
-                <TableCell>
+                <TableCell className="text-center">
                   <TimerCountDown
                     startTime={item.created_date}
                     duration={item?.play_pricing?.duration || 0}
@@ -100,12 +138,13 @@ console.log(data)
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  {getEndTime(
-                    item.created_date,
-                    item?.play_pricing?.duration || 0
-                  )}
+                  {item?.end_time ? new Date(item.end_time).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  }) : "-"}
                 </TableCell>
-                <TableCell>
+                <TableCell className="text-center">
                   <Button
                     variant="ghost"
                     size="sm"

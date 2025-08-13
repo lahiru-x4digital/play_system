@@ -1,15 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-// Pad numbers like 9 -> "09"
 const pad = (num) => num.toString().padStart(2, "0");
 
 const TimerCountDown = ({ startTime, endTime }) => {
-  // Parse the ISO strings into timestamps (ms)
-  const start = new Date(startTime).getTime();
   const end = new Date(endTime).getTime();
 
-  const getRemaining = () => Math.max(0, end - Date.now());
+  // Calculate remaining time (can be negative after expiry)
+  const getRemaining = () => end - Date.now();
 
   const [remaining, setRemaining] = useState(getRemaining());
 
@@ -17,27 +15,41 @@ const TimerCountDown = ({ startTime, endTime }) => {
     const interval = setInterval(() => {
       setRemaining(getRemaining());
     }, 1000);
-
     return () => clearInterval(interval);
-  }, [startTime, endTime]);
+  }, [endTime]);
 
-  if (remaining <= 0) {
-    return <span className="text-red-500 font-bold">EXPIRED</span>;
+  // Format absolute time for both positive and negative values
+  const formatTime = (ms) => {
+    const totalSeconds = Math.floor(Math.abs(ms) / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  };
+
+  if (remaining < 0) {
+    // Time past expiration
+    return (
+      <span className="flex flex-col items-center font-sans">
+      <span className="text-red-600 font-bold uppercase text-sm leading-none">
+        EXPIRED
+      </span>
+      <span className="text-red-400 font-mono text-sm leading-none">
+        -{formatTime(remaining)}
+      </span>
+    </span>
+    );
   }
 
-  const hours = Math.floor(remaining / (1000 * 60 * 60));
-  const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-
-  // Change color based on time left
+  // Before expiration
   const isRed = remaining < 15 * 60 * 1000;
   const timerClass = isRed
-    ? "text-red-500 font-bold"
-    : "text-green-600 font-bold";
+    ? "text-red-500 font-mono text-sm leading-none"
+    : "text-green-600 font-mono text-sm leading-none";
 
   return (
     <span className={timerClass}>
-      {pad(hours)}:{pad(minutes)}:{pad(seconds)}
+      {formatTime(remaining)}
     </span>
   );
 };

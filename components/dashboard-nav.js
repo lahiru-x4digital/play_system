@@ -92,15 +92,15 @@ const adminNavItems = [
   //   icon: NotebookPen ,
   // },
   {
-    title: "Booking",
+    title: "Tracking Report",
     href: "/dashboard/booking",
     icon: CalendarCheck,
   },
-  {
-    title: "Tracking Report",
-    href: "/dashboard/tracking-report",
-    icon: Timer,
-  },
+  // {
+  //   title: "Tracking Report",
+  //   href: "/dashboard/tracking-report",
+  //   icon: Timer,
+  // },
 
   {
     title: "Pricing",
@@ -171,15 +171,15 @@ const userNavItems = [
   //   icon: NotebookPen ,
   // },
   {
-    title: "Booking",
+    title: "Tracking Report",
     href: "/dashboard/booking",
     icon: CalendarCheck,
   },
-  {
-    title: "Tracking Report",
-    href: "/dashboard/tracking-report",
-    icon: Timer,
-  },
+  // {
+  //   title: "Tracking Report",
+  //   href: "/dashboard/tracking-report",
+  //   icon: Timer,
+  // },
 
   {
     title: "Pricing",
