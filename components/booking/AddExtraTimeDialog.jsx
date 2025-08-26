@@ -129,7 +129,7 @@ export function AddExtraTimeDialog({ open, onOpenChange, barcodeId, barcodeNumbe
               <Button 
                 type="button" 
                 variant="outline" 
-                onClick={() => setOpen(false)}
+                onClick={onOpenChange}
                 disabled={postHandlerloading}
               >
                 Cancel

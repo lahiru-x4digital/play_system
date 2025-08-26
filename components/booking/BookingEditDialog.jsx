@@ -25,7 +25,8 @@ import ExtraHoursSelectInput from '../common/ExtraHoursSelectInput';
 
 export function BookingEditDialog({ open, onOpenChange, bookingData}) {
 
-  const statuses = ["PENDING", "PAID", "REFUND", "CENCELED", "CONFIRMED"];
+  // const statuses = ["PENDING", "REFUND", "CENCELED", "CONFIRMED","COMPLETED"];
+  const statuses = ["PAID", "COMPLETED","WENT_OUTSIDE","CONFIRMED"];
   const[status, setStatus] = React.useState(bookingData?.status || "");
   const {patchHandler,patchHandlerloading,patchHandlerError}=useAxiosPatch()
  const [extraHours, setExtraHours] = React.useState([]);

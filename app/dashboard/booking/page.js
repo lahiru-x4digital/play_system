@@ -50,6 +50,7 @@ export default function Booking() {
       'Total Pax': item.play_reservation_customer_types.reduce((sum, item) => sum + item.count, 0) || 0,
       'Total Price': item.total_price || '-',
       'Status': item.status || '-',
+      'Payment Status': item.payment_status || '-',
       'Start Time': item?.created_date ? new Date(item?.created_date).toLocaleString() : '-',
       'End Time': item.end_time ? new Date(item.end_time).toLocaleString() : '-',
       'Payment': item?.play_playment?.reduce((sum, item) => sum + item.amount, 0) || 0,
@@ -69,7 +70,7 @@ export default function Booking() {
       <div className="space-y-4">
         <ReservationFilter
         onExport={async(data)=>{
-          const { branch, date, timeDurationId,ressStatus,reservationStatus } = data;
+          const { branch, date, endDate, timeDurationId,ressStatus,reservationStatus } = data;
           const payload={
             search: null,
             branch_id: branch,
@@ -77,7 +78,7 @@ export default function Booking() {
             time_duration_id: timeDurationId,
             start_date: date,
             skip: 0,
-            end_date: null,
+            end_date: endDate,
             ress_status:ressStatus,
             reservationStatus:reservationStatus,
             limit: playReservationsTotalCount,
@@ -96,14 +97,15 @@ export default function Booking() {
           }
         }}
           onSubmit={(data) => {
-            const { branch, date, timeDurationId,ressStatus,reservationStatus } = data;
+            const { branch, date, endDate, timeDurationId,ressStatus,reservationStatus } = data;
+            console.log("data",data)
             playReservationsSearch({
               search: null,
               branch_id: branch,
               order_id: null,
               time_duration_id: timeDurationId,
               start_date: date,
-              end_date: null,
+              end_date: endDate,
               ress_status:ressStatus,
               reservationStatus:reservationStatus
             });

@@ -71,6 +71,7 @@ const PlayReservationTable = ({
               <TableHead>Total Price</TableHead>
               {/* <TableHead>Total Payment</TableHead> */}
               <TableHead>Status</TableHead>
+              <TableHead>Payment Status</TableHead>
               <TableHead className="text-center">Remaining Time</TableHead> 
               <TableHead>Start Time</TableHead>
               <TableHead>End Time</TableHead>
@@ -117,6 +118,9 @@ const PlayReservationTable = ({
                   </TableCell> */}
                   <TableCell>
                     {item.status != null ? item.status : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {item.payment_status != null ? item.payment_status : "-"}
                   </TableCell>
                   <TableCell className="text-center">
                     <TimerCountDown
