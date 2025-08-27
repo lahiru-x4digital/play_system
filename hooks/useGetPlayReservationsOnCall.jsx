@@ -21,7 +21,7 @@ const useGetPlayReservationsOnCall = () => {
     pageSize: 10,
     page: 1,
     search: null,
-    branch_id: user?.branchId || null,
+    branch_id: null,
     order_id: null,
     time_duration_id: null,
     start_date: null,
