@@ -51,6 +51,7 @@ import {
   PackageSearch,
   Scan,
   ScanQrCode,
+  Clock1,
 } from "lucide-react";
 
 import {
@@ -139,11 +140,11 @@ const adminNavItems = [
       //   href: "/dashboard/settings/branches",
       //   icon: Building,
       // },
-      // {
-      //   title: "Countries",
-      //   href: "/dashboard/settings/countries",
-      //   icon: Globe,
-      // },
+      {
+        title: "Reservation Rule",
+        href: "/dashboard/settings/reservation-rule",
+        icon: Clock1,
+      },
 
       {
         title: "Users",
