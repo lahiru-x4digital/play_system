@@ -155,7 +155,11 @@ const adminNavItems = [
         href: "/dashboard/settings/customer-types",
         icon: Users,
       },
-   
+      {
+        title: "Webhook",
+        href: "/dashboard/settings/webhook",
+        icon: Webhook,
+      },
     ],
   },
 ];

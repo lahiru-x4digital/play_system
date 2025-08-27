@@ -2,6 +2,7 @@
 import { debounce } from 'lodash';
 import { useCallback, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export function ScanInput({
   onScan,
@@ -25,11 +26,16 @@ export function ScanInput({
   };
 
   return (
-    <Input
-      type="text"
-      onChange={handleChange}
-      placeholder="Scan or type..."
-      className="w-96"
-    />
+    <div className="space-y-2">
+      <Label htmlFor="scan-input">Mobile/ Barcode Code</Label>
+      <Input
+        id="scan-input"
+        type="text"
+        onChange={handleChange}
+        placeholder="Scan or type..."
+        className="w-96"
+        autoFocus
+      />
+    </div>
   );
 }

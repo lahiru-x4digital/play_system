@@ -143,7 +143,7 @@ export default function page() {
       </div>
 
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-2">
           <ScanInput
             onScan={(data) => {
               // If data is empty or null, reset the search
@@ -156,8 +156,8 @@ export default function page() {
               playReservationsSearch({
                 pageSize: 10,
                 page: 1,
-                start_date: new Date().toISOString().split("T")[0],
-                end_date: new Date().toISOString().split("T")[0],
+                start_date: null,
+                end_date: null,
                 mobile_number: isMobile(data) ? data : null,
                 reservationStatus: "CONFIRMED",
                 barcode: isMobile(data) ? null : data,
@@ -209,7 +209,7 @@ export default function page() {
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-green-600">
-                      ${item.total_price || 0}
+                      {item.total_price || 0}
                     </p>
                     <p className="text-sm text-gray-500">Total Amount</p>
                   </div>
@@ -293,7 +293,7 @@ export default function page() {
                       <h3 className="text-lg font-semibold text-gray-900">
                         Customer Types
                       </h3>
-                      <div className="grid gap-3">
+                      <div className="grid gap-3 max-w-[300px]">
                         {item.play_reservation_customer_types.map(
                           (customerType, idx) => (
                             <div
@@ -312,6 +312,8 @@ export default function page() {
                                 <p className="font-semibold">
                                   {customerType.price || 0}
                                 </p>
+                    <p className="text-sm text-gray-500">Amount</p>
+
                               </div>
                             </div>
                           )

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 const pad = (num) => num.toString().padStart(2, "0");
 
-const TimerCountDown = ({ startTime, endTime }) => {
+const TimerCountDown = ({ startTime, endTime, status }) => {
   const end = new Date(endTime).getTime();
 
   // Calculate remaining time (can be negative after expiry)
@@ -20,6 +20,9 @@ const TimerCountDown = ({ startTime, endTime }) => {
 
   // Format absolute time for both positive and negative values
   const formatTime = (ms) => {
+    if (status === "COMPLETED") {
+      return "COMPLETED";
+    }
     const totalSeconds = Math.floor(Math.abs(ms) / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -31,13 +34,13 @@ const TimerCountDown = ({ startTime, endTime }) => {
     // Time past expiration
     return (
       <span className="flex flex-col items-center font-sans">
-      <span className="text-red-600 font-bold uppercase text-sm leading-none">
-        EXPIRED
+        <span className="text-red-600 font-bold uppercase text-sm leading-none">
+          EXPIRED
+        </span>
+        <span className="text-red-400 font-mono text-sm leading-none">
+          -{formatTime(remaining)}
+        </span>
       </span>
-      <span className="text-red-400 font-mono text-sm leading-none">
-        -{formatTime(remaining)}
-      </span>
-    </span>
     );
   }
 
@@ -47,11 +50,7 @@ const TimerCountDown = ({ startTime, endTime }) => {
     ? "text-red-500 font-mono text-sm leading-none"
     : "text-green-600 font-mono text-sm leading-none";
 
-  return (
-    <span className={timerClass}>
-      {formatTime(remaining)}
-    </span>
-  );
+  return <span className={timerClass}>{formatTime(remaining)}</span>;
 };
 
 export default TimerCountDown;

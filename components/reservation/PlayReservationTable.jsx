@@ -16,16 +16,12 @@ import { getEndTime } from "@/lib/getEndTime";
 import { BookingEditDialog } from "../booking/BookingEditDialog";
 import TimerCountDown from "../common/TimerCountDown";
 
-const PlayReservationTable = ({ 
-  data = [], 
-  playReservationsLoading 
-}) => {
+const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
   const router = useRouter();
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
-
 
   const handleScanClick = (reservationId) => {
     setSelectedReservationId(reservationId);
@@ -49,12 +45,12 @@ const PlayReservationTable = ({
     try {
       // Call your API to update the booking here
       // Example: await updateBooking(selectedBooking.id, updatedData);
-      
+
       // Refresh the table data
       onRefresh?.();
       setEditDialogOpen(false);
     } catch (error) {
-      console.error('Failed to update booking:', error);
+      console.error("Failed to update booking:", error);
     }
   };
 
@@ -67,15 +63,15 @@ const PlayReservationTable = ({
               <TableHead>Reservation ID</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Branch</TableHead>
-               <TableHead>Total Pax</TableHead>
+              <TableHead>Total Pax</TableHead>
               <TableHead>Total Price</TableHead>
               {/* <TableHead>Total Payment</TableHead> */}
               <TableHead>Status</TableHead>
               <TableHead>Payment Status</TableHead>
-              <TableHead className="text-center">Remaining Time</TableHead> 
+              <TableHead className="text-center">Remaining Time</TableHead>
               <TableHead>Start Time</TableHead>
               <TableHead>End Time</TableHead>
-              <TableHead className='text-center'>Action</TableHead>
+              <TableHead className="text-center">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -92,23 +88,26 @@ const PlayReservationTable = ({
               data.map((item, index) => (
                 <TableRow key={item.id || index}>
                   <TableCell className="font-medium">{item.id}</TableCell>
-                   <TableCell className="flex flex-col">
-                     <span>
-                     {item.customer
-                       ? `${item.customer.first_name || ""} ${
-                           item.customer.last_name || ""
-                         }`
-                       : "-"}
-                     </span>
-                     <span className="text-xs text-muted-foreground">
-                     {item.customer ? item.customer.mobile_number : "-"}
-                     </span>
-                   </TableCell>
+                  <TableCell className="flex flex-col">
+                    <span>
+                      {item.customer
+                        ? `${item.customer.first_name || ""} ${
+                            item.customer.last_name || ""
+                          }`
+                        : "-"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {item.customer ? item.customer.mobile_number : "-"}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     {item.branch ? `${item.branch.branch_name}` : "-"}
                   </TableCell>
                   <TableCell>
-                    {item?.play_reservation_customer_types?.reduce((sum, item) => sum + item.count, 0)}
+                    {item?.play_reservation_customer_types?.reduce(
+                      (sum, item) => sum + item.count,
+                      0
+                    )}
                   </TableCell>
                   <TableCell>
                     {item.total_price != null ? item.total_price : "-"}
@@ -124,20 +123,24 @@ const PlayReservationTable = ({
                   </TableCell>
                   <TableCell className="text-center">
                     <TimerCountDown
-                    startTime={item.created_date}
-                    duration={item?.play_pricing?.duration || 0}
-                    endTime={item.end_time}
-                  />
+                      status={item.status}
+                      startTime={item.created_date}
+                      duration={item?.play_pricing?.duration || 0}
+                      endTime={item.end_time}
+                    />
                   </TableCell>
                   <TableCell>
                     {item.created_date
-                      ? new Date(item.created_date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
+                      ? new Date(item.created_date).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )
                       : "-"}
                   </TableCell>
                   <TableCell>
@@ -184,14 +187,14 @@ const PlayReservationTable = ({
             )}
           </TableBody>
         </Table>
-        
+
         {/* Print Dialog */}
         <PrintDialog
           reservation_id={selectedReservationId}
           open={scanDialogOpen}
           onOpenChange={setScanDialogOpen}
         />
-        
+
         {/* Edit Booking Dialog */}
         <BookingEditDialog
           open={editDialogOpen}
