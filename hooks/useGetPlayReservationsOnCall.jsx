@@ -7,14 +7,15 @@ import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import useSessionUser from "@/lib/getuserData";
 import useIsAdmin from "@/lib/getuserData";
 
-const useGetPlayReservations = () => {
+const useGetPlayReservationsOnCall = () => {
   //use null or [] base on scenario
   const user = useSessionUser();
   const isAdmin = useIsAdmin();
   const [dataList, SetDataList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
+  const ref = useRef(true); // Will be true on initial render
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [params, setParams] = useState({
     pageSize: 10,
@@ -23,8 +24,8 @@ const useGetPlayReservations = () => {
     branch_id: user?.branchId || null,
     order_id: null,
     time_duration_id: null,
-    start_date: new Date().toISOString().split('T')[0],
-    end_date: new Date().toISOString().split('T')[0],
+    start_date: null,
+    end_date: null,
     mobile_number: null,
     ress_status: null,
     reservationStatus: null,
@@ -79,9 +80,19 @@ const useGetPlayReservations = () => {
       ...newParams,
     }));
   };
+  const resetData = () => {
+    SetDataList([]);
+    setTotalCount(0);
+  };
   useEffect(() => {
+    if (ref.current) {
+      ref.current = false; // Set to false after first render
+      return; // Skip the initial fetch
+    }
     // Call loadData directly - it will handle its own cleanup
-    loadData();
+    if (params.barcode || params.mobile_number) {
+      loadData();
+    }
     // Return cleanup function for component unmount
     return () => {
       if (abortControllerRef.current) {
@@ -115,7 +126,8 @@ const useGetPlayReservations = () => {
     playReservationsSearch: setParamsData,
     playReservationsRefres: loadData,
     playReservationsChangePageSize: changePageSize,
+    playReservationsReset: resetData,
   };
 };
 
-export default useGetPlayReservations;
+export default useGetPlayReservationsOnCall;

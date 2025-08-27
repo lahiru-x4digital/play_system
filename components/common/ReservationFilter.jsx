@@ -9,11 +9,12 @@ import { Button } from "../ui/button";
 import { FilterIcon } from "lucide-react";
 
 export default function ReservationFilter({ onSubmit, onExport }) {
-  const statuses = ["PENDING", "REFUND", "CENCELED", "CONFIRMED","ALL"];
+  const statuses = ["PAID", "COMPLETED","WENT_OUTSIDE","CONFIRMED","ALL"];
   const[reservationStatus, setReservationStatus] = React.useState("ALL");
 
   const [selectedBranchId, setSelectedBranchId] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedEndDate, setSelectedEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedTimeDurationId, setSelectedTimeDurationId] = useState("");
   const [selectedMobileNumber, setSelectedMobileNumber] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("all"); // <-- Add this line
@@ -48,28 +49,31 @@ export default function ReservationFilter({ onSubmit, onExport }) {
       mobileNumber: selectedMobileNumber || null,
       ressStatus: selectedStatus !== "all" ? selectedStatus : null, // <-- Add this line
       reservationStatus: reservationStatus !== "ALL" ? reservationStatus : null,
+      endDate: selectedEndDate || null,
     });
   };
   const handleExport = () => {
     onExport?.({
       branch: selectedBranchId || null,
       date: selectedDate || null,
+      endDate: selectedEndDate || null,
       timeDurationId: selectedTimeDurationId || null,
       mobileNumber: selectedMobileNumber || null,
       ressStatus: selectedStatus !== "all" ? selectedStatus : null, // <-- Add this line
       reservationStatus: reservationStatus !== "ALL" ? reservationStatus : null,
     });
   };
-
   const handleReset = () => {
     setSelectedBranchId(null);
-    setSelectedDate("");
+    setSelectedDate(new Date().toISOString().split('T')[0]);
+    setSelectedEndDate(new Date().toISOString().split('T')[0]);
     setSelectedTimeDurationId("");
     setSelectedMobileNumber(null);
     setSelectedStatus("all"); // <-- Add this line
     onSubmit?.({
       branch: null,
       date: null,
+      endDate: null,
       timeDurationId: null,
       mobileNumber: null,
       ressStatus: null, // <-- Add this line
@@ -99,6 +103,19 @@ export default function ReservationFilter({ onSubmit, onExport }) {
               className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               value={selectedDate}
               onChange={(e) => handleDateChange(e.target.value)}
+            />
+          </div>
+          {/* End Date */}
+          <div className="flex-1 min-w-[200px]">
+            <label className="block mb-2 font-semibold text-gray-700">
+              End Date
+            </label>
+            <input
+              type="date"
+              id="end-date"
+              className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              value={selectedEndDate}
+              onChange={(e) => setSelectedEndDate(e.target.value)}
             />
           </div>
           {/* Duration */}

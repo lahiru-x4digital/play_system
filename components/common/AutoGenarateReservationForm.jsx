@@ -131,6 +131,7 @@ export default function AutoGenarateReservationForm({ onSuccess, open }) {
       branch_id: isAdmin ? data.branch_id : user?.branchId,
       total_price: totalPrice,
       status: "CONFIRMED",
+      payment_status: "PAID",
       customer_types: data.customer_types?.map(item => ({
         playCustomerTypeId: item.play_customer_type_id,
         playPricingId: item.pricing_id,

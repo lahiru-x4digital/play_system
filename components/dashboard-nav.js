@@ -49,6 +49,8 @@ import {
   Timer,
   Play,
   PackageSearch,
+  Scan,
+  ScanQrCode,
 } from "lucide-react";
 
 import {
@@ -95,6 +97,11 @@ const adminNavItems = [
     title: "Tracking Report",
     href: "/dashboard/booking",
     icon: CalendarCheck,
+  },
+  {
+    title: "Confimation",
+    href: "/dashboard/confimation",
+    icon: ScanQrCode,
   },
   // {
   //   title: "Tracking Report",
@@ -148,7 +155,11 @@ const adminNavItems = [
         href: "/dashboard/settings/customer-types",
         icon: Users,
       },
-   
+      {
+        title: "Webhook",
+        href: "/dashboard/settings/webhook",
+        icon: Webhook,
+      },
     ],
   },
 ];
@@ -173,14 +184,18 @@ const userNavItems = [
   {
     title: "Tracking Report",
     href: "/dashboard/booking",
-    icon: CalendarCheck,
+    icon: Scan,
+  },
+  {
+    title: "Confimation",
+    href: "/dashboard/confimation",
+    icon: ScanQrCode,
   },
   // {
   //   title: "Tracking Report",
   //   href: "/dashboard/tracking-report",
   //   icon: Timer,
   // },
-
   {
     title: "Pricing",
     href: "/dashboard/pricing",
