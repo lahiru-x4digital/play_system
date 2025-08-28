@@ -33,7 +33,7 @@ export const bookingService = {
   async getReservationRules({ branch_id = null, date = null } = {}) {
     try {
       const params = {};
-      if (section_id) params.branch_id = branch_id;
+      if (branch_id) params.branch_id = branch_id;
       if (date) params.date = date;
 
       const response = await api.get("play/reservation-rules", { params });
@@ -85,7 +85,8 @@ export const bookingService = {
   async createReservationRule(data) {
     try {
       const formattedData = {
-        branch_id: Number(data.section_id),
+        branch_id: Number(data.branch_id),
+        name: data.name,
         start_date: data.start_date,
         end_date: data.end_date,
         start_time: data.start_time,
@@ -120,14 +121,14 @@ export const bookingService = {
     }
   },
 
-  async updateAvailabilityRule(ruleId, data) {
+  async updateReservationRule(ruleId, data) {
     if (!ruleId) {
       throw new Error("Rule ID is required");
     }
 
     try {
       const formattedData = {
-        branch_id: Number(data.section_id),
+        branch_id: Number(data.branch_id),
         start_date: data.start_date,
         end_date: data.end_date,
         start_time: data.start_time,

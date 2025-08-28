@@ -52,6 +52,7 @@ import {
   Scan,
   ScanQrCode,
   Clock1,
+  Ticket,
 } from "lucide-react";
 
 import {
@@ -89,11 +90,11 @@ const adminNavItems = [
   //   icon: TicketPercent,
   // },
 
-  // {
-  //   title: "Reservations",
-  //   href: "/dashboard/reservations",
-  //   icon: NotebookPen ,
-  // },
+  {
+    title: "Ticketing",
+    href: "/dashboard/ticketing",
+    icon: Ticket ,
+  },
   {
     title: "Tracking Report",
     href: "/dashboard/booking",
