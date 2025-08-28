@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/table'
 import { Pagination } from '@/components/ui/pagination'
 import { Pencil } from 'lucide-react'
+import SelectBranch from '@/components/common/selectBranch'
 
 // Helper to format date as YYYY/MM/DD
 function formatDate(dateStr) {
@@ -32,22 +33,23 @@ export default function page() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [editRule, setEditRule] = useState(null)
-
-  useEffect(() => {
-    async function fetchRules() {
-      setLoading(true)
-      setError(null)
-      try {
-        const res = await bookingService.getReservationRules({ branch_id: 1 })
-        setRules(res.data)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
+  const [branchId, setBranchId] = useState(1)
+  
+  async function fetchRules() {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await bookingService.getReservationRules({ branch_id: branchId })
+      setRules(res.data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
+  }
+  useEffect(() => {
     fetchRules()
-  }, [])
+  }, [branchId])
 
   // Pagination logic
   const total = rules.length
@@ -74,9 +76,9 @@ export default function page() {
         open={open}
         onOpenChange={setOpen}
         onSuccess={() => {}}
-        branchId={1}
+        branchId={branchId}
       />
-
+<SelectBranch value={branchId} onChange={setBranchId}/>
       <div className="mt-6">
         {loading && <div>Loading...</div>}
         {error && <div className="text-red-500">{error}</div>}

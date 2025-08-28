@@ -45,8 +45,6 @@ const formSchema = z
     end_time: z.string().min(1, "End time is required"),
     maximum_booking_per_slot: z.coerce.number().min(1, "Maximum booking per slot must be at least 1"),
     slot_booking_period: z.coerce.number().min(1, "Slot booking period must be at least 1 minute"),
-    min_party_size: z.coerce.number().min(1, "Minimum party size must be at least 1"),
-    max_party_size: z.coerce.number().min(1, "Maximum party size must be at least 1"),
     price: z.string().optional(),
     is_active: z.boolean().default(true),
     override: z.boolean().default(false),
@@ -64,15 +62,7 @@ const formSchema = z
         });
       }
     }
-    if (data.min_party_size && data.max_party_size) {
-      if (data.max_party_size < data.min_party_size) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Maximum party size must be equal to or greater than minimum",
-          path: ["max_party_size"],
-        });
-      }
-    }
+
   });
 
 export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = null }) {
@@ -91,8 +81,6 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
       end_time: rule.end_time ?? "17:00",
       slot_booking_period: rule.slot_booking_period?.toString() ?? "30",
       maximum_booking_per_slot: rule.maximum_booking_per_slot?.toString() ?? "1",
-      min_party_size: rule.min_party_size?.toString() ?? "1",
-      max_party_size: rule.max_party_size?.toString() ?? "1",
       price: rule.price?.toString() ?? "",
       is_active: rule.is_active ?? true,
       override: rule.override ?? false,
@@ -309,50 +297,7 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
                 )}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="min_party_size"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Min Party Size</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value?.toString() || ""}
-                        onChange={(e) => {
-                          const val = e.target.value === "" ? "" : parseInt(e.target.value);
-                          field.onChange(val);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="max_party_size"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Party Size</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value?.toString() || ""}
-                        onChange={(e) => {
-                          const val = e.target.value === "" ? "" : parseInt(e.target.value);
-                          field.onChange(val);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            
             <FormField
               control={form.control}
               name="price"

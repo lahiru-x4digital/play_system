@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,6 @@ import { Loader2 } from "lucide-react";
 import { bookingService } from "@/services/booking.service";
 import { useToast } from "@/hooks/use-toast";
 import {  ChevronsUpDown } from "lucide-react";
-
 import SelectBranch from "@/components/common/selectBranch";
 
 const formSchema = z
@@ -50,15 +49,6 @@ const formSchema = z
     slot_booking_period: z.coerce
       .number()
       .min(1, "Slot booking period must be at least 1 minute"),
-
-    min_party_size: z.coerce
-      .number()
-      .min(1, "Minimum party size must be at least 1"),
-
-    max_party_size: z.coerce
-      .number()
-      .min(1, "Maximum party size must be at least 1"),
-
     price: z.string().optional(),
     is_active: z.boolean().default(true),
     override: z.boolean().default(false),
@@ -78,17 +68,6 @@ const formSchema = z
       }
     }
 
-    // Validate max party size is greater than or equal to min party size
-    if (data.min_party_size && data.max_party_size) {
-      if (data.max_party_size < data.min_party_size) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "Maximum party size must be equal to or greater than minimum",
-          path: ["max_party_size"],
-        });
-      }
-    }
   });
 
 export function AddRuleForm({
@@ -114,8 +93,6 @@ export function AddRuleForm({
       slot_booking_period: "30",
       maximum_booking_per_slot: "1",
       buffer_time: "0",
-      min_party_size: "1",
-      max_party_size: "1",
       price: "",
       is_active: true,
       override: false,
@@ -123,7 +100,11 @@ export function AddRuleForm({
     },
     mode: "onChange",
   });
-console.log("Form errors:", form.formState.errors);
+
+  const { control, setValue } = form;
+
+
+
   const onSubmit = async (data) => {
     console.log("Form submitted with data:", JSON.stringify(data, null, 2));
     setIsLoading(true);
@@ -154,8 +135,6 @@ console.log("Form errors:", form.formState.errors);
           slot_booking_period: "30",
           maximum_booking_per_slot: "1",
           buffer_time: "1",
-          min_party_size: "1",
-          max_party_size: "1",
           price: "",
           is_active: true,
           override: false,
@@ -400,58 +379,6 @@ console.log("Form errors:", form.formState.errors);
               />
             </div>
 
-            {/* Party Size */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="min_party_size"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Min Party Size</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value?.toString() || ""}
-                        onChange={(e) => {
-                          const val =
-                            e.target.value === ""
-                              ? ""
-                              : parseInt(e.target.value);
-                          field.onChange(val);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="max_party_size"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Party Size</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value?.toString() || ""}
-                        onChange={(e) => {
-                          const val =
-                            e.target.value === ""
-                              ? ""
-                              : parseInt(e.target.value);
-                          field.onChange(val);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             {/* Price */}
             <FormField
               control={form.control}
@@ -511,7 +438,6 @@ console.log("Form errors:", form.formState.errors);
                 </FormItem>
               )}
             />
-
             {/* Buttons */}
             <div className="flex justify-end gap-3 pt-4">
               <Button
