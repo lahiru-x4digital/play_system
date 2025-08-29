@@ -20,20 +20,15 @@ const reservationSchema = z.object({
   last_name: z.string(),
   branch_id: z.number().min(1, { message: "Branch is required" }),
   customer_types: z.array(z.object({
-    play_customer_type_id: z.number(),
-    pricing_id: z.number(),
-    play_customer_type_name: z.string(),
-    duration: z.number(),
+    rule_id: z.number(),
     price: z.number(),
-    count: z.number(),
-    additional_minutes: z.number().optional(),
-    additional_minutes_price: z.number().optional(),
-    additional_minutes_price_id: z.number().nullable(),
-    minutes_qty: z.number().optional(),
+    rule_name: z.string(),
     customers: z.array(z.object({
       name: z.string().optional(),
       birthday: z.string().optional()
-    }))
+    })),
+    start_time: z.string(),
+    end_time: z.string(),
   })),
   additional_products: z.array(z.object({
     id: z.number(),
@@ -68,8 +63,11 @@ export default function page() {
       additional_products: []
     },
   });
-  const onSubmit = async (data) => {
-    console.log(data)
+  const onSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    const data = methods.getValues();
+    console.log('Form submitted:', data);
+    // Add your form submission logic here
   }
 console.log(methods.watch("first_name"))
   return (
@@ -87,7 +85,7 @@ console.log(methods.watch("first_name"))
         onStepClick={setActiveStep}
       />
         <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4" noValidate>
 
         <div className='w-full flex flex-col gap-4 m-2 border-2 p-4 rounded-2xl'>
          {activeStep === 0 && <>
@@ -178,6 +176,11 @@ console.log(methods.watch("first_name"))
           
           className="cursor-pointer">
             Create Booking
+          </Button>}
+        {activeStep === 2 && <Button
+          type="submit"  
+          className="cursor-pointer">
+            Create
           </Button>}
           </div>
         </div>
