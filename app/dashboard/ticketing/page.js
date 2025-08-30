@@ -21,7 +21,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { PhoneNumberField } from "@/components/coustomer-mobile-input";
 import CreateBookingInput from "@/components/ticketing/create-booking-input";
-import BookingConfimation from "@/components/ticketing/BookingConfimation";
 import StepperComp from "@/components/common/StepperComp";
 import { playReservationService } from "@/services/play_reservation.service";
 import { set } from "lodash";
@@ -59,8 +58,8 @@ const reservationSchema = z.object({
 });
 export default function page() {
   const [activeStep, setActiveStep] = React.useState(1); // Start from 1
-  const [disabledSteps, setDisabledSteps] = React.useState([4]);
-  const [reservationId, setReservationId] = useState(null);
+  const [disabledSteps, setDisabledSteps] = React.useState([]);
+  const [reservationId, setReservationId] = useState(133);
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
 
@@ -210,7 +209,6 @@ export default function page() {
                 </div>
               )}
               {activeStep === 3 && <CreateBookingInput />}
-              {activeStep === 4 && <BookingConfimation />}
 
               <div className="flex gap-2 justify-end">
                 {/* back btn */}

@@ -15,7 +15,7 @@ export default function BandItem({ barcode, reservation }) {
     }, 100); // Wait for DOM update
   };
   if (!barcode || !reservation) return null;
-console.log(barcode)
+  console.log(barcode);
   return (
     <div className="flex flex-col items-center justify-center">
       <Button
@@ -88,7 +88,11 @@ console.log(barcode)
             textAlign: "center",
           }}
         >
-          {getEndTime(barcode?.createdAt, barcode?.initial_minutes, barcode?.extra_minutes || 0)}
+          {getEndTime(
+            barcode?.createdAt,
+            barcode?.initial_minutes,
+            barcode?.extra_minutes || 0
+          )}
         </div>
         <QRCode
           value={barcode?.barcode?.barcode_number}
@@ -105,16 +109,18 @@ console.log(barcode)
           {barcode?.barcode?.barcode_number}
         </div>
         <div
-        className="text-wrap"
+          className="text-wrap"
           style={{
             fontSize: "8pt",
             wordBreak: "break-all",
             textAlign: "center",
           }}
         >
-          {barcode?.barcode?.play_customer_type?.name}
+          {/* {barcode?.barcode?.play_customer_type?.name} */}
         </div>
-        <p className="text-center text-wrap text-sm text-gray-500 font-semibold">{barcode.name}</p>
+        <p className="text-center text-wrap text-sm text-gray-500 font-semibold">
+          {barcode.name}
+        </p>
       </div>
     </div>
   );

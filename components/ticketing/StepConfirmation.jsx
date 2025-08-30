@@ -1,5 +1,6 @@
 import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation";
-import React from "react";
+import React, { useEffect, useMemo } from "react";
+import BarcodePrintView from "../booking/BarcodePrintView";
 
 export default function StepConfirmation({ reservationId }) {
   const { playReservation, playReservationLoading, playReservationRefresh } =
@@ -19,7 +20,6 @@ export default function StepConfirmation({ reservationId }) {
           is_active: b.barcode.is_active,
           branch_id: b.barcode.branch_id,
           play_reservation_id: b.barcode.play_reservation_id,
-          play_customer_type: b.barcode.play_customer_type,
           extra_minutes: b.extra_minutes || 0,
         })) || [],
       playPayments: playReservation.play_playment || [],
@@ -30,5 +30,9 @@ export default function StepConfirmation({ reservationId }) {
       playReservationRefresh(reservationId);
     }
   }, [reservationId]);
-  return <div>StepConfirmation</div>;
+  return (
+    <div>
+      <BarcodePrintView reservation={formattedReservation} />
+    </div>
+  );
 }
