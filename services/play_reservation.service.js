@@ -97,7 +97,7 @@ export const playReservationService = {
       //   days: Array.isArray(data.days) ? data.days : [],
       // };
 
-      const response = await api.post("/play/booking", data);
+      const response = await api.post("/play/auto-booking", data);
 
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to create rule");

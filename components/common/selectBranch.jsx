@@ -50,7 +50,7 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
     // No UI, just auto-select branchId
     return null;
   }
-// console.log(branchList)
+  // console.log(branchList)
   return (
     <>
       {/* <div>
@@ -119,7 +119,7 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
             ))}
           </SelectContent>
         </Select>
-        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+        {error && <p className="text-red-500 text-xs ">{error}</p>}
       </div>
     </>
   );

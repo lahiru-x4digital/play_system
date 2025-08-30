@@ -1,5 +1,4 @@
 "use client";
-import { Stepper } from "@/components/common/StepperComp";
 import {
   BarcodeIcon,
   PhoneIcon,
@@ -23,6 +22,10 @@ import { Input } from "@/components/ui/input";
 import { PhoneNumberField } from "@/components/coustomer-mobile-input";
 import CreateBookingInput from "@/components/ticketing/create-booking-input";
 import BookingConfimation from "@/components/ticketing/BookingConfimation";
+import StepperComp from "@/components/common/StepperComp";
+import { playReservationService } from "@/services/play_reservation.service";
+import { set } from "lodash";
+import StepConfirmation from "@/components/ticketing/StepConfirmation";
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
   payment_method: z.string().min(1, { message: "Payment method is required" }),
@@ -55,35 +58,15 @@ const reservationSchema = z.object({
   ),
 });
 export default function page() {
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStep, setActiveStep] = React.useState(1); // Start from 1
+  const [disabledSteps, setDisabledSteps] = React.useState([4]);
+  const [reservationId, setReservationId] = useState(null);
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
-  const steps = [
-    {
-      id: "mobile",
-      title: "Mobile Number",
-      icon: <PhoneIcon className="h-4 w-4" />,
-    },
-    {
-      id: "profile",
-      title: "Customer Profile",
-      icon: <UserIcon className="h-4 w-4" />,
-    },
-    {
-      id: "booking",
-      title: "Create Booking",
-      icon: <ShoppingCartIcon className="h-4 w-4" />,
-    },
-    {
-      id: "confirmation",
-      title: "Confirmation",
-      icon: <BarcodeIcon className="h-4 w-4" />,
-    },
-  ];
 
-  const handleNext = () =>
-    setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
-  const handlePrevious = () => setActiveStep((prev) => Math.max(prev - 1, 0));
+  const handleStep = (step) => () => {
+    setActiveStep(step);
+  };
   const methods = useForm({
     resolver: zodResolver(reservationSchema),
     defaultValues: {
@@ -97,24 +80,55 @@ export default function page() {
       additional_products: [],
     },
   });
-  const onSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    const data = methods.getValues();
-    console.log("Form submitted:", data);
-    // Add your form submission logic here
+  //watch error
+  const errors = methods.formState.errors;
+  //total price customer_types.reducer with customers.length
+
+  const onSubmit = async (data) => {
+    console.log(data);
+    const payload = {
+      first_name: data.first_name,
+      last_name: data.last_name,
+      mobile_number: data.mobile_number,
+      branch_id: isAdmin ? data.branch_id : user?.branchId,
+      total_price: data.amount,
+      status: "CONFIRMED",
+      payment_status: "PAID",
+      customer_types:
+        data.customer_types?.map((item) => ({
+          rule_id: item.rule_id,
+          price: item.price,
+          customers:
+            item.customers?.filter?.(
+              (customer) =>
+                customer.name !== "" &&
+                customer.name !== undefined &&
+                customer.name !== null
+            ) || [],
+        })) || [],
+      // products:
+      //   data.additional_products?.map((item) => ({
+      //     play_product_id: item.id,
+      //     quantity: item.qty,
+      //   })) || [],
+    };
+    try {
+      const response = await playReservationService.createReservation(payload);
+      setActiveStep(4);
+      setDisabledSteps([1, 2, 3]);
+      setReservationId(response.id);
+    } catch (error) {
+      console.log(error);
+    }
   };
-  console.log(methods.watch("first_name"));
+
   return (
     <div className="">
-      {/* Horizontal Stepper */}
       <div className="">
-        <Stepper
-          steps={steps}
+        <StepperComp
           activeStep={activeStep}
-          showNumbers={false}
-          clickable
-          orientation="horizontal"
-          onStepClick={setActiveStep}
+          onStepChange={setActiveStep}
+          disabledSteps={disabledSteps}
         />
         <FormProvider {...methods}>
           <form
@@ -122,18 +136,27 @@ export default function page() {
             className="space-y-4"
             noValidate
           >
-            <div className="w-full flex flex-col gap-4 m-2 border-2 p-4 rounded-2xl">
-              {activeStep === 0 && (
-                <>
+            <div className="w-full flex justify-center flex-col gap-4 m-2 border-2 p-2 rounded-2xl">
+              {activeStep === 1 && (
+                <div className=" flex  items-center gap-2">
                   <PhoneNumberField
                     control={methods.control}
                     name="mobile_number"
                     defaultCountry="ae"
                     preferred={["ae", "sa", "lk", "us", "gb"]}
                   />
-                </>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActiveStep(2);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Check Profile
+                  </Button>
+                </div>
               )}
-              {activeStep === 1 && (
+              {activeStep === 2 && (
                 <div className="space-y-6">
                   {/* Section header with mobile badge */}
                   <div>
@@ -147,7 +170,6 @@ export default function page() {
                       </span>
                     </p>
                   </div>
-
                   {/* Form Fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <FormItem>
@@ -161,7 +183,6 @@ export default function page() {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
@@ -173,7 +194,6 @@ export default function page() {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-
                     <FormItem className="sm:col-span-2">
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
@@ -189,8 +209,8 @@ export default function page() {
                   </div>
                 </div>
               )}
-              {activeStep === 2 && <CreateBookingInput />}
-              {activeStep === 3 && <BookingConfimation />}
+              {activeStep === 3 && <CreateBookingInput />}
+              {activeStep === 4 && <BookingConfimation />}
 
               <div className="flex gap-2 justify-end">
                 {/* back btn */}
@@ -198,31 +218,11 @@ export default function page() {
                   variant="outline"
                   onClick={() => setActiveStep((prev) => prev - 1)}
                   className="cursor-pointer"
+                  disabled={activeStep === 1}
                 >
                   Back
                 </Button>
-                {activeStep === 0 && (
-                  <Button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActiveStep(1);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Check Profile
-                  </Button>
-                )}
-                {activeStep === 1 && (
-                  <Button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActiveStep(2);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Create Booking
-                  </Button>
-                )}
+
                 {activeStep === 2 && (
                   <Button
                     onClick={(e) => {
@@ -231,8 +231,16 @@ export default function page() {
                     }}
                     className="cursor-pointer"
                   >
+                    Create Booking
+                  </Button>
+                )}
+                {activeStep === 3 && (
+                  <Button type="submit" className="cursor-pointer">
                     Confirm
                   </Button>
+                )}
+                {activeStep == 4 && (
+                  <StepConfirmation reservationId={reservationId} />
                 )}
               </div>
             </div>
