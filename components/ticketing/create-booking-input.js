@@ -43,6 +43,7 @@ export default function CreateBookingInput() {
     control,
     name: "customer_types",
   });
+  console.log("customer_types", watch("customer_types"));
   //check is ADULT exist in customer_types
   // const adultsAdded = watch("customer_types").some(
   //   (item) => item.type === "ADULT"
@@ -310,7 +311,6 @@ export default function CreateBookingInput() {
               <TimeSlotSelector
                 onSlotSelect={(slot) => {
                   setSelectedSlot(slot);
-                  console.log(slot);
                 }}
                 rule={selectedRule || []}
                 selectedDate={selectedDate}
@@ -331,6 +331,7 @@ export default function CreateBookingInput() {
                     start_time: selectedSlot.formattedStart,
                     end_time: selectedSlot.formattedEnd,
                   });
+                  console.log("customer_types", watch("customer_types"));
 
                   // // Add adults only once globally
                   // if (!adultsAdded) {

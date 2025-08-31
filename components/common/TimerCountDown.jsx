@@ -3,11 +3,44 @@ import React, { useEffect, useState } from "react";
 
 const pad = (num) => num.toString().padStart(2, "0");
 
-const TimerCountDown = ({ startTime, endTime, status }) => {
-  const end = new Date(endTime).getTime();
+const TimerCountDown = ({
+  status,
+  start_hour,
+  start_min,
+  end_hour,
+  end_min,
+}) => {
+  const now = new Date();
 
-  // Calculate remaining time (can be negative after expiry)
-  const getRemaining = () => end - Date.now();
+  // Build today's start and end time
+  const startTime = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    start_hour,
+    start_min,
+    0,
+    0
+  ).getTime();
+
+  const endTime = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    end_hour,
+    end_min,
+    0,
+    0
+  ).getTime();
+
+  // Compute remaining (negative = past, positive = future)
+  const getRemaining = () => {
+    const now = Date.now();
+    if (now < startTime) return { mode: "WAITING", ms: startTime - now };
+    if (now >= startTime && now <= endTime)
+      return { mode: "RUNNING", ms: endTime - now };
+    return { mode: "EXPIRED", ms: now - endTime };
+  };
 
   const [remaining, setRemaining] = useState(getRemaining());
 
@@ -16,13 +49,9 @@ const TimerCountDown = ({ startTime, endTime, status }) => {
       setRemaining(getRemaining());
     }, 1000);
     return () => clearInterval(interval);
-  }, [endTime]);
+  }, [start_hour, start_min, end_hour, end_min]);
 
-  // Format absolute time for both positive and negative values
   const formatTime = (ms) => {
-    if (status === "COMPLETED") {
-      return "COMPLETED";
-    }
     const totalSeconds = Math.floor(Math.abs(ms) / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -30,27 +59,36 @@ const TimerCountDown = ({ startTime, endTime, status }) => {
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   };
 
-  if (remaining < 0) {
-    // Time past expiration
+  if (status === "COMPLETED") {
+    return <span className="text-gray-500 font-mono text-sm">COMPLETED</span>;
+  }
+
+  if (remaining.mode === "WAITING") {
     return (
-      <span className="flex flex-col items-center font-sans">
+      <span className="text-blue-500 font-mono text-sm leading-none">
+        Starts in {formatTime(remaining.ms)}
+      </span>
+    );
+  }
+
+  if (remaining.mode === "EXPIRED") {
+    return (
+      <span className="text-red-400 font-mono text-sm leading-none">
+        -{formatTime(remaining.ms)} /{" "}
         <span className="text-red-600 font-bold uppercase text-sm leading-none">
           EXPIRED
-        </span>
-        <span className="text-red-400 font-mono text-sm leading-none">
-          -{formatTime(remaining)}
         </span>
       </span>
     );
   }
 
-  // Before expiration
-  const isRed = remaining < 15 * 60 * 1000;
+  // RUNNING state
+  const isRed = remaining.ms < 15 * 60 * 1000;
   const timerClass = isRed
     ? "text-red-500 font-mono text-sm leading-none"
     : "text-green-600 font-mono text-sm leading-none";
 
-  return <span className={timerClass}>{formatTime(remaining)}</span>;
+  return <span className={timerClass}>{formatTime(remaining.ms)}</span>;
 };
 
 export default TimerCountDown;

@@ -15,6 +15,7 @@ import { PrintDialog } from "../booking/PrintDialog";
 import { getEndTime } from "@/lib/getEndTime";
 import { BookingEditDialog } from "../booking/BookingEditDialog";
 import TimerCountDown from "../common/TimerCountDown";
+import { utcToTimeConvert } from "@/utils/time-converter";
 
 const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
   const router = useRouter();
@@ -63,14 +64,12 @@ const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
               <TableHead>Reservation ID</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Branch</TableHead>
-              <TableHead>Total Pax</TableHead>
               <TableHead>Total Price</TableHead>
               {/* <TableHead>Total Payment</TableHead> */}
               <TableHead>Status</TableHead>
               <TableHead>Payment Status</TableHead>
-              <TableHead className="text-center">Remaining Time</TableHead>
-              <TableHead>Start Time</TableHead>
-              <TableHead>End Time</TableHead>
+              <TableHead className="text-center">Date</TableHead>
+              <TableHead>Time</TableHead>
               <TableHead className="text-center">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -104,12 +103,6 @@ const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
                     {item.branch ? `${item.branch.branch_name}` : "-"}
                   </TableCell>
                   <TableCell>
-                    {item?.play_reservation_customer_types?.reduce(
-                      (sum, item) => sum + item.count,
-                      0
-                    )}
-                  </TableCell>
-                  <TableCell>
                     {item.total_price != null ? item.total_price : "-"}
                   </TableCell>
                   {/* <TableCell>
@@ -122,35 +115,68 @@ const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
                     {item.payment_status != null ? item.payment_status : "-"}
                   </TableCell>
                   <TableCell className="text-center">
-                    <TimerCountDown
-                      status={item.status}
-                      startTime={item.created_date}
-                      duration={item?.play_pricing?.duration || 0}
-                      endTime={item.end_time}
-                    />
-                  </TableCell>
-                  <TableCell>
                     {item.created_date
                       ? new Date(item.created_date).toLocaleDateString(
                           "en-US",
                           {
                             year: "numeric",
-                            month: "short",
+                            month: "numeric",
                             day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
                           }
                         )
                       : "-"}
+                    {/* <TimerCountDown
+                      status={item.status}
+                      startTime={item.created_date}
+                      duration={item?.play_pricing?.duration || 0}
+                      endTime={item.end_time}
+                    /> */}
                   </TableCell>
+
                   <TableCell>
-                    {item.end_time
-                      ? new Date(item.end_time).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "-"}
+                    <div className="space-y-2 w-64">
+                      {item.play_reservation_barcodes.map((barcode, index) => (
+                        <div
+                          key={barcode.id}
+                          className="p-1 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all"
+                        >
+                          {/* Header */}
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-sm text-gray-900">
+                              {barcode.name}/{" "}
+                              <TimerCountDown
+                                status={item.status}
+                                start_hour={barcode.start_hour}
+                                start_min={barcode.start_min}
+                                end_hour={barcode.end_hour}
+                                end_min={barcode.end_min}
+                              />
+                            </span>
+                            <span className="text-xs text-gray-500 bg-gray-100 rounded font-mono">
+                              #{barcode.barcode_number}
+                            </span>
+                          </div>
+
+                          {/* Time & Duration */}
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-700">
+                              {utcToTimeConvert(barcode.start_time)} -{" "}
+                              {utcToTimeConvert(barcode.end_time)}
+                            </span>
+                            {barcode.duration && (
+                              <span className="text-xs bg-blue-100 text-blue-700 rounded font-medium">
+                                {barcode.duration}m
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Timer */}
+                        </div>
+                      ))}
+                    </div>
                   </TableCell>
+
+                  <TableCell></TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Button

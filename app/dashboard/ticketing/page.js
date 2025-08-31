@@ -25,6 +25,7 @@ import StepperComp from "@/components/common/StepperComp";
 import { playReservationService } from "@/services/play_reservation.service";
 import { set } from "lodash";
 import StepConfirmation from "@/components/ticketing/StepConfirmation";
+import { extractHourMin } from "@/utils/time-converter";
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
   payment_method: z.string().min(1, { message: "Payment method is required" }),
@@ -59,7 +60,7 @@ const reservationSchema = z.object({
 export default function page() {
   const [activeStep, setActiveStep] = React.useState(1); // Start from 1
   const [disabledSteps, setDisabledSteps] = React.useState([]);
-  const [reservationId, setReservationId] = useState(133);
+  const [reservationId, setReservationId] = useState(150);
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
 
@@ -94,17 +95,26 @@ export default function page() {
       status: "CONFIRMED",
       payment_status: "PAID",
       customer_types:
-        data.customer_types?.map((item) => ({
-          rule_id: item.rule_id,
-          price: item.price,
-          customers:
-            item.customers?.filter?.(
-              (customer) =>
-                customer.name !== "" &&
-                customer.name !== undefined &&
-                customer.name !== null
-            ) || [],
-        })) || [],
+        data.customer_types?.map((item) => {
+          const start = extractHourMin(item.start_time);
+          const end = extractHourMin(item.end_time);
+
+          return {
+            rule_id: item.rule_id,
+            price: item.price,
+            start_hour: start.hour,
+            start_min: start.min,
+            end_hour: end.hour,
+            end_min: end.min,
+            customers:
+              item.customers?.filter(
+                (customer) =>
+                  customer.name !== "" &&
+                  customer.name !== undefined &&
+                  customer.name !== null
+              ) || [],
+          };
+        }) || [],
       // products:
       //   data.additional_products?.map((item) => ({
       //     play_product_id: item.id,

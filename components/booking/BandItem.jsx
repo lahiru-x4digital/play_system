@@ -5,7 +5,11 @@ import { Printer } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import { getEndTime } from "@/lib/getEndTime";
 
-export default function BandItem({ barcode, reservation }) {
+export default function BandItem({
+  barcode,
+  reservation,
+  isGenerating = false,
+}) {
   const printRef = useRef(null);
   const reactToPrintFn = useReactToPrint({ contentRef: printRef });
 
@@ -14,30 +18,33 @@ export default function BandItem({ barcode, reservation }) {
       reactToPrintFn();
     }, 100); // Wait for DOM update
   };
+
   if (!barcode || !reservation) return null;
-  console.log(barcode);
+  // console.log(barcode);
   return (
     <div className="flex flex-col items-center justify-center">
-      <Button
-        className={"mb-2 btn-print-barcode"}
-        onClick={handleSinglePrint}
-        variant="outline"
-        size="icon"
-      >
-        <Printer />
-      </Button>
+      {!isGenerating && (
+        <Button
+          className={"mb-2 btn-print-barcode"}
+          onClick={handleSinglePrint}
+          variant="outline"
+          size="icon"
+        >
+          <Printer />
+        </Button>
+      )}
       <div
         ref={printRef}
         className="barcode-band"
         style={{
-          width: "10 mm",
-          height: "150mm",
+          width: "25mm",
+          height: "250mm",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           border: "1px solid #ccc",
-          marginBottom: "8mm",
+          margin: "3mm 1.5mm",
           pageBreakInside: "avoid",
         }}
       >
