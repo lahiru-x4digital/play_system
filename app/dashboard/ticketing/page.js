@@ -5,7 +5,7 @@ import {
   ShoppingCartIcon,
   UserIcon,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormProvider } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,9 +23,10 @@ import { PhoneNumberField } from "@/components/coustomer-mobile-input";
 import CreateBookingInput from "@/components/ticketing/create-booking-input";
 import StepperComp from "@/components/common/StepperComp";
 import { playReservationService } from "@/services/play_reservation.service";
-import { set } from "lodash";
 import StepConfirmation from "@/components/ticketing/StepConfirmation";
-import { extractHourMin } from "@/utils/time-converter";
+import { extractHourMin, extractHourMinFromUTC } from "@/utils/time-converter";
+import toast from "react-hot-toast";
+import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation";
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
   payment_method: z.string().min(1, { message: "Payment method is required" }),
@@ -33,6 +34,7 @@ const reservationSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
   branch_id: z.number().min(1, { message: "Branch is required" }),
+  date: z.string().min(1, { message: "Date is required" }),
   customer_types: z.array(
     z.object({
       rule_id: z.number(),
@@ -44,8 +46,10 @@ const reservationSchema = z.object({
           birthday: z.string().optional(),
         })
       ),
-      start_time: z.string(),
-      end_time: z.string(),
+      start_hour: z.number().min(0).max(23),
+      start_min: z.number().min(0).max(59),
+      end_hour: z.number().min(0).max(23),
+      end_min: z.number().min(0).max(59),
     })
   ),
   additional_products: z.array(
@@ -58,6 +62,8 @@ const reservationSchema = z.object({
   ),
 });
 export default function page() {
+  const { playReservation, playReservationLoading, playReservationRefresh } =
+    useGetSinglePlayReservation();
   const [activeStep, setActiveStep] = React.useState(1); // Start from 1
   const [disabledSteps, setDisabledSteps] = React.useState([]);
   const [reservationId, setReservationId] = useState(150);
@@ -83,7 +89,13 @@ export default function page() {
   //watch error
   const errors = methods.formState.errors;
   //total price customer_types.reducer with customers.length
-
+  useEffect(() => {
+    if (errors.mobile_number) toast.error(errors.mobile_number.message);
+    if (errors.branch_id) toast.error(errors.branch_id.message);
+    // if (errors.first_name) toast.error(errors.first_name.message);
+    // if (errors.last_name) toast.error(errors.last_name.message);
+    // Add more as needed
+  }, [errors]);
   const onSubmit = async (data) => {
     console.log(data);
     const payload = {
@@ -91,21 +103,19 @@ export default function page() {
       last_name: data.last_name,
       mobile_number: data.mobile_number,
       branch_id: isAdmin ? data.branch_id : user?.branchId,
+      reservation_date: data.date,
       total_price: data.amount,
       status: "CONFIRMED",
       payment_status: "PAID",
       customer_types:
         data.customer_types?.map((item) => {
-          const start = extractHourMin(item.start_time);
-          const end = extractHourMin(item.end_time);
-
           return {
             rule_id: item.rule_id,
             price: item.price,
-            start_hour: start.hour,
-            start_min: start.min,
-            end_hour: end.hour,
-            end_min: end.min,
+            start_hour: item.start_hour,
+            start_min: item.start_min,
+            end_hour: item.end_hour,
+            end_min: item.end_min,
             customers:
               item.customers?.filter(
                 (customer) =>
@@ -125,7 +135,9 @@ export default function page() {
       const response = await playReservationService.createReservation(payload);
       setActiveStep(4);
       setDisabledSteps([1, 2, 3]);
-      setReservationId(response.id);
+      setReservationId(response.data.playReservation.id); // <-- Correct way
+      console.log("RESID", response.data.playReservation.id);
+      playReservationRefresh(response.data.playReservation.id); // <-- Pass correct ID
     } catch (error) {
       console.log(error);
     }
@@ -220,16 +232,30 @@ export default function page() {
               )}
               {activeStep === 3 && <CreateBookingInput />}
 
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 justify-end mt-4">
                 {/* back btn */}
-                <Button
-                  variant="outline"
-                  onClick={() => setActiveStep((prev) => prev - 1)}
-                  className="cursor-pointer"
-                  disabled={activeStep === 1}
-                >
-                  Back
-                </Button>
+                {activeStep !== 4 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setActiveStep((prev) => prev - 1)}
+                    className="cursor-pointer"
+                    disabled={activeStep === 1}
+                  >
+                    Back
+                  </Button>
+                )}
+                {activeStep === 4 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      //refresh page
+                      window.location.reload();
+                    }}
+                    className="cursor-pointer"
+                  >
+                    New Booking
+                  </Button>
+                )}
 
                 {activeStep === 2 && (
                   <Button
@@ -243,12 +269,16 @@ export default function page() {
                   </Button>
                 )}
                 {activeStep === 3 && (
-                  <Button type="submit" className="cursor-pointer">
+                  <Button
+                    type="submit"
+                    className="cursor-pointer"
+                    disabled={methods.watch("customer_types").length === 0}
+                  >
                     Confirm
                   </Button>
                 )}
                 {activeStep == 4 && (
-                  <StepConfirmation reservationId={reservationId} />
+                  <StepConfirmation playReservation={playReservation} />
                 )}
               </div>
             </div>

@@ -2,9 +2,9 @@ import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation";
 import React, { useEffect, useMemo } from "react";
 import BarcodePrintView from "../booking/BarcodePrintView";
 
-export default function StepConfirmation({ reservationId }) {
-  const { playReservation, playReservationLoading, playReservationRefresh } =
-    useGetSinglePlayReservation();
+export default function StepConfirmation({ playReservation }) {
+  // Pass reservationId to the hook
+
   const formattedReservation = useMemo(() => {
     if (!playReservation) return null;
 
@@ -25,11 +25,7 @@ export default function StepConfirmation({ reservationId }) {
       playPayments: playReservation.play_playment || [],
     };
   }, [playReservation]);
-  useEffect(() => {
-    if (reservationId) {
-      playReservationRefresh(reservationId);
-    }
-  }, [reservationId]);
+
   return (
     <div>
       <BarcodePrintView reservation={formattedReservation} />

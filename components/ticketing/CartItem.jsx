@@ -41,7 +41,17 @@ export default function CartItem() {
                 </h2>
                 {
                   <span className="text-sm ">
-                    Time : - {customerType.start_time} - {customerType.end_time}
+                    Time :{" "}
+                    {`${String(customerType.start_hour).padStart(
+                      2,
+                      "0"
+                    )}:${String(customerType.start_min).padStart(
+                      2,
+                      "0"
+                    )} - ${String(customerType.end_hour).padStart(
+                      2,
+                      "0"
+                    )}:${String(customerType.end_min).padStart(2, "0")}`}
                   </span>
                 }
                 <div className="flex items-center gap-2">
@@ -49,7 +59,7 @@ export default function CartItem() {
                     variant={isKid ? "default" : "secondary"}
                     className="px-3 py-1"
                   >
-                    {isKid ? `LKR ${price.toFixed(2)}` : "Free"}
+                    {isKid ? `${price.toFixed(2)}` : "Free"}
                   </Badge>
                   <Button
                     variant="ghost"

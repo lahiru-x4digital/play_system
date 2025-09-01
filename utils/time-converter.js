@@ -35,3 +35,13 @@ export function extractHourMin(timeStr) {
 
   return { hour, min };
 }
+
+export function extractHourMinFromUTC(utcStr) {
+  if (!utcStr || typeof utcStr !== "string") return { hour: null, min: null };
+  const date = new Date(utcStr);
+  if (isNaN(date.getTime())) return { hour: null, min: null };
+  return {
+    hour: date.getHours(),
+    min: date.getMinutes(),
+  };
+}

@@ -1,6 +1,7 @@
 "use client";
-import { format, addMinutes } from "date-fns";
 import { useState, useEffect } from "react";
+import { bookingService } from "@/services/play/time_lot_generate.service";
+import Select from "react-select";
 
 export function TimeSlotSelector({
   rule,
@@ -10,95 +11,85 @@ export function TimeSlotSelector({
 }) {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
-
-  const formatTime = (date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  const generateTimeSlots = (rule, selectedDate) => {
-    if (!rule || !selectedDate) return [];
-    const slots = [];
-    try {
-      const dateObj = new Date(selectedDate);
-      const [startHour, startMin] = rule.start_time.split(":").map(Number);
-      const [endHour, endMin] = rule.end_time.split(":").map(Number);
-
-      const startDateTime = new Date(dateObj);
-      startDateTime.setHours(startHour, startMin, 0, 0);
-
-      const endDateTime = new Date(dateObj);
-      endDateTime.setHours(endHour, endMin, 0, 0);
-
-      let currentSlot = new Date(startDateTime);
-      while (currentSlot < endDateTime) {
-        const slotEnd = addMinutes(currentSlot, rule.slot_booking_period);
-        if (slotEnd <= endDateTime && kidsCount <= 2) {
-          slots.push({
-            start: new Date(currentSlot),
-            end: new Date(slotEnd),
-            formattedStart: formatTime(currentSlot),
-            formattedEnd: formatTime(slotEnd),
-            available_space: Math.floor(Math.random() * 5) + 1,
-          });
-        }
-        currentSlot = new Date(slotEnd);
-      }
-    } catch (error) {
-      console.error("Error generating time slots:", error);
-    }
-    return slots;
-  };
-
+  const [loading, setLoading] = useState(false);
+  console.log(timeSlots);
   useEffect(() => {
-    if (rule && selectedDate) {
-      const slots = generateTimeSlots(rule, selectedDate);
-      setTimeSlots(slots);
-      setSelectedSlot(null);
-      onSlotSelect(null);
-    } else {
-      setTimeSlots([]);
-      setSelectedSlot(null);
-      onSlotSelect(null);
+    async function fetchSlots() {
+      if (!rule || !selectedDate) {
+        setTimeSlots([]);
+        setSelectedSlot(null);
+        onSlotSelect(null);
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await bookingService.getReservationRules({
+          rule_id: rule.id,
+          date: selectedDate,
+        });
+        console.log("Ress", res);
+        // Correctly set timeSlots from response
+        setTimeSlots(res.data.slots || []);
+        setSelectedSlot(null);
+        onSlotSelect(null);
+      } catch (error) {
+        setTimeSlots([]);
+        setSelectedSlot(null);
+        onSlotSelect(null);
+      } finally {
+        setLoading(false);
+      }
     }
+    fetchSlots();
   }, [rule, selectedDate]);
 
   if (!rule) return null;
 
+  const options = timeSlots
+    .filter((slot) => slot.available > 0)
+    .map((slot) => ({
+      value: `${slot.start_hour}:${String(slot.start_min).padStart(2, "0")}-${
+        slot.end_hour
+      }:${String(slot.end_min).padStart(2, "0")}`,
+      label: `${slot.formatted} (${slot.available} Seats)`,
+    }));
+
   return (
     <div className="">
-      {timeSlots.length > 0 ? (
+      {loading ? (
+        <div className="text-center py-8 text-gray-500">
+          <p>Loading time slots...</p>
+        </div>
+      ) : timeSlots.length > 0 ? (
         <div>
-          <select
-            className="w-full p-2 border rounded-lg"
-            value={
-              selectedSlot
-                ? `${selectedSlot.start.getTime()}-${selectedSlot.end.getTime()}`
-                : ""
-            }
-            onChange={(e) => {
-              const value = e.target.value;
+          <Select
+            options={options}
+            menuPlacement="bottom"
+            className="basic-single w-96"
+            classNamePrefix="select"
+            isClearable={true}
+            onChange={(selectedOption) => {
               const slot = timeSlots.find(
-                (s) => `${s.start.getTime()}-${s.end.getTime()}` === value
+                (s) =>
+                  `${s.start_hour}:${String(s.start_min).padStart(2, "0")}-${
+                    s.end_hour
+                  }:${String(s.end_min).padStart(2, "0")}` ===
+                  selectedOption?.value
               );
               setSelectedSlot(slot);
-              onSlotSelect(slot ? { ...slot, rule_id: rule?.id } : null);
+              onSlotSelect(
+                slot
+                  ? {
+                      rule_id: rule?.id,
+                      start_hour: slot.start_hour,
+                      start_min: slot.start_min,
+                      end_hour: slot.end_hour,
+                      end_min: slot.end_min,
+                    }
+                  : null
+              );
             }}
-          >
-            <option value="">Select a time slot</option>
-            {timeSlots.map((slot, index) => (
-              <option
-                key={`${slot.start.getTime()}-${index}`}
-                value={`${slot.start.getTime()}-${slot.end.getTime()}`}
-              >
-                {slot.formattedStart} - {slot.formattedEnd} (
-                {slot.available_space} left)
-              </option>
-            ))}
-          </select>
+          />
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500">

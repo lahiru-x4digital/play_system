@@ -102,7 +102,7 @@ const SelectBranch = ({ value, onChange, error, label = "Branch", open }) => {
         {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
       </div> */}
       <div style={{ width: "100%", maxWidth: "400px" }}>
-        <Label>{label}</Label>
+        <Label className={"mb-1"}>{label}</Label>
         <Select
           value={value !== undefined && value !== null ? String(value) : ""}
           onValueChange={(val) => onChange(Number(val))}

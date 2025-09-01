@@ -102,10 +102,10 @@ export const playReservationService = {
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to create rule");
       }
-
+      console.log("createReservation Service", response);
       return {
         success: true,
-        data: response.data.data,
+        data: response.data,
       };
     } catch (error) {
       showApiError(error, "Failed to create booking rule");

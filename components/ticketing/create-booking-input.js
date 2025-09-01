@@ -15,11 +15,13 @@ import AdditionalProductSelect from "../booking/AdditionalProductSelect";
 import { set } from "lodash";
 import { Trash } from "lucide-react";
 import PaymentInput from "../common/PaymentInput";
+import { useIsAdmin, useIsUser } from "@/lib/getuserData";
 
 export default function CreateBookingInput() {
   const { control, watch, setValue } = useFormContext();
   const firstName = watch("first_name"); // Get first_name from parent form
-
+  const isUser = useIsUser();
+  const isAdmin = useIsAdmin();
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedRule, setSelectedRule] = useState(null);
@@ -111,25 +113,38 @@ export default function CreateBookingInput() {
   const branchId = watch("branch_id");
   const selectedDate = watch("date");
 
-  useEffect(() => {
-    const fetchRules = async () => {
-      setLoading(true);
-      try {
-        const { success, data } = await bookingService.getReservationRules({
-          branch_id: branchId,
-          date: selectedDate,
-        });
-        if (success) {
-          setRules(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch reservation rules:", error);
-      } finally {
-        setLoading(false);
-      }
+  const fetchRules = async (branch_id, selectedDate) => {
+    const params = {
+      branch_id: branchId,
+      date: selectedDate,
     };
-    fetchRules();
-  }, [branchId, selectedDate]);
+    if (branch_id) {
+      params.branch_id = branch_id;
+    }
+    if (selectedDate) {
+      params.date = selectedDate;
+    }
+    setLoading(true);
+    try {
+      const { success, data } = await bookingService.getReservationRules(
+        params
+      );
+      if (success) {
+        setRules(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch reservation rules:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (isUser && branchId && selectedDate) {
+      fetchRules(branchId, selectedDate);
+    } else if (isAdmin && branchId && selectedDate) {
+      fetchRules(branchId, selectedDate);
+    }
+  }, [branchId, selectedDate, isUser, isAdmin]);
 
   const handleAddToCart = (cartItem) => {
     append({
@@ -327,9 +342,11 @@ export default function CreateBookingInput() {
                     type: "KID",
                     customers: kids,
                     rule_name: selectedRule.name,
-                    price: Number(selectedRule.price), // <-- Ensure price is a number
-                    start_time: selectedSlot.formattedStart,
-                    end_time: selectedSlot.formattedEnd,
+                    price: Number(selectedRule.price),
+                    start_hour: selectedSlot.start_hour,
+                    start_min: selectedSlot.start_min,
+                    end_hour: selectedSlot.end_hour,
+                    end_min: selectedSlot.end_min,
                   });
                   console.log("customer_types", watch("customer_types"));
 
@@ -346,6 +363,10 @@ export default function CreateBookingInput() {
                   setSelectedSlot(null);
                   setSelectedRule(null);
                 }}
+                disabled={
+                  !selectedSlot ||
+                  kids.some((kid) => !kid.name || kid.name.trim() === "")
+                }
               >
                 Add to Cart
               </Button>

@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { useReactToPrint } from "react-to-print";
 import { Printer } from "lucide-react";
 import BandItem from "./BandItem";
+import toast from "react-hot-toast";
 
 export default function BarcodePrintView({ reservation = null }) {
   const printRef = useRef(null);
@@ -31,8 +32,10 @@ export default function BarcodePrintView({ reservation = null }) {
 
       const text = await res.text();
       console.log(text);
+      toast.success("Sent to printer: Printed!");
     } catch (err) {
       console.error("Error sending HTML to server:", err);
+      toast.error("Print failed. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -42,20 +45,22 @@ export default function BarcodePrintView({ reservation = null }) {
 
   return (
     <div className="">
-      <Button
-        className=""
-        onClick={reactToPrintFn}
-        style={{ marginBottom: "1rem" }}
-      >
-        Print All
-      </Button>
-      <Button
-        className=""
-        onClick={handleGeneratePdf}
-        style={{ marginBottom: "1rem" }}
-      >
-        Generate & Send PDF
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          className=""
+          onClick={reactToPrintFn}
+          style={{ marginBottom: "1rem" }}
+        >
+          Print All
+        </Button>
+        <Button
+          className=""
+          onClick={handleGeneratePdf}
+          style={{ marginBottom: "1rem" }}
+        >
+          Quick Print
+        </Button>
+      </div>
       <div className="barcode-print-container grid grid-cols-4 gap-4">
         <div ref={printRef} className="print-area grid grid-cols-4 gap-4 w-96 ">
           {reservation?.play_reservation_barcodes?.map((barcode, idx) => (
