@@ -25,7 +25,14 @@ import ExtraHoursSelectInput from "../common/ExtraHoursSelectInput";
 
 export function BookingEditDialog({ open, onOpenChange, bookingData }) {
   // const statuses = ["PENDING", "REFUND", "CENCELED", "CONFIRMED","COMPLETED"];
-  const statuses = ["COMPLETED", "WENT_OUTSIDE", "CONFIRMED"];
+  const statuses = [
+    "COMPLETED",
+    "WENT_OUTSIDE",
+    "CONFIRMED",
+    "PENDING",
+    "CANCELED",
+    "REFUNDED",
+  ];
   const [status, setStatus] = React.useState(bookingData?.status || "");
   const { patchHandler, patchHandlerloading, patchHandlerError } =
     useAxiosPatch();
@@ -36,31 +43,11 @@ export function BookingEditDialog({ open, onOpenChange, bookingData }) {
     }
   }, [bookingData]);
   const handleUpdate = async () => {
-    // Filter out null/undefined values and ensure proper structure
-    const filteredExtraHours = extraHours
-      .filter((item) => item && item.extra_hours_id) // Only keep valid items with extra_hours_id
-      .map(
-        ({
-          extra_hours_id,
-          extra_pricing,
-          play_customer_type_id,
-          duration,
-          hours_qty,
-        }) => ({
-          extra_hours_id,
-          extra_pricing,
-          play_customer_type_id,
-          duration,
-          hours_qty,
-        })
-      );
-
-    const data = {
+    const payload = {
       status: status,
-      extra_hours: filteredExtraHours,
     };
 
-    await patchHandler(`play/auto-booking/${bookingData?.id}`, data);
+    await patchHandler(`play/auto-booking/${bookingData?.id}`, payload);
     onOpenChange(false);
   };
 

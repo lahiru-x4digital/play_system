@@ -31,6 +31,8 @@ const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
   payment_method: z.string().min(1, { message: "Payment method is required" }),
   amount: z.number().min(0, { message: "Amount is required" }),
+  customer_type: z.string().optional(),
+  member_level: z.string().optional(),
   first_name: z.string(),
   last_name: z.string(),
   branch_id: z.number().min(1, { message: "Branch is required" }),
@@ -190,6 +192,24 @@ export default function page() {
                         {methods.watch("mobile_number")}
                       </span>
                     </p>
+                    <div className="mt-2 flex flex-wrap gap-4">
+                      <div className="text-sm">
+                        <span className="text-muted-foreground">
+                          Customer Tier:{" "}
+                        </span>
+                        <span className="inline-block bg-muted px-2 py-0.5 rounded text-sm font-medium">
+                          {methods.watch("customer_type") || "_"}
+                        </span>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-muted-foreground">
+                          Member Level:{" "}
+                        </span>
+                        <span className="inline-block bg-muted px-2 py-0.5 rounded text-sm font-medium">
+                          {methods.watch("member_level") || "_"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                   {/* Form Fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

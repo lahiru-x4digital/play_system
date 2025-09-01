@@ -35,13 +35,11 @@ export default function Page({ params }) {
   const [selectedBarcode, setSelectedBarcode] = useState(null);
 
   const handleOpenDialog = (barcode) => {
-    console.log(barcode);
     setSelectedBarcode({
       id: barcode.id,
       barcodeNumber: barcode.barcode?.barcode_number,
       customerTypeId: barcode.barcode?.play_customer_type_id,
       branchId: barcode.barcode?.branch_id,
-      reservation_rule_id: barcode?.reservation_rule_id,
     });
   };
 
@@ -72,6 +70,7 @@ export default function Page({ params }) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      {/* Reservation Summary */}
       <Card>
         <CardHeader className="pb-1">
           <CardTitle className="text-lg font-semibold">
@@ -96,8 +95,8 @@ export default function Page({ params }) {
                   value={playReservation.customer.mobile_number}
                 />
                 <LabelValue
-                  label="Type"
-                  value={playReservation.customer.customer_type}
+                  label="Level"
+                  value={playReservation.customer.customer_level}
                 />
               </div>
             </div>
@@ -128,6 +127,8 @@ export default function Page({ params }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Pricing & Payments */}
       <Card>
         <CardHeader className="pb-1">
           <CardTitle className="text-lg font-semibold">
@@ -192,6 +193,7 @@ export default function Page({ params }) {
           </div>
         </CardContent>
       </Card>
+
       {/* Barcodes */}
       <Card>
         <CardHeader className="pb-1">
@@ -221,9 +223,9 @@ export default function Page({ params }) {
                   </div>
                   <div className="grid grid-cols-1 gap-1 text-muted-foreground">
                     {/* <LabelValue
-                            label="Customer Type"
-                            value={b.barcode?.play_customer_type?.name || "-"}
-                          /> */}
+                      label="Customer Type"
+                      value={b.barcode?.play_customer_type?.name || "-"}
+                    /> */}
                     <LabelValue
                       label="Start Time"
                       value={`${new Date(b.createdAt).toLocaleTimeString([], {
@@ -231,6 +233,30 @@ export default function Page({ params }) {
                         minute: "2-digit",
                       })}`}
                     />
+                    <LabelValue
+                      label="End Time"
+                      value={`${getEndTime(
+                        b.createdAt,
+                        b.initial_minutes,
+                        b.extra_minutes || 0
+                      )}`}
+                    />
+                    <LabelValue
+                      label="Duration"
+                      value={`${b.barcode?.time_duration || "-"} min`}
+                    />
+                    {/* <LabelValue
+                      label="Extra Time"
+                      value={`${b.extra_minutes || "-"} min`}
+                    /> */}
+                    {/* <LabelValue
+                      label="Extra Time Price"
+                      value={
+                        b.extra_minute_price
+                          ? `Rs. ${b.extra_minute_price}`
+                          : "-"
+                      }
+                    /> */}
                   </div>
 
                   <div className="pt-3 flex justify-end">
@@ -254,21 +280,22 @@ export default function Page({ params }) {
           )}
         </CardContent>
       </Card>
+
       {/* Add Extra Time Dialog */}
-      {selectedBarcode && (
+      {/* {selectedBarcode && (
         <AddExtraTimeDialog
           open={selectedBarcode ? true : false}
           onOpenChange={() => setSelectedBarcode(null)}
           barcodeId={selectedBarcode.id}
           barcodeNumber={selectedBarcode.barcodeNumber}
-          reservation_rule_id={selectedBarcode.reservation_rule_id}
+          customerTypeId={selectedBarcode.customerTypeId}
           branchId={selectedBarcode.branchId}
           onSuccess={handleDialogSuccess}
         />
-      )}
+      )} */}
 
       {/* Products */}
-      <Card>
+      {/* <Card>
         <CardHeader className="pb-1">
           <CardTitle className="text-lg font-semibold">Products</CardTitle>
         </CardHeader>
@@ -295,7 +322,7 @@ export default function Page({ params }) {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

@@ -33,12 +33,16 @@ export function PhoneNumberField({
 
   /* ----- debounced uniqueness check ------------------ */
   const checkUniqueness = async (digits) => {
-    const { success, data } = await customerService.searchCustomerByMobile(digits);
-    
+    const { success, data } = await customerService.searchCustomerByMobile(
+      digits
+    );
+
     if (success && data?.customers?.[0]) {
       // Only update fields if we found a customer
       setValue("first_name", data.customers[0].first_name || "");
       setValue("last_name", data.customers[0].last_name || "");
+      setValue("member_level", data.customers[0].customer_level || "");
+      setValue("customer_type", data.customers[0].customer_type || "");
       setError(name, { type: "manual", message: "Number Found" });
       setIsFree(false);
     } else if (getValues(name)?.replace(/\D/g, "") === digits) {
@@ -95,7 +99,9 @@ export function PhoneNumberField({
               />
             </FormControl>
 
-            <p className="text-xs mt-1 text-gray-600">{fieldState.error?.message || error}</p>
+            <p className="text-xs mt-1 text-gray-600">
+              {fieldState.error?.message || error}
+            </p>
             {isFree && (
               <p className="text-xs mt-1 text-gray-600">
                 Number does not exist

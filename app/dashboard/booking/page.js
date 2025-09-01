@@ -77,7 +77,6 @@ export default function Booking() {
 
   return (
     <div>
-      <AutoBookingDialog playReservationsRefres={playReservationsRefres} />
       <div className="space-y-4">
         <ReservationFilter
           onExport={async (data) => {

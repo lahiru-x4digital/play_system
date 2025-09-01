@@ -12,7 +12,6 @@ export function TimeSlotSelector({
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
-  console.log(timeSlots);
   useEffect(() => {
     async function fetchSlots() {
       if (!rule || !selectedDate) {
@@ -52,6 +51,7 @@ export function TimeSlotSelector({
         slot.end_hour
       }:${String(slot.end_min).padStart(2, "0")}`,
       label: `${slot.formatted} (${slot.available} Seats)`,
+      ...slot,
     }));
 
   return (
@@ -69,22 +69,15 @@ export function TimeSlotSelector({
             classNamePrefix="select"
             isClearable={true}
             onChange={(selectedOption) => {
-              const slot = timeSlots.find(
-                (s) =>
-                  `${s.start_hour}:${String(s.start_min).padStart(2, "0")}-${
-                    s.end_hour
-                  }:${String(s.end_min).padStart(2, "0")}` ===
-                  selectedOption?.value
-              );
-              setSelectedSlot(slot);
+              setSelectedSlot(selectedOption);
               onSlotSelect(
-                slot
+                selectedOption
                   ? {
                       rule_id: rule?.id,
-                      start_hour: slot.start_hour,
-                      start_min: slot.start_min,
-                      end_hour: slot.end_hour,
-                      end_min: slot.end_min,
+                      start_hour: selectedOption.start_hour,
+                      start_min: selectedOption.start_min,
+                      end_hour: selectedOption.end_hour,
+                      end_min: selectedOption.end_min,
                     }
                   : null
               );
