@@ -150,6 +150,15 @@ const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
                                 start_min={barcode.start_min}
                                 end_hour={barcode.end_hour}
                                 end_min={barcode.end_min}
+                                extra_minutes={
+                                  barcode.playReservationBarCodeExtraTimes
+                                    ? barcode.playReservationBarCodeExtraTimes.reduce(
+                                        (sum, et) =>
+                                          sum + (et.extra_minutes || 0),
+                                        0
+                                      )
+                                    : 0
+                                }
                               />
                             </span>
                             <span className="text-xs text-gray-500 bg-gray-100 rounded font-mono">
@@ -158,15 +167,9 @@ const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
                           </div>
 
                           {/* Time & Duration */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-700">
-                              {utcToTimeConvert(barcode.start_time)} -{" "}
-                              {utcToTimeConvert(barcode.end_time)}
-                            </span>
-                            {barcode.duration && (
-                              <span className="text-xs bg-blue-100 text-blue-700 rounded font-medium">
-                                {barcode.duration}m
-                              </span>
+                          <div className="">
+                            {barcode.status && (
+                              <span className="">{barcode.status}</span>
                             )}
                           </div>
 

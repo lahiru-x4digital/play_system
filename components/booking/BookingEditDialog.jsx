@@ -28,6 +28,7 @@ export function BookingEditDialog({ open, onOpenChange, bookingData }) {
   const statuses = [
     "COMPLETED",
     "WENT_OUTSIDE",
+    "BACK_INSIDE",
     "CONFIRMED",
     "PENDING",
     "CANCELED",
@@ -43,11 +44,25 @@ export function BookingEditDialog({ open, onOpenChange, bookingData }) {
     }
   }, [bookingData]);
   const handleUpdate = async () => {
+    const now = new Date();
+    const hour = now.getHours();
+    const min = now.getMinutes();
+
     const payload = {
       status: status,
+      hour: null,
+      min: null,
     };
+    if (status === "WENT_OUTSIDE") {
+      payload.hour = hour;
+      payload.min = min;
+    }
+    if (status === "BACK_INSIDE") {
+      payload.hour = hour;
+      payload.min = min;
+    }
 
-    await patchHandler(`play/auto-booking/${bookingData?.id}`, payload);
+    await patchHandler(`play/play-reservation/${bookingData?.id}`, payload);
     onOpenChange(false);
   };
 
@@ -82,75 +97,6 @@ export function BookingEditDialog({ open, onOpenChange, bookingData }) {
                 </SelectContent>
               </Select>
             </div>
-            {bookingData?.play_reservation_customer_types?.map(
-              (item, index) => {
-                const itemTotal =
-                  extraHours[index]?.extra_pricing &&
-                  extraHours[index]?.hours_qty
-                    ? extraHours[index].extra_pricing *
-                      extraHours[index].hours_qty
-                    : 0;
-
-                return (
-                  <div className="grid gap-2 p-2 border" key={item.id}>
-                    <h1 className="text-lg font-semibold">
-                      {item.playCustomerType.name} / Pax- {item.count}
-                    </h1>
-                    <ExtraHoursSelectInput
-                      value={extraHours[index]?.extra_hours_id || null}
-                      onChange={(val) =>
-                        setExtraHours((prev) => {
-                          const newExtraHours = [...prev];
-                          newExtraHours[index] = {
-                            ...newExtraHours[index],
-                            extra_hours_id: val.id,
-                            extra_pricing: val.price,
-                            play_customer_type_id: item.playCustomerTypeId,
-                            duration: val.duration,
-                            hours_qty: 1,
-                          };
-                          return newExtraHours;
-                        })
-                      }
-                      label="Extra Hours"
-                      branchId={bookingData?.branch_id}
-                      customerTypeId={item.playCustomerType.id}
-                    />
-                    <div>
-                      <Label className="text-sm font-medium">Hours Qty</Label>
-                      <Input
-                        type="number"
-                        name="extra_hours"
-                        value={extraHours[index]?.hours_qty || ""}
-                        onChange={(e) =>
-                          setExtraHours((prev) => {
-                            const newExtraHours = [...prev];
-                            newExtraHours[index] = {
-                              ...newExtraHours[index],
-                              hours_qty: parseInt(e.target.value) || 1,
-                            };
-                            return newExtraHours;
-                          })
-                        }
-                        placeholder="Enter Hours Qty"
-                        min="0"
-                      />
-                    </div>
-                    <div className="font-medium">
-                      Total: {itemTotal.toFixed(2)}
-                    </div>
-                  </div>
-                );
-              }
-            )}
-            {/* <ExtraHoursSelectInput
-              value={bookingData?.extra_hours || ""}
-              onChange={(val) => setExtraHours(val)}
-              error={extraHoursError}
-              label="Extra Hours"
-              branchId={bookingData?.branch_id}
-              customerTypeId={bookingData?.customer_type_id}
-            /> */}
           </div>
           <DialogFooter>
             <DialogClose asChild>

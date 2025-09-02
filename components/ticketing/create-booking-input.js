@@ -324,6 +324,7 @@ export default function CreateBookingInput() {
           {selectedRule && (
             <div className="flex gap-2 items-baseline">
               <TimeSlotSelector
+                selectedSlot={selectedSlot}
                 onSlotSelect={(slot) => {
                   setSelectedSlot(slot);
                 }}

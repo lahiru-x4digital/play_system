@@ -95,11 +95,11 @@ export default function BandItem({
             textAlign: "center",
           }}
         >
-          {getEndTime(
+          {/* {getEndTime(
             barcode?.createdAt,
             barcode?.initial_minutes,
             barcode?.extra_minutes || 0
-          )}
+          )} */}
         </div>
         <QRCode
           value={barcode?.barcode?.barcode_number}

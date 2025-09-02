@@ -18,6 +18,7 @@ import api from "@/services/api";
 import SelectBranch from "../common/selectBranch";
 import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
 import ReservationRuleSelectInput from "../common/ReservationRuleSelectInput";
+import toast from "react-hot-toast";
 
 const formSchema = z.object({
   play_reservation_rule_id: z.number().min(1, "Reservation rule is required"),
@@ -70,6 +71,8 @@ const EditExtraPricingDialog = ({ pricing = {}, onSuccess, open, setOpen }) => {
       onSuccess?.();
     } catch (error) {
       // handle error (show toast, etc)
+      const msg = error?.response?.data?.error || "Failed to update pricing";
+      toast.error(msg);
       console.error(error);
     }
   };

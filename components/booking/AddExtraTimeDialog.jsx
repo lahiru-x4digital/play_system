@@ -18,14 +18,10 @@ import AdditionalHoursSelect from "./AdditionalHoursSelect";
 import { Loader2 } from "lucide-react";
 
 const reservationSchema = z.object({
-  customer_types: z.array(
-    z.object({
-      additional_minutes: z.number().optional(),
-      additional_minutes_price: z.number().optional(),
-      additional_minutes_price_id: z.number().nullable(),
-      minutes_qty: z.number().optional(),
-    })
-  ),
+  play_reservation_id: z.number(),
+  additional_minutes: z.number(),
+  additional_minutes_price: z.number(),
+  additional_minutes_price_id: z.number(),
 });
 
 export function AddExtraTimeDialog({
@@ -42,14 +38,10 @@ export function AddExtraTimeDialog({
   const methods = useForm({
     resolver: zodResolver(reservationSchema),
     defaultValues: {
-      customer_types: [
-        {
-          additional_minutes: 0,
-          additional_minutes_price: 0,
-          additional_minutes_price_id: null,
-          minutes_qty: 0,
-        },
-      ],
+      additional_minutes: 0,
+      additional_minutes_price: 0,
+      additional_minutes_price_id: null,
+      minutes_qty: 0,
     },
   });
 
@@ -58,21 +50,27 @@ export function AddExtraTimeDialog({
     "customer_types.0.minutes_qty",
     "customer_types.0.additional_minutes_price",
   ]);
-  const quantity = watchFields[0] || 0;
-  const price = watchFields[1] || 0;
-  const total = (quantity * price).toFixed(2);
-
-  const handleWheel = (e) => {
-    // Prevent the default behavior
-    e.target.blur();
-  };
 
   const onSubmit = async (data) => {
+    // get now time and extract hour , minute
+    const now = new Date();
+    const start_hour = now.getHours();
+    const start_min = now.getMinutes();
+
+    // Calculate end time by adding additional_minutes to start_min
+    const additional_minutes = Number(data.additional_minutes);
+    let total_minutes = start_hour * 60 + start_min + additional_minutes;
+    let end_hour = Math.floor(total_minutes / 60);
+    let end_min = total_minutes % 60;
+
     const payload = {
-      id: barcodeId,
-      extra_minutes: data.customer_types[0].additional_minutes,
-      extra_minute_price: data.customer_types[0].additional_minutes_price,
-      extra_minute_qty: data.customer_types[0].minutes_qty,
+      extra_minutes: additional_minutes,
+      extra_minute_price: Number(data.additional_minutes_price),
+      start_hour: start_hour,
+      start_min: start_min,
+      end_hour: end_hour,
+      end_min: end_min,
+      Play_reservation_barcode_id: barcodeId,
     };
 
     try {
@@ -108,7 +106,7 @@ export function AddExtraTimeDialog({
                   <div className="flex gap-4 items-end">
                     <div className="flex-1">
                       <AdditionalHoursSelect
-                        name={`customer_types.${0}`}
+                        name={`additional_minutes_price_id`}
                         branchId={branchId}
                         reservation_rule_id={reservation_rule_id}
                         className="w-full"
@@ -138,7 +136,9 @@ export function AddExtraTimeDialog({
 
                   <div className="flex justify-between items-center pt-2 border-t">
                     <span className="text-sm font-medium">Total:</span>
-                    <span className="text-lg font-semibold">{total}</span>
+                    <span className="text-lg font-semibold">
+                      {methods.watch("extra_minute_price")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -155,7 +155,7 @@ export function AddExtraTimeDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={postHandlerloading || !quantity || !price}
+                disabled={postHandlerloading}
                 className="min-w-[120px]"
               >
                 {postHandlerloading ? (

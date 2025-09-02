@@ -39,7 +39,6 @@ export default function Page({ params }) {
     setSelectedBarcode({
       id: barcode.id,
       barcodeNumber: barcode.barcode?.barcode_number,
-      customerTypeId: barcode.barcode?.play_customer_type_id,
       branchId: barcode.barcode?.branch_id,
       reservation_rule_id: barcode?.reservation_rule_id,
     });
@@ -71,189 +70,148 @@ export default function Page({ params }) {
     );
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-      <Card>
-        <CardHeader className="pb-1">
-          <CardTitle className="text-lg font-semibold">
-            Reservation Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {playReservation.customer && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Customer Info
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <LabelValue
-                  label="Name"
-                  value={`${playReservation.customer.first_name} ${
-                    playReservation.customer.last_name || ""
-                  }`}
-                />
-                <LabelValue
-                  label="Mobile"
-                  value={playReservation.customer.mobile_number}
-                />
-                <LabelValue
-                  label="Type"
-                  value={playReservation.customer.customer_type}
-                />
-              </div>
-            </div>
-          )}
-          <Separator />
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              Branch Info
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <LabelValue
-                label="Branch"
-                value={playReservation.branch?.branch_name}
-              />
-              <LabelValue
-                label="Code"
-                value={playReservation.branch?.branch_code || "-"}
-              />
-              <LabelValue
-                label="Created"
-                value={formatDate(playReservation.created_date)}
-              />
-              <LabelValue
-                label="Updated"
-                value={formatDate(playReservation.updated_date)}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="pb-1">
-          <CardTitle className="text-lg font-semibold">
-            Pricing & Payments
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {playReservation.play_pricing && (
-            <div className="flex flex-wrap gap-x-6 gap-y-2 items-center text-sm">
-              <LabelValue
-                label="Duration"
-                value={`${playReservation.play_pricing.duration} min`}
-              />
-              <LabelValue
-                label="Price"
-                value={playReservation.play_pricing.price}
-              />
-              <Badge
-                variant={
-                  playReservation.play_pricing.is_active
-                    ? "default"
-                    : "destructive"
-                }
-              >
-                {playReservation.play_pricing.is_active ? "Active" : "Inactive"}
-              </Badge>
-            </div>
-          )}
+    <div className="max-w-5xl mx-auto space-y-2 bg-background min-h-screen">
+      <div className="max-w-3xl mx-auto text-sm">
+        {/* Reservation Summary Header */}
+        <h2 className="text-xl font-bold text-primary mb-4">
+          Reservation Summary
+        </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-1 gap-2">
-            <LabelValue
-              label="Total Price"
-              value={playReservation.total_price}
-            />
-            <LabelValue
-              label="Total Payment"
-              value={playReservation.total_payment}
-            />
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">
-              Payments
+        {/* Customer Info */}
+        {playReservation.customer && (
+          <div className="">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+              Customer Info
             </h3>
-            {playReservation.play_playment?.length > 0 ? (
-              <ul className="grid gap-2">
-                {playReservation.play_playment.map((p) => (
-                  <li
-                    key={p.id}
-                    className="border rounded-md p-2 space-y-1 bg-muted/20"
-                  >
-                    <LabelValue label="Amount" value={p.amount} />
-                    <LabelValue label="Method" value={p.payment_method} />
-                    <LabelValue label="Date" value={formatDate(p.createdAt)} />
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-muted-foreground text-sm">
-                No payments found.
+            <div className="divide-y divide-muted border border-muted rounded-md bg-background">
+              <div className="flex justify-between px-3 py-2">
+                <span className="text-muted-foreground">Name</span>
+                <span className="font-medium">
+                  {playReservation.customer.first_name}{" "}
+                  {playReservation.customer.last_name || ""}
+                </span>
               </div>
-            )}
+              <div className="flex justify-between px-3 py-2">
+                <span className="text-muted-foreground">Mobile</span>
+                <span className="font-medium">
+                  {playReservation.customer.mobile_number}
+                </span>
+              </div>
+              <div className="flex justify-between px-3 py-2">
+                <span className="text-muted-foreground">Type</span>
+                <span className="font-medium">
+                  {playReservation.customer.customer_type}
+                </span>
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
+
+        {/* Branch Info */}
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            Branch Info
+          </h3>
+          <div className="divide-y divide-muted border border-muted rounded-md bg-background">
+            <div className="flex justify-between px-3 py-2">
+              <span className="text-muted-foreground">Branch</span>
+              <span className="font-medium">
+                {playReservation.branch?.branch_name}
+              </span>
+            </div>
+            <div className="flex justify-between px-3 py-2">
+              <span className="text-muted-foreground">Code</span>
+              <span className="font-medium">
+                {playReservation.branch?.branch_code || "-"}
+              </span>
+            </div>
+            <div className="flex justify-between px-3 py-2">
+              <span className="text-muted-foreground">Created</span>
+              <span className="font-medium">
+                {formatDate(playReservation.created_date)}
+              </span>
+            </div>
+            <div className="flex justify-between px-3 py-2">
+              <span className="text-muted-foreground">Updated</span>
+              <span className="font-medium">
+                {formatDate(playReservation.updated_date)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Barcodes */}
-      <Card>
-        <CardHeader className="pb-1">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-lg font-semibold">Barcodes</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {playReservation.play_reservation_barcodes?.length > 0 ? (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div className="overflow-x-auto rounded-lg border border-muted shadow-sm">
+        {playReservation.play_reservation_barcodes?.length > 0 ? (
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40">
+              <tr>
+                <th className="px-3 py-2 text-left font-medium">Customer</th>
+                <th className="px-3 py-2 text-left font-medium">Status</th>
+                <th className="px-3 py-2 text-left font-medium">Time</th>
+                <th className="px-3 py-2 text-left font-medium">Barcode</th>
+                <th className="px-3 py-2"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-muted/50">
               {playReservation.play_reservation_barcodes.map((b) => (
-                <li
-                  key={b.id}
-                  className="border rounded-xl p-4 space-y-3 bg-muted/10 shadow-sm transition hover:shadow-md"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium text-muted-foreground truncate">
-                      Name: {b.name}
+                <tr key={b.id} className="hover:bg-muted/30 transition-colors">
+                  {/* Customer name + birthday */}
+                  <td className="px-3 py-2">
+                    <div className="font-medium">{b.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(b.birth_date).toLocaleDateString()}
                     </div>
+                  </td>
 
-                    <Badge variant="outline" className="text-xs">
-                      {b.barcode?.barcode_number}
+                  {/* Status */}
+                  <td className="px-3 py-2">
+                    <Badge
+                      variant={b.status === "ACTIVE" ? "default" : "secondary"}
+                      className="text-xs"
+                    >
+                      {b.status}
                     </Badge>
-                  </div>
-                  <div className="font-medium text-muted-foreground truncate">
-                    Birth Day: {new Date(b?.birth_date).toDateString() || "_"}
-                  </div>
-                  <div className="grid grid-cols-1 gap-1 text-muted-foreground">
-                    {/* <LabelValue
-                            label="Customer Type"
-                            value={b.barcode?.play_customer_type?.name || "-"}
-                          /> */}
-                    <LabelValue
-                      label="Start Time"
-                      value={`${new Date(b.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}`}
-                    />
-                  </div>
+                  </td>
 
-                  <div className="pt-3 flex justify-end">
+                  {/* Time range */}
+                  <td className="px-3 py-2 font-medium">
+                    {`${String(b.start_hour).padStart(2, "0")}:${String(
+                      b.start_min
+                    ).padStart(2, "0")} - ${String(b.end_hour).padStart(
+                      2,
+                      "0"
+                    )}:${String(b.end_min).padStart(2, "0")}`}
+                  </td>
+
+                  {/* Barcode */}
+                  <td className="px-3 py-2 font-mono text-sm">
+                    {b.barcode?.barcode_number}
+                  </td>
+
+                  {/* Action */}
+                  <td className="px-3 py-2 text-right">
                     <Button
-                      className="px-3"
+                      className="px-3 py-1 font-semibold"
                       variant="outline"
                       size="sm"
                       onClick={() => handleOpenDialog(b)}
                     >
-                      <PlusCircle className="mr-1 h-4 w-4" />
-                      Add Extra Time
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Extra Time
                     </Button>
-                  </div>
-                </li>
+                  </td>
+                </tr>
               ))}
-            </ul>
-          ) : (
-            <div className="text-muted-foreground text-sm">
-              No barcodes found.
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </tbody>
+          </table>
+        ) : (
+          <div className="text-muted-foreground text-sm p-4 text-center">
+            No barcodes found.
+          </div>
+        )}
+      </div>
+
       {/* Add Extra Time Dialog */}
       {selectedBarcode && (
         <AddExtraTimeDialog
@@ -266,23 +224,28 @@ export default function Page({ params }) {
           onSuccess={handleDialogSuccess}
         />
       )}
-
       {/* Products */}
-      <Card>
-        <CardHeader className="pb-1">
-          <CardTitle className="text-lg font-semibold">Products</CardTitle>
+      {/* <Card className="shadow-lg rounded-2xl border border-muted">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-2xl font-bold tracking-tight text-primary">
+            Products
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {playReservation.play_reservation_products?.length > 0 ? (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-base">
               {playReservation.play_reservation_products.map((b) => (
                 <li
                   key={b.id}
-                  className="border rounded-md p-3 space-y-1 bg-muted/10"
+                  className="border rounded-lg p-4 space-y-2 bg-muted/10 hover:bg-muted/20 transition"
                 >
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Product</span>
-                    <Badge variant="outline">{b.play_product?.name}</Badge>
+                    <span className="text-muted-foreground font-semibold">
+                      Product
+                    </span>
+                    <Badge variant="outline" className="px-2 py-1">
+                      {b.play_product?.name}
+                    </Badge>
                   </div>
                   <LabelValue label="Price" value={b.play_product?.price} />
                   <LabelValue label="Quantity" value={b?.quantity || "-"} />
@@ -290,12 +253,12 @@ export default function Page({ params }) {
               ))}
             </ul>
           ) : (
-            <div className="text-muted-foreground text-sm">
+            <div className="text-muted-foreground text-base">
               No products found.
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

@@ -8,15 +8,14 @@ export function TimeSlotSelector({
   selectedDate,
   onSlotSelect,
   kidsCount,
+  selectedSlot,
 }) {
-  const [selectedSlot, setSelectedSlot] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     async function fetchSlots() {
       if (!rule || !selectedDate) {
         setTimeSlots([]);
-        setSelectedSlot(null);
         onSlotSelect(null);
         return;
       }
@@ -28,12 +27,33 @@ export function TimeSlotSelector({
         });
         console.log("Ress", res);
         // Correctly set timeSlots from response
-        setTimeSlots(res.data.slots || []);
-        setSelectedSlot(null);
-        onSlotSelect(null);
+        const slots = res.data.slots || [];
+        setTimeSlots(slots);
+
+        // Auto-select matching slot based on current time
+        const now = new Date();
+        const matchingSlot = slots.find((slot) => {
+          if (slot.available <= 0) return false;
+          const slotStart = new Date(selectedDate);
+          slotStart.setHours(slot.start_hour, slot.start_min, 0, 0);
+          const slotEnd = new Date(selectedDate);
+          slotEnd.setHours(slot.end_hour, slot.end_min, 0, 0);
+          return now >= slotStart && now <= slotEnd;
+        });
+
+        if (matchingSlot) {
+          onSlotSelect({
+            rule_id: rule?.id,
+            start_hour: matchingSlot.start_hour,
+            start_min: matchingSlot.start_min,
+            end_hour: matchingSlot.end_hour,
+            end_min: matchingSlot.end_min,
+          });
+        } else {
+          onSlotSelect(null);
+        }
       } catch (error) {
         setTimeSlots([]);
-        setSelectedSlot(null);
         onSlotSelect(null);
       } finally {
         setLoading(false);
@@ -68,8 +88,18 @@ export function TimeSlotSelector({
             className="basic-single w-96"
             classNamePrefix="select"
             isClearable={true}
+            value={
+              selectedSlot
+                ? options.find(
+                    (option) =>
+                      option.start_hour === selectedSlot.start_hour &&
+                      option.start_min === selectedSlot.start_min &&
+                      option.end_hour === selectedSlot.end_hour &&
+                      option.end_min === selectedSlot.end_min
+                  ) || null
+                : null
+            }
             onChange={(selectedOption) => {
-              setSelectedSlot(selectedOption);
               onSlotSelect(
                 selectedOption
                   ? {

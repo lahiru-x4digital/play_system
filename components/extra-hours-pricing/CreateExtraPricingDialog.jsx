@@ -58,7 +58,8 @@ const CreateExtraPricingDialog = ({ onSuccess }) => {
       setOpen(false);
       onSuccess?.();
     } catch (error) {
-      // handle error (show toast, etc)
+      const msg = error?.response?.data?.error || "Failed to update pricing";
+      toast.error(msg);
       console.error(error);
     }
   };

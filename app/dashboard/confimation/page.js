@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { formatHourMin } from "@/lib/combineHourMinute";
 
 // Utility function to check if input is a number (for barcode or mobile number)
 const isMobile = (value) => {
@@ -71,7 +72,6 @@ export default function page() {
     playReservationsReset,
     currentPage,
   } = useGetPlayReservationsOnCall();
-  console.log(playReservationsLoading);
 
   // Function to update single barcode status
   const handleSingleBarcodeUpdate = async (barcodeId) => {
@@ -151,7 +151,6 @@ export default function page() {
                 playReservationsReset();
                 return;
               }
-
               // Otherwise, perform the search
               playReservationsSearch({
                 pageSize: 10,
@@ -159,7 +158,7 @@ export default function page() {
                 start_date: null,
                 end_date: null,
                 mobile_number: isMobile(data) ? data : null,
-                reservationStatus: "CONFIRMED",
+                reservationStatus: "CONFIRMED,BACK_INSIDE,WENT_OUTSIDE",
                 barcode: isMobile(data) ? null : data,
                 payment_status: "PAID",
               });
@@ -312,8 +311,7 @@ export default function page() {
                                 <p className="font-semibold">
                                   {customerType.price || 0}
                                 </p>
-                    <p className="text-sm text-gray-500">Amount</p>
-
+                                <p className="text-sm text-gray-500">Amount</p>
                               </div>
                             </div>
                           )
@@ -325,113 +323,175 @@ export default function page() {
                 <Separator className="my-6" />
 
                 {/* Barcodes */}
-                {item.play_reservation_barcodes &&
-                  item.play_reservation_barcodes.length > 0 && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Active Barcodes
-                        </h3>
-                        <Button
-                          onClick={() => handleMarkAllComplete(item.id)}
-                          disabled={patchHandlerloading}
-                          variant="outline"
-                          size="sm"
-                          className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
-                        >
-                          {patchHandlerloading
-                            ? "Updating..."
-                            : "Mark All Complete"}
-                        </Button>
-                      </div>
-                      <div className="grid gap-3">
-                        {item.play_reservation_barcodes.map(
-                          (reservationBarcode, idx) => (
-                            <div
-                              key={reservationBarcode.id || idx}
-                              className="border rounded-lg p-4"
-                            >
-                              <div className="flex items-center justify-between mb-3">
-                                <h4 className="font-semibold">
-                                  {reservationBarcode.name}
-                                </h4>
-                                <div className="flex items-center gap-2">
-                                  <Badge
-                                    variant={
-                                      reservationBarcode.status === "COMPLETED"
-                                        ? "success"
-                                        : reservationBarcode.status === "ACTIVE"
-                                        ? "default"
-                                        : "secondary"
+                {item.play_reservation_barcodes?.length > 0 && (
+                  <section className="space-y-6">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Active Barcodes
+                      </h3>
+                      <Button
+                        onClick={() => handleMarkAllComplete(item.id)}
+                        disabled={patchHandlerloading}
+                        variant="outline"
+                        size="sm"
+                        className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {patchHandlerloading
+                          ? "Updating..."
+                          : "Mark All Complete"}
+                      </Button>
+                    </div>
+
+                    {/* Barcodes List */}
+                    <div className="grid gap-4">
+                      {item.play_reservation_barcodes.map(
+                        (reservationBarcode, idx) => (
+                          <div
+                            key={reservationBarcode.id || idx}
+                            className="border rounded-xl shadow-sm p-5 bg-white"
+                          >
+                            {/* Header Row */}
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="text-base font-semibold text-gray-800">
+                                {reservationBarcode.name}
+                              </h4>
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  variant={
+                                    reservationBarcode.status === "COMPLETED"
+                                      ? "success"
+                                      : reservationBarcode.status === "ACTIVE"
+                                      ? "default"
+                                      : "secondary"
+                                  }
+                                  className="uppercase tracking-wide"
+                                >
+                                  {reservationBarcode.status}
+                                </Badge>
+                                {reservationBarcode.status !== "COMPLETED" && (
+                                  <Button
+                                    onClick={() =>
+                                      handleSingleBarcodeUpdate(
+                                        reservationBarcode.id
+                                      )
                                     }
+                                    disabled={patchHandlerloading}
+                                    variant="outline"
+                                    size="sm"
+                                    className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
-                                    {reservationBarcode.status}
-                                  </Badge>
-                                  {reservationBarcode.status !==
-                                    "COMPLETED" && (
-                                    <Button
-                                      onClick={() =>
-                                        handleSingleBarcodeUpdate(
-                                          reservationBarcode.id
-                                        )
-                                      }
-                                      disabled={patchHandlerloading}
-                                      variant="outline"
-                                      size="sm"
-                                      className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
-                                    >
-                                      {patchHandlerloading
-                                        ? "Updating..."
-                                        : "Complete"}
-                                    </Button>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="grid md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <p className="text-gray-500">
-                                    Barcode Number
-                                  </p>
-                                  <p className="font-mono font-medium">
-                                    {reservationBarcode.barcode.barcode_number}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500">Time Duration</p>
-                                  <p className="font-medium">
-                                    {reservationBarcode.initial_minutes} minutes
-                                  </p>
-                                </div>
-                                {reservationBarcode.extra_minutes > 0 && (
-                                  <div className="md:col-span-2">
-                                    <p className="text-gray-500">
-                                      Extra Minutes
-                                    </p>
-                                    <p className="font-medium">
-                                      {reservationBarcode.extra_minutes} min (+
-                                      {reservationBarcode.extra_minute_price})
-                                    </p>
-                                  </div>
-                                )}
-                                {reservationBarcode.completed_at && (
-                                  <div className="md:col-span-2">
-                                    <p className="text-gray-500">
-                                      Completed At
-                                    </p>
-                                    <p className="font-medium text-green-600">
-                                      {formatDateTime(
-                                        reservationBarcode.completed_at
-                                      )}
-                                    </p>
-                                  </div>
+                                    {patchHandlerloading
+                                      ? "Updating..."
+                                      : "Complete"}
+                                  </Button>
                                 )}
                               </div>
                             </div>
-                          )
-                        )}
-                      </div>
+
+                            {/* Details Grid */}
+                            <div className="grid md:grid-cols-2 gap-4 text-sm">
+                              {/* Barcode Number */}
+                              <div>
+                                <p className="text-gray-500">Barcode Number</p>
+                                <p className="font-mono font-medium">
+                                  {reservationBarcode.barcode.barcode_number}
+                                </p>
+                              </div>
+
+                              {/* Duration */}
+                              <div>
+                                <p className="text-gray-500">Time Duration</p>
+                                <p className="font-medium">
+                                  {reservationBarcode.initial_minutes} minutes
+                                </p>
+                              </div>
+
+                              {/* Extra Time */}
+                              {reservationBarcode.playReservationBarCodeExtraTimes.map(
+                                (extraTime, idx) => (
+                                  <div
+                                    key={extraTime.id || idx}
+                                    className="md:col-span-2 border rounded-lg p-3 bg-gray-50"
+                                  >
+                                    <p className="text-gray-500 mb-1">
+                                      Extra Time
+                                    </p>
+                                    <div className="flex items-center justify-between text-sm">
+                                      <span className="font-medium">
+                                        {formatHourMin(
+                                          extraTime.start_hour,
+                                          extraTime.start_min
+                                        )}{" "}
+                                        →{" "}
+                                        {formatHourMin(
+                                          extraTime.end_hour,
+                                          extraTime.end_min
+                                        )}
+                                      </span>
+                                      <span className="text-xs text-gray-500">
+                                        min-{extraTime.extra_minutes}- Price-
+                                        {extraTime.extra_minute_price}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )
+                              )}
+
+                              {/* Outside Tracker */}
+                              {reservationBarcode.WentOutsideTracker.map(
+                                (track, idx) => (
+                                  <div
+                                    key={track.id || idx}
+                                    className="md:col-span-2 border rounded-lg p-3 bg-yellow-50"
+                                  >
+                                    <p className="text-gray-500 mb-1">
+                                      Outside Tracker
+                                    </p>
+                                    <div className="flex flex-col text-sm space-y-1">
+                                      <span className="font-medium">
+                                        In:{" "}
+                                        {formatHourMin(
+                                          track.in_hour,
+                                          track.in_min
+                                        )}
+                                      </span>
+                                      {track.out_hour && (
+                                        <span className="font-medium">
+                                          Out:{" "}
+                                          {formatHourMin(
+                                            track.out_hour,
+                                            track.out_min
+                                          )}
+                                        </span>
+                                      )}
+                                      <span className="text-xs text-gray-500">
+                                        {track.extra_minutes} min ·
+                                        {track.extra_minute_price}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )
+                              )}
+
+                              {/* Completed At */}
+                              {reservationBarcode.completed_at && (
+                                <div className="md:col-span-2">
+                                  <p className="text-gray-500">Completed At</p>
+                                  <p className="font-medium text-green-600">
+                                    {formatDateTime(
+                                      reservationBarcode.completed_at
+                                    )}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      )}
                     </div>
-                  )}
+                  </section>
+                )}
               </CardContent>
             </Card>
           ))}

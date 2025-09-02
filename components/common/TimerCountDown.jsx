@@ -9,6 +9,7 @@ const TimerCountDown = ({
   start_min,
   end_hour,
   end_min,
+  extra_minutes = 0, // <-- Add this prop
 }) => {
   const now = new Date();
 
@@ -23,12 +24,13 @@ const TimerCountDown = ({
     0
   ).getTime();
 
+  // Add extra_minutes to end time
   const endTime = new Date(
     now.getFullYear(),
     now.getMonth(),
     now.getDate(),
     end_hour,
-    end_min,
+    end_min + extra_minutes,
     0,
     0
   ).getTime();
@@ -49,7 +51,7 @@ const TimerCountDown = ({
       setRemaining(getRemaining());
     }, 1000);
     return () => clearInterval(interval);
-  }, [start_hour, start_min, end_hour, end_min]);
+  }, [start_hour, start_min, end_hour, end_min, extra_minutes]);
 
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(Math.abs(ms) / 1000);

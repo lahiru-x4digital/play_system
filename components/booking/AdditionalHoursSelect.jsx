@@ -18,7 +18,7 @@ export default function AdditionalHoursSelect({
   const { setValue, watch } = useFormContext();
   const { extraHoursList, extraHoursListRefresh, extraHoursListLoading } =
     useGetExtraHours();
-  const selectedValue = watch(`${name}.additional_minutes_price_id`);
+  const selectedValue = watch(name);
 
   useEffect(() => {
     extraHoursListRefresh({
@@ -29,11 +29,12 @@ export default function AdditionalHoursSelect({
 
   const handleValueChange = (val) => {
     const selectedItem = extraHoursList.find((item) => String(item.id) === val);
+    console.log({ selectedItem });
     if (selectedItem) {
-      setValue(`${name}.additional_minutes`, selectedItem.duration);
-      setValue(`${name}.additional_minutes_price`, selectedItem.price);
-      setValue(`${name}.additional_minutes_price_id`, selectedItem.id);
-      setValue(`${name}.minutes_qty`, 1);
+      setValue(`additional_minutes`, selectedItem.duration);
+      setValue(`additional_minutes_price`, selectedItem.price);
+      setValue(`play_reservation_id`, selectedItem.play_reservation_rule_id);
+      setValue(`additional_minutes_price_id`, selectedItem.id);
     }
   };
 

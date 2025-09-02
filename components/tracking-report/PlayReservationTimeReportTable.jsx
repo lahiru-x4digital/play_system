@@ -13,9 +13,9 @@ import { Eye, Printer, Download, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PrintDialog } from "../booking/PrintDialog";
 import { getEndTime } from "@/lib/getEndTime";
-import TimerCountDown from "../common/TimerCountDown"
+import TimerCountDown from "../common/TimerCountDown";
 
-const PlayReservationTimeReportTable = ({ data = [],  }) => {
+const PlayReservationTimeReportTable = ({ data = [] }) => {
   const router = useRouter();
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState(null);
@@ -28,26 +28,25 @@ const PlayReservationTimeReportTable = ({ data = [],  }) => {
     setScanDialogOpen(true);
   };
 
- 
   // Handle export to Excel
   const exportToExcel = async () => {
     if (isExporting) return;
-    
+
     setIsExporting(true);
-    
+
     try {
       // First, update to get all records
       playReservationsChangePageSize(playReservationsTotalCount);
-      
+
       // Wait for a short time to allow the parent component to fetch all data
       // This is a simple approach - you might want to implement a more robust solution
       // by passing a callback from the parent or using a state management solution
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Generate Excel with all data
       generateExcel(allData.length > 0 ? allData : data);
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
+      console.error("Error exporting to Excel:", error);
     } finally {
       setIsExporting(false);
     }
@@ -56,7 +55,7 @@ const PlayReservationTimeReportTable = ({ data = [],  }) => {
   // Effect to update allData when data changes
   useEffect(() => {
     if (data && data.length > 0) {
-      setAllData(prevData => {
+      setAllData((prevData) => {
         // Only update if we have more data than before
         return data.length > prevData.length ? data : prevData;
       });
@@ -74,7 +73,7 @@ const PlayReservationTimeReportTable = ({ data = [],  }) => {
             <TableHead>Total Pax</TableHead>
             <TableHead>Total Price</TableHead>
             {/* <TableHead>Total Payment</TableHead> */}
-            <TableHead className="text-center">Remaining Time</TableHead> 
+            <TableHead className="text-center">Remaining Time</TableHead>
             <TableHead>Start Time</TableHead>
             <TableHead>End Time</TableHead>
             <TableHead className="text-center">Action</TableHead>
@@ -96,21 +95,24 @@ const PlayReservationTimeReportTable = ({ data = [],  }) => {
                 <TableCell className="font-medium">{item.id}</TableCell>
                 <TableCell className="flex flex-col">
                   <span>
-                  {item.customer
-                    ? `${item.customer.first_name || ""} ${
-                        item.customer.last_name || ""
-                      }`
-                    : "-"}
+                    {item.customer
+                      ? `${item.customer.first_name || ""} ${
+                          item.customer.last_name || ""
+                        }`
+                      : "-"}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                  {item.customer ? item.customer.mobile_number : "-"}
+                    {item.customer ? item.customer.mobile_number : "-"}
                   </span>
                 </TableCell>
                 <TableCell>
                   {item.branch ? `${item.branch.branch_name}` : "-"}
                 </TableCell>
                 <TableCell>
-                  {item?.play_reservation_customer_types?.reduce((sum, item) => sum + item.count, 0)}
+                  {item?.play_reservation_customer_types?.reduce(
+                    (sum, item) => sum + item.count,
+                    0
+                  )}
                 </TableCell>
                 <TableCell>
                   {item.total_price != null ? item.total_price : "-"}
@@ -138,11 +140,13 @@ const PlayReservationTimeReportTable = ({ data = [],  }) => {
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  {item?.end_time ? new Date(item.end_time).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                  }) : "-"}
+                  {item?.end_time
+                    ? new Date(item.end_time).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    : "-"}
                 </TableCell>
                 <TableCell className="text-center">
                   <Button
