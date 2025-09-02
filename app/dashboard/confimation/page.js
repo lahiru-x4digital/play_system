@@ -2,13 +2,15 @@
 import { ScanInput } from "@/components/common/ScanInput";
 import useGetPlayReservationsOnCall from "@/hooks/useGetPlayReservationsOnCall";
 import { useAxiosPatch } from "@/hooks/useAxiosPatch";
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { formatHourMin } from "@/lib/combineHourMinute";
+import { BookingEditDialog } from "@/components/booking/BookingEditDialog";
+import { Pencil } from "lucide-react";
 
 // Utility function to check if input is a number (for barcode or mobile number)
 const isMobile = (value) => {
@@ -57,6 +59,8 @@ export default function page() {
   const [scanValue, setScanValue] = React.useState("");
   const { patchHandler, patchHandlerloading, patchHandlerError } =
     useAxiosPatch();
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const {
     playReservations,
@@ -129,6 +133,29 @@ export default function page() {
         variant: "destructive",
       });
     }
+  };
+  const handleSaveBooking = async (updatedData) => {
+    try {
+      // Call your API to update the booking here
+      // Example: await updateBooking(selectedBooking.id, updatedData);
+
+      // Refresh the table data
+      onRefresh?.();
+      setEditDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to update booking:", error);
+    }
+  };
+  const handleDialogOpenChange = (open) => {
+    setEditDialogOpen(open);
+    if (!open) {
+      setSelectedBooking(null);
+      onRefresh?.();
+    }
+  };
+  const handleEditClick = (booking) => {
+    setSelectedBooking(booking);
+    setEditDialogOpen(true);
   };
 
   return (
@@ -212,6 +239,14 @@ export default function page() {
                     </p>
                     <p className="text-sm text-gray-500">Total Amount</p>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-primary hover:text-primary"
+                    onClick={() => handleEditClick(item)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                 </div>
               </CardHeader>
 
@@ -326,170 +361,160 @@ export default function page() {
                 {item.play_reservation_barcodes?.length > 0 && (
                   <section className="space-y-6">
                     {/* Header */}
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                    <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3">
+                      <h3 className="font-semibold text-gray-900">
                         Active Barcodes
                       </h3>
                       <Button
                         onClick={() => handleMarkAllComplete(item.id)}
                         disabled={patchHandlerloading}
-                        variant="outline"
                         size="sm"
-                        className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-green-600 hover:bg-green-700 text-white"
                       >
-                        {patchHandlerloading
-                          ? "Updating..."
-                          : "Mark All Complete"}
+                        {patchHandlerloading ? "Processing..." : "Complete All"}
                       </Button>
                     </div>
 
-                    {/* Barcodes List */}
-                    <div className="grid gap-4">
-                      {item.play_reservation_barcodes.map(
-                        (reservationBarcode, idx) => (
-                          <div
-                            key={reservationBarcode.id || idx}
-                            className="border rounded-xl shadow-sm p-5 bg-white"
-                          >
-                            {/* Header Row */}
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="text-base font-semibold text-gray-800">
-                                {reservationBarcode.name}
-                              </h4>
-                              <div className="flex items-center gap-2">
-                                <Badge
-                                  variant={
-                                    reservationBarcode.status === "COMPLETED"
-                                      ? "success"
-                                      : reservationBarcode.status === "ACTIVE"
-                                      ? "default"
-                                      : "secondary"
-                                  }
-                                  className="uppercase tracking-wide"
-                                >
-                                  {reservationBarcode.status}
-                                </Badge>
-                                {reservationBarcode.status !== "COMPLETED" && (
-                                  <Button
-                                    onClick={() =>
-                                      handleSingleBarcodeUpdate(
-                                        reservationBarcode.id
-                                      )
-                                    }
-                                    disabled={patchHandlerloading}
-                                    variant="outline"
-                                    size="sm"
-                                    className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    {patchHandlerloading
-                                      ? "Updating..."
-                                      : "Complete"}
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
+                    {/* Barcode Cards */}
+                    {item.play_reservation_barcodes.map((barcode, idx) => (
+                      <div
+                        key={barcode.id || idx}
+                        className="bg-white border border-gray-200 rounded-lg p-4"
+                      >
+                        {/* Header Line: Name / Barcode */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3 text-sm">
+                            <span className="font-semibold text-gray-900">
+                              {barcode.name}
+                            </span>
+                            <span className="text-gray-400">•</span>
+                            <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                              {barcode.barcode.barcode_number}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant={
+                                barcode.status === "COMPLETED"
+                                  ? "success"
+                                  : "default"
+                              }
+                              className="uppercase"
+                            >
+                              {barcode.status}
+                            </Badge>
+                            {barcode.status !== "COMPLETED" && (
+                              <Button
+                                onClick={() =>
+                                  handleSingleBarcodeUpdate(barcode.id)
+                                }
+                                disabled={patchHandlerloading}
+                                size="sm"
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                              >
+                                Complete
+                              </Button>
+                            )}
+                          </div>
+                        </div>
 
-                            {/* Details Grid */}
-                            <div className="grid md:grid-cols-2 gap-4 text-sm">
-                              {/* Barcode Number */}
-                              <div>
-                                <p className="text-gray-500">Barcode Number</p>
-                                <p className="font-mono font-medium">
-                                  {reservationBarcode.barcode.barcode_number}
-                                </p>
-                              </div>
-
-                              {/* Duration */}
-                              <div>
-                                <p className="text-gray-500">Time Duration</p>
-                                <p className="font-medium">
-                                  {reservationBarcode.initial_minutes} minutes
-                                </p>
-                              </div>
-
-                              {/* Extra Time */}
-                              {reservationBarcode.playReservationBarCodeExtraTimes.map(
+                        {/* Extra Time List */}
+                        {barcode.playReservationBarCodeExtraTimes?.length >
+                          0 && (
+                          <div className="mb-4">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">
+                              Extra Time:
+                            </h4>
+                            <div className="space-y-1">
+                              {barcode.playReservationBarCodeExtraTimes.map(
                                 (extraTime, idx) => (
                                   <div
                                     key={extraTime.id || idx}
-                                    className="md:col-span-2 border rounded-lg p-3 bg-gray-50"
+                                    className="text-sm text-gray-600 pl-4"
                                   >
-                                    <p className="text-gray-500 mb-1">
-                                      Extra Time
-                                    </p>
-                                    <div className="flex items-center justify-between text-sm">
-                                      <span className="font-medium">
-                                        {formatHourMin(
-                                          extraTime.start_hour,
-                                          extraTime.start_min
-                                        )}{" "}
-                                        →{" "}
-                                        {formatHourMin(
-                                          extraTime.end_hour,
-                                          extraTime.end_min
-                                        )}
-                                      </span>
-                                      <span className="text-xs text-gray-500">
-                                        min-{extraTime.extra_minutes}- Price-
-                                        {extraTime.extra_minute_price}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )
-                              )}
-
-                              {/* Outside Tracker */}
-                              {reservationBarcode.WentOutsideTracker.map(
-                                (track, idx) => (
-                                  <div
-                                    key={track.id || idx}
-                                    className="md:col-span-2 border rounded-lg p-3 bg-yellow-50"
-                                  >
-                                    <p className="text-gray-500 mb-1">
-                                      Outside Tracker
-                                    </p>
-                                    <div className="flex flex-col text-sm space-y-1">
-                                      <span className="font-medium">
-                                        In:{" "}
-                                        {formatHourMin(
-                                          track.in_hour,
-                                          track.in_min
-                                        )}
-                                      </span>
-                                      {track.out_hour && (
-                                        <span className="font-medium">
-                                          Out:{" "}
-                                          {formatHourMin(
-                                            track.out_hour,
-                                            track.out_min
-                                          )}
-                                        </span>
-                                      )}
-                                      <span className="text-xs text-gray-500">
-                                        {track.extra_minutes} min ·
-                                        {track.extra_minute_price}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )
-                              )}
-
-                              {/* Completed At */}
-                              {reservationBarcode.completed_at && (
-                                <div className="md:col-span-2">
-                                  <p className="text-gray-500">Completed At</p>
-                                  <p className="font-medium text-green-600">
-                                    {formatDateTime(
-                                      reservationBarcode.completed_at
+                                    <span className="font-medium">
+                                      {idx + 1}.
+                                    </span>
+                                    {formatHourMin(
+                                      extraTime.start_hour,
+                                      extraTime.start_min
+                                    )}{" "}
+                                    -
+                                    {formatHourMin(
+                                      extraTime.end_hour,
+                                      extraTime.end_min
                                     )}
-                                  </p>
-                                </div>
+                                    <span className="text-gray-500 ml-2">
+                                      ({extraTime.extra_minutes} min -
+                                      {extraTime.extra_minute_price})
+                                    </span>
+                                  </div>
+                                )
                               )}
                             </div>
                           </div>
-                        )
-                      )}
-                    </div>
+                        )}
+
+                        {/* Went Outside Records */}
+                        {barcode.WentOutsideTracker?.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">
+                              Went Outside Records:
+                            </h4>
+                            <div className="space-y-1">
+                              {barcode.WentOutsideTracker.map((track, idx) => (
+                                <div
+                                  key={track.id || idx}
+                                  className="text-sm text-gray-600 pl-4"
+                                >
+                                  <span className="font-medium">
+                                    {idx + 1}.
+                                  </span>
+
+                                  {track.out_hour ? (
+                                    <span>
+                                      {" / "}
+                                      Out:{" "}
+                                      {formatHourMin(
+                                        track.out_hour,
+                                        track.out_min
+                                      )}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-500 ml-2">
+                                      (Out: Not Recorded)
+                                    </span>
+                                  )}
+                                  {track.in_hour ? (
+                                    <span>
+                                      {" "}
+                                      In:{" "}
+                                      {formatHourMin(
+                                        track.in_hour,
+                                        track.in_min
+                                      )}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-500 ml-2">
+                                      (IN: IN Recorded)
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Additional Info */}
+                        <div className="flex items-center gap-4 text-sm text-gray-600 pt-2 border-t border-gray-100">
+                          {barcode.completed_at && (
+                            <span className="text-green-600">
+                              Completed: {formatDateTime(barcode.completed_at)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </section>
                 )}
               </CardContent>
@@ -523,6 +548,12 @@ export default function page() {
           </CardContent>
         </Card>
       ) : null}
+      <BookingEditDialog
+        open={editDialogOpen}
+        onOpenChange={handleDialogOpenChange}
+        bookingData={selectedBooking}
+        onSave={handleSaveBooking}
+      />
     </div>
   );
 }
