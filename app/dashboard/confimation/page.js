@@ -217,14 +217,46 @@ export default function page() {
       {playReservations && playReservations.length > 0 ? (
         <div className="space-y-6">
           {playReservations.map((item, index) => (
-            <Card key={item.id || index} className="overflow-hidden">
-              <CardHeader className="bg-gray-50 border-b">
-                <div className="flex items-center justify-between">
+            <div key={item.id || index} className="overflow-hidden">
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => handleMarkAllComplete(item.id)}
+                  disabled={patchHandlerloading}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {patchHandlerloading ? "Processing..." : "Complete All"}
+                </Button>
+                <Button size="sm" onClick={() => handleEditClick(item)}>
+                  Update Status
+                </Button>
+                <Button size="sm" onClick={() => handleEditClick(item)}>
+                  Went Outside
+                </Button>
+                <Button size="sm" onClick={() => handleEditClick(item)}>
+                  Back Inside
+                </Button>
+              </div>
+              <div className="bg-gray-50 border-b">
+                <div className="flex items-center justify-between p-4 border-b">
+                  {/* Left Section */}
                   <div>
-                    <CardTitle className="text-xl">
+                    <CardTitle className="text-xl font-semibold">
                       Reservation #{item.id}
                     </CardTitle>
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="mt-2 space-y-1 text-sm">
+                      <p className="text-gray-700 font-medium">
+                        {item.customer?.first_name}{" "}
+                        {item.customer?.last_name || ""}
+                      </p>
+                      <p className="text-gray-500">
+                        {item.customer?.mobile_number}
+                      </p>
+                      <p className="text-gray-500">
+                        {item.branch?.branch_name}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 mt-3">
                       <Badge variant={getStatusVariant(item.status)}>
                         {item.status}
                       </Badge>
@@ -233,24 +265,20 @@ export default function page() {
                       </Badge>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-green-600">
-                      {item.total_price || 0}
-                    </p>
-                    <p className="text-sm text-gray-500">Total Amount</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-primary hover:text-primary"
-                    onClick={() => handleEditClick(item)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
 
-              <CardContent className="p-6">
+                  {/* Right Section */}
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-green-600">
+                        {item.total_price || 0}
+                      </p>
+                      <p className="text-sm text-gray-500">Total Amount</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Customer Information */}
                   <div className="space-y-4">
@@ -320,61 +348,9 @@ export default function page() {
 
                 <Separator className="my-6" />
 
-                {/* Customer Types Summary */}
-                {item.play_reservation_customer_types &&
-                  item.play_reservation_customer_types.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        Customer Types
-                      </h3>
-                      <div className="grid gap-3 max-w-[300px]">
-                        {item.play_reservation_customer_types.map(
-                          (customerType, idx) => (
-                            <div
-                              key={customerType.id || idx}
-                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                            >
-                              <div>
-                                <p className="font-medium">
-                                  {customerType.playCustomerType?.name}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  Count: {customerType.count}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-semibold">
-                                  {customerType.price || 0}
-                                </p>
-                                <p className="text-sm text-gray-500">Amount</p>
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                <Separator className="my-6" />
-
                 {/* Barcodes */}
                 {item.play_reservation_barcodes?.length > 0 && (
                   <section className="space-y-6">
-                    {/* Header */}
-                    <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3">
-                      <h3 className="font-semibold text-gray-900">
-                        Active Barcodes
-                      </h3>
-                      <Button
-                        onClick={() => handleMarkAllComplete(item.id)}
-                        disabled={patchHandlerloading}
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        {patchHandlerloading ? "Processing..." : "Complete All"}
-                      </Button>
-                    </div>
-
                     {/* Barcode Cards */}
                     {item.play_reservation_barcodes.map((barcode, idx) => (
                       <div
@@ -517,8 +493,8 @@ export default function page() {
                     ))}
                   </section>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       ) : !playReservationsLoading && !playReservationsError ? (
