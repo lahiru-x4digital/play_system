@@ -135,47 +135,49 @@ const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
 
                   <TableCell>
                     <div className="space-y-2 w-64">
-                      {item.play_reservation_barcodes.map((barcode, index) => (
-                        <div
-                          key={barcode.id}
-                          className="p-1 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all"
-                        >
-                          {/* Header */}
-                          <div className="flex items-center justify-between">
-                            <span className="font-semibold text-sm text-gray-900">
-                              {barcode.name}/{" "}
-                              <TimerCountDown
-                                status={item.status}
-                                start_hour={barcode.start_hour}
-                                start_min={barcode.start_min}
-                                end_hour={barcode.end_hour}
-                                end_min={barcode.end_min}
-                                extra_minutes={
-                                  barcode.playReservationBarCodeExtraTimes
-                                    ? barcode.playReservationBarCodeExtraTimes.reduce(
-                                        (sum, et) =>
-                                          sum + (et.extra_minutes || 0),
-                                        0
-                                      )
-                                    : 0
-                                }
-                              />
-                            </span>
-                            <span className="text-xs text-gray-500 bg-gray-100 rounded font-mono">
-                              #{barcode.barcode_number}
-                            </span>
-                          </div>
+                      {item.play_reservation_barcodes
+                        .filter((b) => b.reservation_rule_id !== null)
+                        .map((barcode, index) => (
+                          <div
+                            key={barcode.id}
+                            className="p-1 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all"
+                          >
+                            {/* Header */}
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-sm text-gray-900">
+                                {barcode.name}/{" "}
+                                <TimerCountDown
+                                  status={item.status}
+                                  start_hour={barcode.start_hour}
+                                  start_min={barcode.start_min}
+                                  end_hour={barcode.end_hour}
+                                  end_min={barcode.end_min}
+                                  extra_minutes={
+                                    barcode.playReservationBarCodeExtraTimes
+                                      ? barcode.playReservationBarCodeExtraTimes.reduce(
+                                          (sum, et) =>
+                                            sum + (et.extra_minutes || 0),
+                                          0
+                                        )
+                                      : 0
+                                  }
+                                />
+                              </span>
+                              <span className="text-xs text-gray-500 bg-gray-100 rounded font-mono">
+                                #{barcode.barcode_number}
+                              </span>
+                            </div>
 
-                          {/* Time & Duration */}
-                          <div className="">
-                            {barcode.status && (
-                              <span className="">{barcode.status}</span>
-                            )}
-                          </div>
+                            {/* Time & Duration */}
+                            <div className="">
+                              {barcode.status && (
+                                <span className="">{barcode.status}</span>
+                              )}
+                            </div>
 
-                          {/* Timer */}
-                        </div>
-                      ))}
+                            {/* Timer */}
+                          </div>
+                        ))}
                     </div>
                   </TableCell>
 

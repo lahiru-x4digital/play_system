@@ -10,6 +10,8 @@ import { AddExtraTimeDialog } from "@/components/booking/AddExtraTimeDialog";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { getEndTime } from "@/lib/getEndTime";
+import TimerCountDown from "@/components/common/TimerCountDown";
+import { formatHourMin } from "@/lib/combineHourMinute";
 
 function formatDate(dateStr) {
   if (!dateStr) return "-";
@@ -140,57 +142,75 @@ export default function Page({ params }) {
           </div>
         </div>
       </div>
-      {/* Barcodes */}
-      <div className="overflow-x-auto rounded-lg border border-muted shadow-sm">
-        {playReservation.play_reservation_barcodes?.length > 0 ? (
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium">Customer</th>
-                <th className="px-3 py-2 text-left font-medium">Status</th>
-                <th className="px-3 py-2 text-left font-medium">Time</th>
-                <th className="px-3 py-2 text-left font-medium">Barcode</th>
-                <th className="px-3 py-2"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-muted/50">
-              {playReservation.play_reservation_barcodes.map((b) => (
-                <tr key={b.id} className="hover:bg-muted/30 transition-colors">
-                  {/* Customer name + birthday */}
-                  <td className="px-3 py-2">
-                    <div className="font-medium">{b.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(b.birth_date).toLocaleDateString()}
-                    </div>
-                  </td>
 
-                  {/* Status */}
-                  <td className="px-3 py-2">
+      {playReservation.play_reservation_barcodes?.length > 0 && (
+        <section className="space-y-6">
+          {playReservation.play_reservation_barcodes.map((barcode, idx) => {
+            // Ensure both arrays align in rows
+            const maxRows = Math.max(
+              barcode.playReservationBarCodeExtraTimes?.length || 0,
+              barcode.WentOutsideTracker?.length || 0
+            );
+
+            return (
+              <div
+                key={barcode.id || idx}
+                className="bg-white border border-gray-200 rounded-lg p-4"
+              >
+                {/* Header Line */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3 text-sm">
+                    <span className="font-semibold text-gray-900">
+                      {barcode.name}
+                    </span>
+                    <span className="text-gray-400">•</span>
+                    <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                      {barcode.barcode.barcode_number}
+                    </span>
+                    <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                      {barcode.reservation_rule_id ? "KID" : "ADULT"}
+                    </span>
+                    {barcode.reservation_rule_id && (
+                      <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                        <TimerCountDown
+                          status={playReservation.status}
+                          start_hour={barcode.start_hour}
+                          start_min={barcode.start_min}
+                          end_hour={barcode.end_hour}
+                          end_min={barcode.end_min}
+                          extra_minutes={
+                            barcode.playReservationBarCodeExtraTimes
+                              ? barcode.playReservationBarCodeExtraTimes.reduce(
+                                  (sum, et) => sum + (et.extra_minutes || 0),
+                                  0
+                                )
+                              : 0
+                          }
+                        />
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
                     <Badge
-                      variant={b.status === "ACTIVE" ? "default" : "secondary"}
-                      className="text-xs"
+                      variant={
+                        barcode.status === "COMPLETED" ? "success" : "default"
+                      }
+                      className="uppercase"
                     >
-                      {b.status}
+                      {barcode.status}
                     </Badge>
-                  </td>
-
-                  {/* Time range */}
-                  <td className="px-3 py-2 font-medium">
-                    {`${String(b.start_hour).padStart(2, "0")}:${String(
-                      b.start_min
-                    ).padStart(2, "0")} - ${String(b.end_hour).padStart(
-                      2,
-                      "0"
-                    )}:${String(b.end_min).padStart(2, "0")}`}
-                  </td>
-
-                  {/* Barcode */}
-                  <td className="px-3 py-2 font-mono text-sm">
-                    {b.barcode?.barcode_number}
-                  </td>
-
-                  {/* Action */}
-                  <td className="px-3 py-2 text-right">
+                    {/* {barcode.status !== "COMPLETED" && (
+                      <Button
+                        // onClick={() =>
+                        //   handleSingleBarcodeUpdate(playReservation.id, barcode.id)
+                        // }
+                        // disabled={patchHandlerloading}
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        Complete
+                      </Button>
+                    )} */}
                     <Button
                       className="px-3 py-1 font-semibold"
                       variant="outline"
@@ -200,17 +220,90 @@ export default function Page({ params }) {
                       <PlusCircle className="mr-2 h-4 w-4" />
                       Extra Time
                     </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="text-muted-foreground text-sm p-4 text-center">
-            No barcodes found.
-          </div>
-        )}
-      </div>
+                  </div>
+                </div>
+
+                {/* Unified Table */}
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border border-gray-200 text-sm">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="px-3 py-2 border">Extra Time</th>
+                        <th className="px-3 py-2 border">Extra Duration</th>
+                        <th className="px-3 py-2 border">Went Outside</th>
+                        <th className="px-3 py-2 border">
+                          Went Outside Duration
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.from({ length: maxRows }).map((_, rowIdx) => {
+                        const extraTime =
+                          barcode.playReservationBarCodeExtraTimes?.[rowIdx];
+                        const outside = barcode.WentOutsideTracker?.[rowIdx];
+
+                        return (
+                          <tr key={rowIdx}>
+                            {/* Only show Name/Barcode in first row */}
+
+                            {/* Extra Time */}
+                            <td className="px-3 py-2 border">
+                              {extraTime
+                                ? `${formatHourMin(
+                                    extraTime.start_hour,
+                                    extraTime.start_min
+                                  )} - ${formatHourMin(
+                                    extraTime.end_hour,
+                                    extraTime.end_min
+                                  )}`
+                                : "-"}
+                            </td>
+                            <td className="px-3 py-2 border">
+                              {extraTime
+                                ? `min - ${extraTime.extra_minutes}  / Price - ${extraTime.extra_minute_price}`
+                                : "-"}
+                            </td>
+
+                            {/* Went Outside */}
+                            <td className="px-3 py-2 border">
+                              {outside
+                                ? `${
+                                    outside.out_hour
+                                      ? formatHourMin(
+                                          outside.out_hour,
+                                          outside.out_min
+                                        )
+                                      : "Out N/A"
+                                  } - ${
+                                    outside.in_hour
+                                      ? formatHourMin(
+                                          outside.in_hour,
+                                          outside.in_min
+                                        )
+                                      : "In N/A"
+                                  }`
+                                : "-"}
+                            </td>
+                            <td className="px-3 py-2 border">
+                              {outside?.out_hour && outside?.in_hour
+                                ? `${
+                                    outside.in_hour * 60 +
+                                    outside.in_min -
+                                    (outside.out_hour * 60 + outside.out_min)
+                                  } min`
+                                : "-"}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      )}
 
       {/* Add Extra Time Dialog */}
       {selectedBarcode && (

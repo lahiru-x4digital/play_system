@@ -76,9 +76,10 @@ export const playReservationService = {
     try {
       const response = await api.post("/play/auto-booking", payload);
       if (response.data.success) {
+        console.log(response);
         return {
           success: true,
-          data: response.data.data,
+          data: response.data.playReservation,
         };
       } else {
         throw new Error(

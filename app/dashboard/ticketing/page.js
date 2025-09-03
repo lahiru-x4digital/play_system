@@ -69,7 +69,7 @@ export default function page() {
     useGetSinglePlayReservation();
   const [activeStep, setActiveStep] = React.useState(1); // Start from 1
   const [disabledSteps, setDisabledSteps] = React.useState([]);
-  const [reservationId, setReservationId] = useState(150);
+  const [reservationId, setReservationId] = useState(null);
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
 
@@ -100,7 +100,37 @@ export default function page() {
     // Add more as needed
   }, [errors]);
   const onSubmit = async (data) => {
-    console.log(data);
+    const kidsArray =
+      data.customer_types?.map((item) => {
+        return {
+          rule_id: item.rule_id,
+          price: item.price,
+          start_hour: item.start_hour,
+          start_min: item.start_min,
+          end_hour: item.end_hour,
+          end_min: item.end_min,
+          customers:
+            item.customers?.filter(
+              (customer) =>
+                customer.name !== "" &&
+                customer.name !== undefined &&
+                customer.name !== null
+            ) || [],
+        };
+      }) || [];
+    const adult = {
+      rule_id: null,
+      price: 0,
+      start_hour: null,
+      start_min: null,
+      end_hour: null,
+      end_min: null,
+      customers: [
+        {
+          name: data.first_name,
+        },
+      ],
+    };
     const payload = {
       first_name: data.first_name,
       last_name: data.last_name,
@@ -110,24 +140,7 @@ export default function page() {
       total_price: data.amount,
       status: "CONFIRMED",
       payment_status: "PAID",
-      customer_types:
-        data.customer_types?.map((item) => {
-          return {
-            rule_id: item.rule_id,
-            price: item.price,
-            start_hour: item.start_hour,
-            start_min: item.start_min,
-            end_hour: item.end_hour,
-            end_min: item.end_min,
-            customers:
-              item.customers?.filter(
-                (customer) =>
-                  customer.name !== "" &&
-                  customer.name !== undefined &&
-                  customer.name !== null
-              ) || [],
-          };
-        }) || [],
+      customer_types: [...kidsArray, adult],
       // products:
       //   data.additional_products?.map((item) => ({
       //     play_product_id: item.id,
@@ -140,9 +153,10 @@ export default function page() {
       );
       setActiveStep(4);
       setDisabledSteps([1, 2, 3]);
-      setReservationId(response.data.playReservation.id); // <-- Correct way
-      console.log("RESID", response.data.playReservation.id);
-      playReservationRefresh(response.data.playReservation.id); // <-- Pass correct ID
+      console.log(response);
+      setReservationId(response.data.id); // <-- Correct way
+      // console.log("RESID", response.data.playReservation.id);
+      playReservationRefresh(response.data.id); // <-- Pass correct ID
     } catch (error) {
       console.log(error);
     }

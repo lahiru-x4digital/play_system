@@ -11,6 +11,7 @@ import { formatHourMin } from "@/lib/combineHourMinute";
 import { BookingEditDialog } from "@/components/booking/BookingEditDialog";
 import { playReservationService } from "@/services/play/playreservation.service";
 import toast from "react-hot-toast";
+import TimerCountDown from "@/components/common/TimerCountDown";
 
 // Utility function to check if input is a number (for barcode or mobile number)
 const isMobile = (value) => {
@@ -78,24 +79,27 @@ export default function page() {
   } = useGetPlayReservationsOnCall();
 
   // Function to update single barcode status
-  const handleSingleBarcodeUpdate = async (barcodeId) => {
-    try {
-      const response = await patchHandler(
-        "play/play-reservation/confirmation",
-        {
-          barcodeIds: [barcodeId],
-        }
-      );
+  const handleSingleBarcodeUpdate = async (bookingID, barcodeId) => {
+    const now = new Date();
+    const hour = now.getHours();
+    const min = now.getMinutes();
 
-      if (response.data.success) {
-        toast.success("Barcode status updated successfully");
-        // Refresh the data to show updated status
-        playReservationsRefres();
-      }
+    const payload = {
+      status: "COMPLETED",
+      hour: hour,
+      min: min,
+      reservation_barcode_list: [barcodeId],
+    };
+
+    try {
+      await playReservationService.updatePlayReservation({
+        payload,
+        id: bookingID,
+      });
+      toast.success("Reservation status updated successfully");
     } catch (error) {
-      toast.error(
-        error.response?.data?.error || "Failed to update barcode status"
-      );
+      console.error("Failed to update reservation status:", error);
+      toast.error(error.data?.error || "Failed to update reservation status");
     }
   };
 
@@ -123,7 +127,6 @@ export default function page() {
     setEditDialogOpen(true);
   };
   const handleUpdateStatus = async (booking, status) => {
-    console.log(booking, status);
     const now = new Date();
     const hour = now.getHours();
     const min = now.getMinutes();
@@ -300,6 +303,29 @@ export default function page() {
                             <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
                               {barcode.barcode.barcode_number}
                             </span>
+                            <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                              {barcode.reservation_rule_id ? "KID" : "ADULT"}
+                            </span>
+                            {barcode.reservation_rule_id && (
+                              <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                                <TimerCountDown
+                                  status={item.status}
+                                  start_hour={barcode.start_hour}
+                                  start_min={barcode.start_min}
+                                  end_hour={barcode.end_hour}
+                                  end_min={barcode.end_min}
+                                  extra_minutes={
+                                    barcode.playReservationBarCodeExtraTimes
+                                      ? barcode.playReservationBarCodeExtraTimes.reduce(
+                                          (sum, et) =>
+                                            sum + (et.extra_minutes || 0),
+                                          0
+                                        )
+                                      : 0
+                                  }
+                                />
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             <Badge
@@ -315,11 +341,11 @@ export default function page() {
                             {barcode.status !== "COMPLETED" && (
                               <Button
                                 onClick={() =>
-                                  handleSingleBarcodeUpdate(barcode.id)
+                                  handleSingleBarcodeUpdate(item.id, barcode.id)
                                 }
                                 disabled={patchHandlerloading}
                                 size="sm"
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                className="bg-green-600 hover:bg-green-700 text-white"
                               >
                                 Complete
                               </Button>

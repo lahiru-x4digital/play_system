@@ -3,6 +3,7 @@ import React, { useEffect, useMemo } from "react";
 import BarcodePrintView from "../booking/BarcodePrintView";
 
 export default function StepConfirmation({ playReservation }) {
+  console.log(playReservation);
   // Pass reservationId to the hook
 
   const formattedReservation = useMemo(() => {
