@@ -120,11 +120,11 @@ const adminNavItems = [
     href: "/dashboard/reservation-rule",
     icon: Clock1,
   },
-  {
-    title: "Pricing",
-    href: "/dashboard/pricing",
-    icon: DollarSign,
-  },
+  // {
+  //   title: "Pricing",
+  //   href: "/dashboard/pricing",
+  //   icon: DollarSign,
+  // },
   {
     title: "Extra Hours Pricing",
     href: "/dashboard/extra-hours-pricing",
