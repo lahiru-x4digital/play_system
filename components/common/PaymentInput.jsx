@@ -29,9 +29,16 @@ export default function PaymentInput() {
           <Controller
             name={"payment_method"}
             control={control}
-            defaultValue={PAYMENT_METHODS[0].value}
             render={({ field }) => (
-              <select {...field} className="border rounded px-2 py-1 w-full">
+              <select 
+                {...field} 
+                value={field.value}
+                className="border rounded px-2 py-1 w-full"
+                onChange={(e) => {
+                  console.log("PaymentInput onChange:", e.target.value);
+                  field.onChange(e);
+                }}
+              >
                 {PAYMENT_METHODS.map((m) => (
                   <option key={m.value} value={m.value}>
                     {m.label}

@@ -23,7 +23,7 @@ import AdditionalProductSelect from "../booking/AdditionalProductSelect";
 
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
-  payment_method: z.string().min(1, { message: "Payment method is required" }),
+  payment_method: z.enum(["STORE_CASH", "STORE_CARD"], { message: "Please select a valid payment method" }),
   amount: z.number().min(0, { message: "Amount is required" }),
   first_name: z.string(),
   last_name: z.string(),
@@ -70,7 +70,7 @@ export default function AutoGenarateReservationForm({ onSuccess, open }) {
       first_name: "",
       last_name: "",
       branch_id: user?.branchId,
-      payment_method: "CASH",
+      payment_method: "STORE_CASH",
       amount: 0,
       customer_types: [],
       additional_products: []
@@ -122,8 +122,12 @@ export default function AutoGenarateReservationForm({ onSuccess, open }) {
   //!check customer hooks data fetichng infinite loop api calls 
   console.log(methods.formState.errors)
   console.log(methods.watch("customer_types")[0])
+  console.log("Current payment_method:", methods.watch("payment_method"))
+  console.log("Form values:", methods.getValues())
   //form state error consoel log
   const onSubmit = async (data) => {
+    console.log("Form data payment_method:", data.payment_method);
+    console.log("Full form data:", data);
     const payload = {
       first_name: data.first_name,
       last_name: data.last_name,
@@ -132,6 +136,7 @@ export default function AutoGenarateReservationForm({ onSuccess, open }) {
       total_price: totalPrice,
       status: "CONFIRMED",
       payment_status: "PAID",
+      payment_method: data.payment_method,
       customer_types: data.customer_types?.map(item => ({
         playCustomerTypeId: item.play_customer_type_id,
         playPricingId: item.pricing_id,
@@ -150,20 +155,21 @@ export default function AutoGenarateReservationForm({ onSuccess, open }) {
       })) || [],
     };
     console.log("payload", payload)
-    if (data.payment_method === "CASH") {
+    if (data.payment_method === "STORE_CASH") {
       payload.cash = totalPrice;
-    } else if (data.payment_method === "CARD") {
+    } else if (data.payment_method === "STORE_CARD") {
       payload.card = totalPrice;
     }
 
+    console.log("About to send payload:", payload);
+    console.log("Payment method in payload:", payload.payment_method);
+    
     try {
       const res = await postHandler(`auto-booking`, payload);
 
       if (onSuccess) onSuccess(res?.data);
+      methods.reset(); // Reset only on success
     } catch (error) { }
-    // handle create order logic here
-   
-    methods.reset();
   };
 
   return (

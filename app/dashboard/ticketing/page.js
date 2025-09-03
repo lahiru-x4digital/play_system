@@ -83,7 +83,7 @@ export default function page() {
       first_name: "",
       last_name: "",
       branch_id: user?.branchId,
-      payment_method: "CASH",
+      payment_method: "STORE_CASH",
       amount: 0,
       customer_types: [],
       additional_products: [],
@@ -110,6 +110,7 @@ export default function page() {
       total_price: data.amount,
       status: "CONFIRMED",
       payment_status: "PAID",
+      payment_method: data.payment_method,
       customer_types:
         data.customer_types?.map((item) => {
           return {
