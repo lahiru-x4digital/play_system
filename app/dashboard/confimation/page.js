@@ -97,6 +97,7 @@ export default function page() {
         id: bookingID,
       });
       toast.success("Reservation status updated successfully");
+      playReservationsReset();
     } catch (error) {
       console.error("Failed to update reservation status:", error);
       toast.error(error.data?.error || "Failed to update reservation status");
@@ -151,6 +152,7 @@ export default function page() {
         payload,
         id: booking.id,
       });
+      // playReservationsReset();
       toast.success("Reservation status updated successfully");
     } catch (error) {
       console.error("Failed to update reservation status:", error);
