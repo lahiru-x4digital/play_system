@@ -235,12 +235,14 @@ export default function page() {
                 <Button
                   size="sm"
                   onClick={() => handleUpdateStatus(item, "WENT_OUTSIDE")}
+                  disabled={item.status == "WENT_OUTSIDE"}
                 >
                   Went Outside
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => handleUpdateStatus(item, "BACK_INSIDE")}
+                  disabled={item.status == "BACK_INSIDE"}
                 >
                   Back Inside
                 </Button>
