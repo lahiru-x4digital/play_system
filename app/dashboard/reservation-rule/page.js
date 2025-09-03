@@ -1,9 +1,9 @@
-"use client"
-import { AddRuleForm } from '@/components/settings/reservation-rule/reservation-rule-form'
-import { EditRuleForm } from '@/components/settings/reservation-rule/edit-rule-form'
-import { Button } from '@/components/ui/button'
-import React, { useState, useEffect } from 'react'
-import { bookingService } from '@/services/booking.service'
+"use client";
+import { AddRuleForm } from "@/components/settings/reservation-rule/reservation-rule-form";
+import { EditRuleForm } from "@/components/settings/reservation-rule/edit-rule-form";
+import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react";
+import { bookingService } from "@/services/booking.service";
 import {
   Table,
   TableHeader,
@@ -12,73 +12,83 @@ import {
   TableRow,
   TableCell,
   TableCaption,
-} from '@/components/ui/table'
-import { Pagination } from '@/components/ui/pagination'
-import { Pencil } from 'lucide-react'
-import SelectBranch from '@/components/common/selectBranch'
+} from "@/components/ui/table";
+import { Pagination } from "@/components/ui/pagination";
+import { Pencil } from "lucide-react";
+import SelectBranch from "@/components/common/selectBranch";
 
 // Helper to format date as YYYY/MM/DD
 function formatDate(dateStr) {
-  if (!dateStr) return ""
-  const date = new Date(dateStr)
-  if (isNaN(date)) return ""
-  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (isNaN(date)) return "";
+  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}/${String(date.getDate()).padStart(2, "0")}`;
 }
 
 export default function page() {
-  const [open, setOpen] = useState(false)
-  const [rules, setRules] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
-  const [editRule, setEditRule] = useState(null)
-  const [branchId, setBranchId] = useState(1)
-  
+  const [open, setOpen] = useState(false);
+  const [rules, setRules] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [editRule, setEditRule] = useState(null);
+  const [branchId, setBranchId] = useState(1);
+
   async function fetchRules() {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const res = await bookingService.getReservationRules({ branch_id: branchId })
-      setRules(res.data)
+      const res = await bookingService.getReservationRules({
+        branch_id: branchId,
+      });
+      setRules(res.data);
     } catch (err) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
   useEffect(() => {
-    fetchRules()
-  }, [branchId])
+    fetchRules();
+  }, [branchId]);
 
   // Pagination logic
-  const total = rules.length
-  const totalPages = Math.ceil(total / pageSize)
-  const paginatedRules = rules.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+  const total = rules.length;
+  const totalPages = Math.ceil(total / pageSize);
+  const paginatedRules = rules.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   // Update rule in state after edit
   const handleEditSuccess = (updatedRule) => {
-    setRules(rules =>
-      rules.map(rule => rule.id === updatedRule.id ? updatedRule : rule)
-    )
-    setEditRule(null)
-  }
+    setRules((rules) =>
+      rules.map((rule) => (rule.id === updatedRule.id ? updatedRule : rule))
+    );
+    setEditRule(null);
+  };
 
   return (
     <div>
-      <Button
-        onClick={() => setOpen(true)}
-        className='px-4 py-2 rounded-md hover:cursor-pointer'
-      >
-        Add Reservation Rule
-      </Button>
-      <AddRuleForm
-        open={open}
-        onOpenChange={setOpen}
-        onSuccess={() => {}}
-        branchId={branchId}
-      />
-<SelectBranch value={branchId} onChange={setBranchId}/>
+      <div className="flex gap-2 items-end">
+        <AddRuleForm
+          open={open}
+          onOpenChange={setOpen}
+          onSuccess={fetchRules}
+          branchId={branchId}
+        />
+        <SelectBranch value={branchId} onChange={setBranchId} />
+        <Button
+          onClick={() => setOpen(true)}
+          className="rounded-md hover:cursor-pointer"
+        >
+          Add Reservation Rule
+        </Button>
+      </div>
       <div className="mt-6">
         {loading && <div>Loading...</div>}
         {error && <div className="text-red-500">{error}</div>}
@@ -102,7 +112,7 @@ export default function page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedRules.map(rule => (
+                {paginatedRules.map((rule) => (
                   <TableRow key={rule.id}>
                     <TableCell>{rule.name}</TableCell>
                     <TableCell>{rule.branch?.branch_name || "-"}</TableCell>
@@ -112,22 +122,26 @@ export default function page() {
                     <TableCell>{rule.end_time}</TableCell>
                     <TableCell>{rule.price ?? "-"}</TableCell>
                     <TableCell>{rule.slot_booking_period ?? "-"}</TableCell>
-                    <TableCell>{rule.maximum_booking_per_slot ?? "-"}</TableCell>
+                    <TableCell>
+                      {rule.maximum_booking_per_slot ?? "-"}
+                    </TableCell>
                     <TableCell>{rule.is_active ? "Yes" : "No"}</TableCell>
                     <TableCell>
                       <Button
-                      variant={"ghost"}
+                        variant={"ghost"}
                         onClick={() => setEditRule(rule)}
                         className="px-3 py-1 text-sm HOVER:cusror-pointer"
                       >
-                        <Pencil/>
+                        <Pencil />
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
                 {paginatedRules.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={11} className="text-center">No rules found.</TableCell>
+                    <TableCell colSpan={11} className="text-center">
+                      No rules found.
+                    </TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -137,9 +151,9 @@ export default function page() {
               totalPages={totalPages}
               onPageChange={setCurrentPage}
               pageSize={pageSize}
-              onPageSizeChange={size => {
-                setPageSize(size)
-                setCurrentPage(1)
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
               }}
               total={total}
             />
@@ -156,5 +170,5 @@ export default function page() {
         />
       )}
     </div>
-  )
+  );
 }

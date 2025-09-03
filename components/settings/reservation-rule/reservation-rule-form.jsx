@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import { bookingService } from "@/services/booking.service";
 import { useToast } from "@/hooks/use-toast";
-import {  ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import SelectBranch from "@/components/common/selectBranch";
 
 const formSchema = z
@@ -45,7 +45,9 @@ const formSchema = z
 
     start_time: z.string().min(1, "Start time is required"),
     end_time: z.string().min(1, "End time is required"),
-  maximum_booking_per_slot: z.coerce.number().min(1, "Maximum booking per slot must be at least 1"),
+    maximum_booking_per_slot: z.coerce
+      .number()
+      .min(1, "Maximum booking per slot must be at least 1"),
     slot_booking_period: z.coerce
       .number()
       .min(1, "Slot booking period must be at least 1 minute"),
@@ -67,7 +69,6 @@ const formSchema = z
         });
       }
     }
-
   });
 
 export function AddRuleForm({
@@ -103,10 +104,7 @@ export function AddRuleForm({
 
   const { control, setValue } = form;
 
-
-
   const onSubmit = async (data) => {
-    console.log("Form submitted with data:", JSON.stringify(data, null, 2));
     setIsLoading(true);
     try {
       // Clone the data to avoid mutating the original
@@ -153,7 +151,7 @@ export function AddRuleForm({
       setIsLoading(false);
     }
   };
-//watch branch_id
+  //watch branch_id
   console.log("Selected branch_id:", form.watch("branch_id"));
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -93,7 +93,7 @@ const adminNavItems = [
   {
     title: "Ticketing",
     href: "/dashboard/ticketing",
-    icon: Ticket ,
+    icon: Ticket,
   },
   {
     title: "Tracking Report",
@@ -110,7 +110,11 @@ const adminNavItems = [
   //   href: "/dashboard/tracking-report",
   //   icon: Timer,
   // },
-
+  {
+    title: "Reservation Rule",
+    href: "/dashboard/reservation-rule",
+    icon: Clock1,
+  },
   {
     title: "Pricing",
     href: "/dashboard/pricing",
@@ -124,7 +128,7 @@ const adminNavItems = [
   {
     title: "Products",
     href: "/dashboard/products",
-    icon: PackageSearch 
+    icon: PackageSearch,
   },
 
   {
@@ -141,22 +145,17 @@ const adminNavItems = [
       //   href: "/dashboard/settings/branches",
       //   icon: Building,
       // },
-      {
-        title: "Reservation Rule",
-        href: "/dashboard/settings/reservation-rule",
-        icon: Clock1,
-      },
 
       {
         title: "Users",
         href: "/dashboard/settings/users",
         icon: Users,
       },
-      {
-        title: "Customer Types",
-        href: "/dashboard/settings/customer-types",
-        icon: Users,
-      },
+      // {
+      //   title: "Customer Types",
+      //   href: "/dashboard/settings/customer-types",
+      //   icon: Users,
+      // },
       {
         title: "Webhook",
         href: "/dashboard/settings/webhook",
@@ -211,7 +210,7 @@ const userNavItems = [
   {
     title: "Products",
     href: "/dashboard/products",
-    icon: PackageSearch 
+    icon: PackageSearch,
   },
 
   // {
