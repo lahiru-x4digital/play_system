@@ -101,6 +101,11 @@ const adminNavItems = [
     icon: CalendarCheck,
   },
   {
+    title: "Payment Report",
+    href: "/dashboard/payment-report",
+    icon: CreditCard,
+  },
+  {
     title: "Confimation",
     href: "/dashboard/confimation",
     icon: ScanQrCode,
