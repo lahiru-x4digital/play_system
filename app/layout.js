@@ -25,8 +25,8 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionProviderWrapper>{children}</SessionProviderWrapper>
+        <Toaster position="bottom-center" />
       </body>
-      <Toaster position="bottom-center" />
     </html>
   );
 }

@@ -38,11 +38,17 @@ export default function PaymentReportPage() {
   const fetchPayments = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await api.get(`play/play-reservation`, {
+      const today = new Date().toISOString().split("T")[0];
+      const finalParams = {
+        ...params,
+        start_date: params.start_date || today,
+        end_date: params.end_date || today,
+      };
+      const response = await api.get(`play/report/payment-method`, {
         params: {
           skip: (currentPage - 1) * pageSize,
           limit: pageSize,
-          ...paramsNullCleaner(params),
+          ...paramsNullCleaner(finalParams),
         },
       });
       // Flatten payments from reservations
@@ -147,10 +153,7 @@ export default function PaymentReportPage() {
             <div className="text-center py-8 text-red-500">{error}</div>
           ) : (
             <>
-              <PaymentReportTable
-                data={payments}
-                loading={loading}
-              />
+              <PaymentReportTable data={payments} loading={loading} />
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
