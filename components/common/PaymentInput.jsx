@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const PAYMENT_METHODS = [
-  { label: "Cash", value: "CASH" },
-  { label: "Card", value: "CARD" },
+export const PAYMENT_METHODS = [
+  { label: "Store Cash", value: "STORE_CASH" },
+  { label: "Store Card", value: "STORE_CARD" },
 ];
 
 /**

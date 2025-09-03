@@ -159,6 +159,7 @@ export default function CreateBookingInput() {
     const customersCount = curr.customers.length;
     return acc + parseFloat(curr.price) * customersCount;
   }, 0);
+  console.log(watch("customer_types"));
   useEffect(() => {
     setValue("amount", subTotalPrice);
   }, [subTotalPrice]);
