@@ -1,4 +1,3 @@
-import { showApiError } from "@/lib/apiErrorHandler";
 import api from "../api";
 
 export const playReservationService = {
@@ -19,7 +18,6 @@ export const playReservationService = {
         );
       }
     } catch (error) {
-      showApiError(error, "Failed to load Play Reservations");
       throw new Error(
         error.response?.data?.message || "Failed to fetch reservations"
       );
@@ -41,7 +39,6 @@ export const playReservationService = {
         throw new Error(response.data.message || "Failed to fetch reservation");
       }
     } catch (error) {
-      showApiError(error, "Failed to load Play Reservation");
       throw new Error(
         error.response?.data?.message || "Failed to fetch reservation"
       );
@@ -51,7 +48,8 @@ export const playReservationService = {
   /**
    * Update a play reservation by ID.
    */
-  async updatePlayReservation(id, payload) {
+  async updatePlayReservation({ id, payload }) {
+    console.log("Updating reservation:", id, payload);
     try {
       const response = await api.patch(`/play/play-reservation/${id}`, payload);
       if (response.data.success) {
@@ -65,7 +63,6 @@ export const playReservationService = {
         );
       }
     } catch (error) {
-      showApiError(error, "Failed to update Play Reservation");
       throw new Error(
         error.response?.data?.message || "Failed to update reservation"
       );
@@ -77,7 +74,7 @@ export const playReservationService = {
    */
   async createPlayReservation(payload) {
     try {
-      const response = await api.post("/play/play-reservation", payload);
+      const response = await api.post("/play/auto-booking", payload);
       if (response.data.success) {
         return {
           success: true,
@@ -95,7 +92,6 @@ export const playReservationService = {
       );
     }
   },
-
   /**
    * Delete a play reservation by ID.
    */

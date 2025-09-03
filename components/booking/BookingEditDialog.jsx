@@ -24,6 +24,8 @@ import { useAxiosPatch } from "@/hooks/useAxiosPatch";
 import ExtraHoursSelectInput from "../common/ExtraHoursSelectInput";
 
 export function BookingEditDialog({ open, onOpenChange, bookingData }) {
+  //log booking data
+
   // const statuses = ["PENDING", "REFUND", "CENCELED", "CONFIRMED","COMPLETED"];
   const statuses = [
     "COMPLETED",
@@ -61,6 +63,10 @@ export function BookingEditDialog({ open, onOpenChange, bookingData }) {
       payload.hour = hour;
       payload.min = min;
     }
+    const reservation_barcode_list = bookingData?.play_reservation_barcodes.map(
+      (t) => t.id
+    );
+    payload.reservation_barcode_list = reservation_barcode_list;
 
     await patchHandler(`play/play-reservation/${bookingData?.id}`, payload);
     onOpenChange(false);

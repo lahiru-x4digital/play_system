@@ -22,11 +22,12 @@ import { Input } from "@/components/ui/input";
 import { PhoneNumberField } from "@/components/coustomer-mobile-input";
 import CreateBookingInput from "@/components/ticketing/create-booking-input";
 import StepperComp from "@/components/common/StepperComp";
-import { playReservationService } from "@/services/play_reservation.service";
+
 import StepConfirmation from "@/components/ticketing/StepConfirmation";
 import { extractHourMin, extractHourMinFromUTC } from "@/utils/time-converter";
 import toast from "react-hot-toast";
 import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation";
+import { playReservationService } from "@/services/play/playreservation.service";
 const reservationSchema = z.object({
   mobile_number: z.string().min(1, { message: "Mobile number is required" }),
   payment_method: z.string().min(1, { message: "Payment method is required" }),
@@ -134,7 +135,9 @@ export default function page() {
       //   })) || [],
     };
     try {
-      const response = await playReservationService.createReservation(payload);
+      const response = await playReservationService.createPlayReservation(
+        payload
+      );
       setActiveStep(4);
       setDisabledSteps([1, 2, 3]);
       setReservationId(response.data.playReservation.id); // <-- Correct way

@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 import { formatHourMin } from "@/lib/combineHourMinute";
 import { BookingEditDialog } from "@/components/booking/BookingEditDialog";
+import { playReservationService } from "@/services/play/playreservation.service";
+import toast from "react-hot-toast";
 
 // Utility function to check if input is a number (for barcode or mobile number)
 const isMobile = (value) => {
@@ -87,52 +88,17 @@ export default function page() {
       );
 
       if (response.data.success) {
-        toast({
-          title: "Success",
-          description: `Barcode marked as completed`,
-          variant: "default",
-        });
+        toast.success("Barcode status updated successfully");
         // Refresh the data to show updated status
         playReservationsRefres();
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error.response?.data?.message || "Failed to update barcode status",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Function to mark all barcodes for a reservation as complete
-  const handleMarkAllComplete = async (reservationId) => {
-    try {
-      const response = await patchHandler(
-        "play/play-reservation/confirmation",
-        {
-          reservationId: reservationId,
-        }
+      toast.error(
+        error.response?.data?.error || "Failed to update barcode status"
       );
-
-      if (response.data.success) {
-        toast({
-          title: "Success",
-          description: `All barcodes marked as completed`,
-          variant: "default",
-        });
-        // Refresh the data to show updated status
-        playReservationsRefres();
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error.response?.data?.message || "Failed to update barcodes",
-        variant: "destructive",
-      });
     }
   };
+
   const handleSaveBooking = async (updatedData) => {
     try {
       // Call your API to update the booking here
@@ -156,7 +122,38 @@ export default function page() {
     setSelectedBooking(booking);
     setEditDialogOpen(true);
   };
-  const handleUpdateStatus = () => {};
+  const handleUpdateStatus = async (booking, status) => {
+    console.log(booking, status);
+    const now = new Date();
+    const hour = now.getHours();
+    const min = now.getMinutes();
+
+    const payload = {
+      status: status,
+      hour: null,
+      min: null,
+    };
+    if (status === "WENT_OUTSIDE" || status === "BACK_INSIDE") {
+      payload.hour = hour;
+      payload.min = min;
+    }
+
+    const reservation_barcode_list = booking.play_reservation_barcodes.map(
+      (t) => t.id
+    );
+    payload.reservation_barcode_list = reservation_barcode_list;
+
+    try {
+      await playReservationService.updatePlayReservation({
+        payload,
+        id: booking.id,
+      });
+      toast.success("Reservation status updated successfully");
+    } catch (error) {
+      console.error("Failed to update reservation status:", error);
+      toast.error(error.data?.error || "Failed to update reservation status");
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -220,20 +217,26 @@ export default function page() {
             <div key={item.id || index} className="overflow-hidden">
               <div className="flex gap-2">
                 <Button
-                  onClick={() => handleMarkAllComplete(item.id)}
+                  onClick={() => handleUpdateStatus(item, "COMPLETED")}
                   disabled={patchHandlerloading}
                   size="sm"
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
-                  {patchHandlerloading ? "Processing..." : "Complete All"}
+                  {patchHandlerloading ? "Processing..." : "Complete"}
                 </Button>
-                <Button size="sm" onClick={() => handleEditClick(item)}>
+                {/* <Button size="sm" onClick={() => handleEditClick(item)}>
                   Update Status
-                </Button>
-                <Button size="sm" onClick={() => handleEditClick(item)}>
+                </Button> */}
+                <Button
+                  size="sm"
+                  onClick={() => handleUpdateStatus(item, "WENT_OUTSIDE")}
+                >
                   Went Outside
                 </Button>
-                <Button size="sm" onClick={() => handleEditClick(item)}>
+                <Button
+                  size="sm"
+                  onClick={() => handleUpdateStatus(item, "BACK_INSIDE")}
+                >
                   Back Inside
                 </Button>
               </div>
