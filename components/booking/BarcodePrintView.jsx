@@ -64,7 +64,7 @@ export default function BarcodePrintView({ reservation = null }) {
       <div className="barcode-print-container grid grid-cols-4 gap-4">
         <div ref={printRef} className="print-area grid grid-cols-4 gap-4 w-96 ">
           {reservation?.play_reservation_barcodes?.map((barcode, idx) => (
-            <div>
+            <div key={barcode.id}>
               <BandItem
                 key={barcode.barcode_id}
                 barcode={barcode}

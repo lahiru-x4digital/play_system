@@ -45,3 +45,8 @@ export function extractHourMinFromUTC(utcStr) {
     min: date.getMinutes(),
   };
 }
+
+// Utility function to format hour and minute as HH:mm
+export function combineHourAndMinute(hour, minute) {
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}

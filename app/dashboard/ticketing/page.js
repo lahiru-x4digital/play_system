@@ -118,13 +118,28 @@ export default function page() {
             ) || [],
         };
       }) || [];
+    // Find max end_hour and its corresponding end_min from customer_types with rule_id
+    const maxEndObj = data.customer_types
+      .filter((item) => item.rule_id !== null && item.end_hour !== undefined)
+      .reduce(
+        (max, item) => {
+          if (
+            item.end_hour > max.end_hour ||
+            (item.end_hour === max.end_hour && item.end_min > max.end_min)
+          ) {
+            return item;
+          }
+          return max;
+        },
+        { end_hour: null, end_min: null, start_hour: null, start_min: null }
+      );
     const adult = {
       rule_id: null,
       price: 0,
-      start_hour: null,
-      start_min: null,
-      end_hour: null,
-      end_min: null,
+      start_hour: maxEndObj.start_hour,
+      start_min: maxEndObj.start_min,
+      end_hour: maxEndObj.end_hour,
+      end_min: maxEndObj.end_min,
       customers: [
         {
           name: data.first_name,

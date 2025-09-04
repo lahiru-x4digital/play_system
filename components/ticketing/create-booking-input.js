@@ -159,7 +159,7 @@ export default function CreateBookingInput() {
     const customersCount = curr.customers.length;
     return acc + parseFloat(curr.price) * customersCount;
   }, 0);
-  console.log(watch("customer_types"));
+
   useEffect(() => {
     setValue("amount", subTotalPrice);
   }, [subTotalPrice]);
@@ -374,17 +374,7 @@ export default function CreateBookingInput() {
               </Button>
             </div>
           )}
-          <div className="flex gap-4 items-end justify-between mt-6 p-4 bg-gray-50 rounded-lg">
-            <PaymentInput />
-            <div className="text-right">
-              <div className="text-sm font-medium text-gray-500 mb-1">
-                Total Price
-              </div>
-              <div className="text-2xl font-bold text-indigo-600">
-                {subTotalPrice}
-              </div>
-            </div>
-          </div>
+
           {/* <div className="mt-2 flex items-end gap-2">
             <AdditionalProductSelect
               value={selectedAdditionalProduct}

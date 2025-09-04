@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Printer } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import { getEndTime } from "@/lib/getEndTime";
+import { combineHourAndMinute } from "@/utils/time-converter";
 
 export default function BandItem({
   barcode,
@@ -72,21 +73,21 @@ export default function BandItem({
             textAlign: "center",
           }}
         >
-          {new Date(barcode?.barcode?.created_date).toLocaleDateString()}
+          {new Date(reservation?.reservation_date).toLocaleDateString()}
         </div>
         {/* <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>From</div> */}
-        <div
-          style={{
-            fontSize: "8pt",
-            wordBreak: "break-all",
-            textAlign: "center",
-          }}
-        >
-          {new Date(barcode?.barcode?.created_date).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </div>
+        {barcode.reservation_rule_id && (
+          <div
+            style={{
+              fontSize: "8pt",
+              wordBreak: "break-all",
+              textAlign: "center",
+            }}
+          >
+            {combineHourAndMinute(barcode?.start_hour, barcode?.start_min)}-{" "}
+            {combineHourAndMinute(barcode?.end_hour, barcode?.end_min)}
+          </div>
+        )}
         {/* <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>To</div> */}
         <div
           style={{
