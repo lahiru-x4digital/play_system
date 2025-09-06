@@ -16,12 +16,14 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AdditionalHoursSelect from "./AdditionalHoursSelect";
 import { Loader2 } from "lucide-react";
+import PaymentInput from "../common/PaymentInput";
 
 const reservationSchema = z.object({
   play_reservation_id: z.number(),
   additional_minutes: z.number(),
   additional_minutes_price: z.number(),
   additional_minutes_price_id: z.number(),
+  payment_method: z.string().min(1, "Payment method is required"),
 });
 
 export function AddExtraTimeDialog({
@@ -42,6 +44,7 @@ export function AddExtraTimeDialog({
       additional_minutes_price: 0,
       additional_minutes_price_id: null,
       minutes_qty: 0,
+      payment_method: "STORE_CASH",
     },
   });
 
@@ -71,6 +74,7 @@ export function AddExtraTimeDialog({
       end_hour: end_hour,
       end_min: end_min,
       Play_reservation_barcode_id: barcodeId,
+      payment_method: data.payment_method,
     };
 
     try {
@@ -135,9 +139,10 @@ export function AddExtraTimeDialog({
                   </div>
 
                   <div className="flex justify-between items-center pt-2 border-t">
-                    <span className="text-sm font-medium">Total:</span>
+                    <PaymentInput />
+
                     <span className="text-lg font-semibold">
-                      {methods.watch("extra_minute_price")}
+                      Price : {methods.watch("additional_minutes_price")}
                     </span>
                   </div>
                 </div>

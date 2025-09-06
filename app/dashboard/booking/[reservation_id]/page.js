@@ -74,72 +74,78 @@ export default function Page({ params }) {
 
   return (
     <div className="max-w-5xl mx-auto space-y-2 bg-background min-h-screen">
-      <div className="max-w-3xl mx-auto text-sm">
-        {/* Reservation Summary Header */}
-        <h2 className="text-xl font-bold text-primary mb-4">
-          Reservation Summary
-        </h2>
-
-        {/* Customer Info */}
-        {playReservation.customer && (
-          <div className="">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-              Customer Info
-            </h3>
-            <div className="divide-y divide-muted border border-muted rounded-md bg-background">
-              <div className="flex justify-between px-3 py-2">
-                <span className="text-muted-foreground">Name</span>
-                <span className="font-medium">
-                  {playReservation.customer.first_name}{" "}
-                  {playReservation.customer.last_name || ""}
-                </span>
-              </div>
-              <div className="flex justify-between px-3 py-2">
-                <span className="text-muted-foreground">Mobile</span>
-                <span className="font-medium">
-                  {playReservation.customer.mobile_number}
-                </span>
-              </div>
-              <div className="flex justify-between px-3 py-2">
-                <span className="text-muted-foreground">Type</span>
-                <span className="font-medium">
-                  {playReservation.customer.customer_type}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Branch Info */}
-        <div>
+      <div className="flex flex-wrap gap-6 items-start mb-4">
+        {/* Reservation Information */}
+        <div className="flex-1 min-w-[260px]">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-            Branch Info
+            Reservation Information
           </h3>
-          <div className="divide-y divide-muted border border-muted rounded-md bg-background">
-            <div className="flex justify-between px-3 py-2">
-              <span className="text-muted-foreground">Branch</span>
-              <span className="font-medium">
-                {playReservation.branch?.branch_name}
-              </span>
-            </div>
-            <div className="flex justify-between px-3 py-2">
-              <span className="text-muted-foreground">Code</span>
-              <span className="font-medium">
-                {playReservation.branch?.branch_code || "-"}
-              </span>
-            </div>
-            <div className="flex justify-between px-3 py-2">
-              <span className="text-muted-foreground">Created</span>
-              <span className="font-medium">
-                {formatDate(playReservation.created_date)}
-              </span>
-            </div>
-            <div className="flex justify-between px-3 py-2">
-              <span className="text-muted-foreground">Updated</span>
-              <span className="font-medium">
-                {formatDate(playReservation.updated_date)}
-              </span>
-            </div>
+          <div className="divide-y divide-muted border border-muted rounded-md bg-background p-2 space-y-1">
+            <LabelValue
+              label="Customer Name"
+              value={
+                playReservation.customer
+                  ? `${playReservation.customer.first_name} ${
+                      playReservation.customer.last_name || ""
+                    }`
+                  : "-"
+              }
+            />
+            <LabelValue
+              label="Mobile"
+              value={playReservation.customer?.mobile_number}
+            />
+            <LabelValue
+              label="Type"
+              value={playReservation.customer?.customer_type}
+            />
+            <LabelValue
+              label="Branch"
+              value={playReservation.branch?.branch_name}
+            />
+            <LabelValue
+              label="Branch Code"
+              value={playReservation.branch?.branch_code || "-"}
+            />
+            <LabelValue
+              label="Created"
+              value={formatDate(playReservation.created_date)}
+            />
+            <LabelValue
+              label="Updated"
+              value={formatDate(playReservation.updated_date)}
+            />
+          </div>
+        </div>
+        {/* Payment Details */}
+        <div className="flex-1 min-w-[220px]">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            Payment Details
+          </h3>
+          <div className="divide-y divide-muted border border-muted rounded-md bg-background p-2 space-y-1">
+            <LabelValue
+              label="Reservation Status"
+              value={playReservation.status}
+            />
+            <LabelValue
+              label="Total Price"
+              value={playReservation.total_price}
+            />
+
+            <LabelValue
+              label="Paid Amount"
+              value={playReservation.total_payment}
+            />
+            <LabelValue
+              label="Due Amount"
+              value={
+                playReservation.total_price - playReservation.total_payment
+              }
+            />
+            <LabelValue
+              label="Payment Status"
+              value={playReservation.payment_status}
+            />
           </div>
         </div>
       </div>
@@ -159,11 +165,9 @@ export default function Page({ params }) {
                 className="bg-white border border-gray-200 rounded-lg p-4"
               >
                 <div>
-                  <h3 className="text-md font-semibold mb-2">
-                    Name: {barcode.name}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    Initial Time :{" "}
+                  <h3 className="mb-2">Name: {barcode.name}</h3>
+                  <p className="text-sm font-semibold">
+                    Starting Package :{" "}
                     {`${formatHourMin(
                       barcode.start_hour,
                       barcode.start_min
@@ -212,14 +216,16 @@ export default function Page({ params }) {
                       `Over Time : ${getOverstayDuration(barcode)} (min)`}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge
-                      variant={
-                        barcode.status === "COMPLETED" ? "success" : "default"
-                      }
-                      className="uppercase"
-                    >
-                      {barcode.status}
-                    </Badge>
+                    {barcode.status !== "ACTIVE" && (
+                      <Badge
+                        variant={
+                          barcode.status === "COMPLETED" ? "success" : "default"
+                        }
+                        className="uppercase"
+                      >
+                        {barcode.status}
+                      </Badge>
+                    )}
                     {/* {barcode.status !== "COMPLETED" && (
                       <Button
                         // onClick={() =>

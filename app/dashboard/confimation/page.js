@@ -221,7 +221,7 @@ export default function page() {
         <div className="space-y-6">
           {playReservations.map((item, index) => (
             <div key={item.id || index} className="overflow-hidden">
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
                 <Button
                   onClick={() => handleUpdateStatus(item, "COMPLETED")}
                   disabled={patchHandlerloading}
@@ -248,7 +248,7 @@ export default function page() {
                   Back Inside
                 </Button>
               </div>
-              <div className="bg-gray-50 border-b">
+              <div className="bg-gray-50 border-b mb-2">
                 <div className="flex items-center justify-between p-3 border-b">
                   {/* Left Section */}
                   <div>
@@ -263,7 +263,11 @@ export default function page() {
                       </Badge>
                       <div className="flex gap-2">
                         / <p>Total Price</p>
-                        <p className=" font-bold ">{item.total_price || 0}</p>
+                        <p className=" font-bold ">{item.total_price}</p> /
+                      </div>
+                      <div className="flex gap-2">
+                        <p>Total Payment</p>
+                        <p className=" font-bold ">{item.total_payment}</p>{" "}
                       </div>
                     </div>
                     <div className="mt-1 text-sm space-y-0.5">
@@ -285,7 +289,7 @@ export default function page() {
               </div>
 
               {item.play_reservation_barcodes?.length > 0 && (
-                <section className="space-y-6">
+                <section className="space-y-2">
                   {item.play_reservation_barcodes.map((barcode, idx) => {
                     // Ensure both arrays align in rows
                     const maxRows = Math.max(
@@ -299,21 +303,17 @@ export default function page() {
                         className="bg-white border border-gray-200 rounded-lg p-4"
                       >
                         <div>
-                          <h3 className="text-md font-semibold mb-2">
-                            Name: {barcode.name}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            Initial Time :{" "}
+                          <h3 className="mb-2">Name: {barcode.name}</h3>
+                          <p className="text-sm font-semibold">
+                            Starting Package :{" "}
                             {`${formatHourMin(
                               barcode.start_hour,
                               barcode.start_min
                             )} - ${formatHourMin(
                               barcode.end_hour,
                               barcode.end_min
-                            )}`}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Reservation Time: {barcode.price}
+                            )}`}{" "}
+                            / Price: {barcode.price}
                           </p>
                         </div>
                         {/* Header Line */}
