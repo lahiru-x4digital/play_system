@@ -12,6 +12,7 @@ import { PlusCircle } from "lucide-react";
 import { getEndTime } from "@/lib/getEndTime";
 import TimerCountDown from "@/components/common/TimerCountDown";
 import { formatHourMin } from "@/lib/combineHourMinute";
+import { getOverstayDuration } from "@/utils/calculate-over-time";
 
 function formatDate(dateStr) {
   if (!dateStr) return "-";
@@ -157,6 +158,22 @@ export default function Page({ params }) {
                 key={barcode.id || idx}
                 className="bg-white border border-gray-200 rounded-lg p-4"
               >
+                <div>
+                  <h3 className="text-md font-semibold mb-2">
+                    Name: {barcode.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Initial Time :{" "}
+                    {`${formatHourMin(
+                      barcode.start_hour,
+                      barcode.start_min
+                    )} - ${formatHourMin(
+                      barcode.end_hour,
+                      barcode.end_min
+                    )}`}{" "}
+                    / Price: {barcode.price}
+                  </p>
+                </div>
                 {/* Header Line */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3 text-sm">
@@ -190,6 +207,10 @@ export default function Page({ params }) {
                       </span>
                     )}
                   </div>
+                  <div className="text-sm text-red-600 font-semibold">
+                    {getOverstayDuration(barcode) > 0 &&
+                      `Over Time : ${getOverstayDuration(barcode)} (min)`}
+                  </div>
                   <div className="flex items-center gap-2">
                     <Badge
                       variant={
@@ -215,7 +236,7 @@ export default function Page({ params }) {
                       className="px-3 py-1 font-semibold"
                       variant="outline"
                       size="sm"
-                      onClick={() => handleOpenDialog(b)}
+                      onClick={() => handleOpenDialog(barcode)}
                     >
                       <PlusCircle className="mr-2 h-4 w-4" />
                       Extra Time

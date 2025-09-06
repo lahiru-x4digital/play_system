@@ -47,6 +47,7 @@ export default function BarcodePrintView({ reservation = null }) {
     <div className="">
       <div className="flex gap-2">
         <Button
+          type="button"
           className=""
           onClick={reactToPrintFn}
           style={{ marginBottom: "1rem" }}
@@ -54,6 +55,7 @@ export default function BarcodePrintView({ reservation = null }) {
           Print All
         </Button>
         <Button
+          type="button"
           className=""
           onClick={handleGeneratePdf}
           style={{ marginBottom: "1rem" }}

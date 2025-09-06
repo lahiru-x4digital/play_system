@@ -220,7 +220,7 @@ export default function CreateBookingInput() {
         <div className="">
           <div className="flex flex-row flex-wrap gap-2">
             {rules.map((rule, i) => (
-              <div className="min-w-24 ">
+              <div className="min-w-24 " key={rule.id}>
                 <motion.div
                   whileHover={{ scale: 1.02, y: -4 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -350,7 +350,7 @@ export default function CreateBookingInput() {
                     end_hour: selectedSlot.end_hour,
                     end_min: selectedSlot.end_min,
                   });
-                  console.log("customer_types", watch("customer_types"));
+                  // console.log("customer_types", watch("customer_types"));
 
                   // // Add adults only once globally
                   // if (!adultsAdded) {
@@ -365,10 +365,7 @@ export default function CreateBookingInput() {
                   setSelectedSlot(null);
                   setSelectedRule(null);
                 }}
-                disabled={
-                  !selectedSlot ||
-                  kids.some((kid) => !kid.name || kid.name.trim() === "")
-                }
+                disabled={!selectedSlot}
               >
                 Add to Cart
               </Button>

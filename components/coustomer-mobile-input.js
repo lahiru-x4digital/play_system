@@ -18,6 +18,7 @@ import {
   hasMobileNumberRequiredLength, // ← util
 } from "@/utils/phone-validation";
 import { customerService } from "@/services/customer.service";
+import toast from "react-hot-toast";
 
 const DEBOUNCE_MS = 100;
 
@@ -44,6 +45,7 @@ export function PhoneNumberField({
       setValue("member_level", data.customers[0].customer_level || "");
       setValue("customer_type", data.customers[0].customer_type || "");
       setError(name, { type: "manual", message: "Number Found" });
+
       setIsFree(false);
     } else if (getValues(name)?.replace(/\D/g, "") === digits) {
       // Only clear errors if the current value matches what we just checked

@@ -116,8 +116,8 @@ const adminNavItems = [
   //   icon: Timer,
   // },
   {
-    title: "Reservation Rule",
-    href: "/dashboard/reservation-rule",
+    title: "Product Settings",
+    href: "/dashboard/product-settings",
     icon: Clock1,
   },
   // {

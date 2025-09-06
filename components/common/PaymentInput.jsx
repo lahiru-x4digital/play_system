@@ -24,14 +24,14 @@ export default function PaymentInput() {
   return (
     <div className="flex gap-4 items-end">
       <FormItem className="flex-1">
-        <FormLabel> Payment</FormLabel>
+        <FormLabel> Payment Method</FormLabel>
         <FormControl>
           <Controller
             name={"payment_method"}
             control={control}
             render={({ field }) => (
-              <select 
-                {...field} 
+              <select
+                {...field}
                 value={field.value}
                 className="border rounded px-2 py-1 w-full"
                 onChange={(e) => {

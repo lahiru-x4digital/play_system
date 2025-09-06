@@ -3,6 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import PaymentInput from "../common/PaymentInput";
 
 export default function CartItem() {
   const { watch, setValue } = useFormContext();
@@ -105,7 +106,10 @@ export default function CartItem() {
           })}
           {/* Total row */}
           <tr>
-            <td colSpan={3}></td>
+            <td colSpan={2}></td>
+            <td>
+              <PaymentInput />
+            </td>
             <td className="px-4 py-4 font-bold text-right align-middle">
               Total&nbsp;
               <span>

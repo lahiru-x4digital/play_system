@@ -109,13 +109,7 @@ export default function page() {
           start_min: item.start_min,
           end_hour: item.end_hour,
           end_min: item.end_min,
-          customers:
-            item.customers?.filter(
-              (customer) =>
-                customer.name !== "" &&
-                customer.name !== undefined &&
-                customer.name !== null
-            ) || [],
+          customers: item.customers,
         };
       }) || [];
     // Find max end_hour and its corresponding end_min from customer_types with rule_id
@@ -155,6 +149,7 @@ export default function page() {
       total_price: data.amount,
       status: "CONFIRMED",
       payment_status: "PAID",
+      payment_method: data.payment_method,
       customer_types: [...kidsArray, adult],
       // products:
       //   data.additional_products?.map((item) => ({
@@ -288,6 +283,7 @@ export default function page() {
                 {/* back btn */}
                 {activeStep !== 4 && (
                   <Button
+                    type="button"
                     variant="outline"
                     onClick={() => setActiveStep((prev) => prev - 1)}
                     className="cursor-pointer"
@@ -298,6 +294,7 @@ export default function page() {
                 )}
                 {activeStep === 4 && (
                   <Button
+                    type="button"
                     variant="outline"
                     onClick={() => {
                       //refresh page

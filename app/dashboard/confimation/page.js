@@ -12,7 +12,8 @@ import { BookingEditDialog } from "@/components/booking/BookingEditDialog";
 import { playReservationService } from "@/services/play/playreservation.service";
 import toast from "react-hot-toast";
 import TimerCountDown from "@/components/common/TimerCountDown";
-
+import { getOverstayDuration } from "@/utils/calculate-over-time";
+import PaymentInput from "@/components/common/PaymentInput";
 // Utility function to check if input is a number (for barcode or mobile number)
 const isMobile = (value) => {
   // Match a mobile number: either exactly 10 digits OR +countryCode with 10–15 digits
@@ -79,13 +80,13 @@ export default function page() {
   } = useGetPlayReservationsOnCall();
 
   // Function to update single barcode status
-  const handleSingleBarcodeUpdate = async (bookingID, barcodeId) => {
+  const handleSingleBarcodeUpdate = async (bookingID, barcodeId, status) => {
     const now = new Date();
     const hour = now.getHours();
     const min = now.getMinutes();
 
     const payload = {
-      status: "COMPLETED",
+      status: status,
       hour: hour,
       min: min,
       reservation_barcode_list: [barcodeId],
@@ -261,7 +262,7 @@ export default function page() {
                         {item.payment_status}
                       </Badge>
                       <div className="flex gap-2">
-                        / <p>Price</p>
+                        / <p>Total Price</p>
                         <p className=" font-bold ">{item.total_price || 0}</p>
                       </div>
                     </div>
@@ -297,6 +298,24 @@ export default function page() {
                         key={barcode.id || idx}
                         className="bg-white border border-gray-200 rounded-lg p-4"
                       >
+                        <div>
+                          <h3 className="text-md font-semibold mb-2">
+                            Name: {barcode.name}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Initial Time :{" "}
+                            {`${formatHourMin(
+                              barcode.start_hour,
+                              barcode.start_min
+                            )} - ${formatHourMin(
+                              barcode.end_hour,
+                              barcode.end_min
+                            )}`}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Reservation Time: {barcode.price}
+                          </p>
+                        </div>
                         {/* Header Line */}
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3 text-sm">
@@ -313,7 +332,7 @@ export default function page() {
                             {barcode.reservation_rule_id && (
                               <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
                                 <TimerCountDown
-                                  status={item.status}
+                                  status={barcode.status}
                                   start_hour={barcode.start_hour}
                                   start_min={barcode.start_min}
                                   end_hour={barcode.end_hour}
@@ -331,21 +350,33 @@ export default function page() {
                               </span>
                             )}
                           </div>
+                          <div className="text-sm text-red-600 font-semibold">
+                            {getOverstayDuration(barcode) > 0 &&
+                              `Over Time : ${getOverstayDuration(
+                                barcode
+                              )} (min)`}
+                          </div>
                           <div className="flex items-center gap-2">
-                            <Badge
-                              variant={
-                                barcode.status === "COMPLETED"
-                                  ? "success"
-                                  : "default"
-                              }
-                              className="uppercase"
-                            >
-                              {barcode.status}
-                            </Badge>
+                            {barcode.status !== "ACTIVE" && (
+                              <Badge
+                                variant={
+                                  barcode.status === "COMPLETED"
+                                    ? "success"
+                                    : "default"
+                                }
+                                className="uppercase"
+                              >
+                                {barcode.status}
+                              </Badge>
+                            )}
                             {barcode.status !== "COMPLETED" && (
                               <Button
                                 onClick={() =>
-                                  handleSingleBarcodeUpdate(item.id, barcode.id)
+                                  handleSingleBarcodeUpdate(
+                                    item.id,
+                                    barcode.id,
+                                    "COMPLETED"
+                                  )
                                 }
                                 disabled={patchHandlerloading}
                                 size="sm"
@@ -354,6 +385,32 @@ export default function page() {
                                 Complete
                               </Button>
                             )}
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                handleSingleBarcodeUpdate(
+                                  item.id,
+                                  barcode.id,
+                                  "WENT_OUTSIDE"
+                                )
+                              }
+                              disabled={barcode.status == "WENT_OUTSIDE"}
+                            >
+                              Went Outside
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                handleSingleBarcodeUpdate(
+                                  item.id,
+                                  barcode.id,
+                                  "BACK_INSIDE"
+                                )
+                              }
+                              disabled={barcode.status == "BACK_INSIDE"}
+                            >
+                              Back Inside
+                            </Button>
                           </div>
                         </div>
 

@@ -81,8 +81,7 @@ const useGetPlayReservationsOnCall = () => {
     }));
   };
   const resetData = () => {
-    SetDataList([]);
-    setTotalCount(0);
+    loadData();
   };
   useEffect(() => {
     if (ref.current) {

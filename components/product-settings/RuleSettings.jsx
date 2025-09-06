@@ -28,7 +28,7 @@ function formatDate(dateStr) {
   )}/${String(date.getDate()).padStart(2, "0")}`;
 }
 
-export default function page() {
+export default function RuleSettings() {
   const [open, setOpen] = useState(false);
   const [rules, setRules] = useState([]);
   const [loading, setLoading] = useState(false);
