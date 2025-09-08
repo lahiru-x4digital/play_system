@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { reservationService } from '@/services/reservation.service'
+//import { reservationService } from '@/services/reservation.service'
 import { format } from 'date-fns'
 import { waitingListService } from '@/services/waitinglist.service'
 
