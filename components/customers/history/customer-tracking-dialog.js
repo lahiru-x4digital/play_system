@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { reservationService } from '@/services/reservation.service'
+// import { reservationService } from '@/services/reservation.service'
 import { format } from 'date-fns'
 import ReservationDetails from './reservation-details'
 import WaitingListDetails from './waitinglist-details'
