@@ -31,6 +31,7 @@ const formSchema = z
   .object({
     branch_id: z.coerce.number().min(1, "Branch is required"),
     name: z.string().min(1, "Name is required"),
+    emc_code: z.string().optional(),
     start_date: z
       .string()
       .min(1, "Start date is required")
@@ -93,6 +94,7 @@ export function AddRuleForm({
       booking_duration: "60",
       slot_booking_period: "30",
       maximum_booking_per_slot: "1",
+      emc_code: "",
       buffer_time: "0",
       price: "",
       is_active: true,
@@ -101,8 +103,6 @@ export function AddRuleForm({
     },
     mode: "onChange",
   });
-
-  const { control, setValue } = form;
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -134,6 +134,7 @@ export function AddRuleForm({
           maximum_booking_per_slot: "1",
           buffer_time: "1",
           price: "",
+          emc_code: "",
           is_active: true,
           override: false,
           days: [],
@@ -386,6 +387,23 @@ export function AddRuleForm({
                   <FormLabel>Price</FormLabel>
                   <FormControl>
                     <Input type="text" {...field} placeholder="Enter price" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="emc_code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>EMC Code</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      {...field}
+                      placeholder="Enter EMC code"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

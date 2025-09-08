@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useForm, Controller } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -19,13 +19,13 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
-import { Loader2, ChevronsUpDown } from "lucide-react"
-import { bookingService } from "@/services/booking.service"
-import { useToast } from "@/hooks/use-toast"
-import SelectBranch from "@/components/common/selectBranch"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, ChevronsUpDown } from "lucide-react";
+import { bookingService } from "@/services/booking.service";
+import { useToast } from "@/hooks/use-toast";
+import SelectBranch from "@/components/common/selectBranch";
 
 const formSchema = z
   .object({
@@ -43,12 +43,17 @@ const formSchema = z
     end_date: z.string().min(1, "End date is required"),
     start_time: z.string().min(1, "Start time is required"),
     end_time: z.string().min(1, "End time is required"),
-    maximum_booking_per_slot: z.coerce.number().min(1, "Maximum booking per slot must be at least 1"),
-    slot_booking_period: z.coerce.number().min(1, "Slot booking period must be at least 1 minute"),
+    maximum_booking_per_slot: z.coerce
+      .number()
+      .min(1, "Maximum booking per slot must be at least 1"),
+    slot_booking_period: z.coerce
+      .number()
+      .min(1, "Slot booking period must be at least 1 minute"),
     price: z.string().optional(),
     is_active: z.boolean().default(true),
     override: z.boolean().default(false),
     days: z.array(z.string()).default([]),
+    emc_code: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.start_date && data.end_date) {
@@ -62,10 +67,15 @@ const formSchema = z
         });
       }
     }
-
   });
 
-export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = null }) {
+export function EditRuleForm({
+  rule,
+  open,
+  onOpenChange,
+  onSuccess,
+  branchId = null,
+}) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -80,11 +90,13 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
       start_time: rule.start_time ?? "09:00",
       end_time: rule.end_time ?? "17:00",
       slot_booking_period: rule.slot_booking_period?.toString() ?? "30",
-      maximum_booking_per_slot: rule.maximum_booking_per_slot?.toString() ?? "1",
+      maximum_booking_per_slot:
+        rule.maximum_booking_per_slot?.toString() ?? "1",
       price: rule.price?.toString() ?? "",
       is_active: rule.is_active ?? true,
       override: rule.override ?? false,
       days: rule.days ?? [],
+      emc_code: rule.emc_code ?? "",
     },
     mode: "onChange",
   });
@@ -96,7 +108,10 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
       if (requestData.days && !Array.isArray(requestData.days)) {
         requestData.days = [];
       }
-      const response = await bookingService.updateReservationRule(rule.id, requestData);
+      const response = await bookingService.updateReservationRule(
+        rule.id,
+        requestData
+      );
       if (response.success) {
         toast({
           title: "Success",
@@ -196,7 +211,15 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
                   <FormItem>
                     <FormLabel>Available Days (Optional)</FormLabel>
                     <div className="grid grid-cols-4 gap-1">
-                      {["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].map((day) => (
+                      {[
+                        "MONDAY",
+                        "TUESDAY",
+                        "WEDNESDAY",
+                        "THURSDAY",
+                        "FRIDAY",
+                        "SATURDAY",
+                        "SUNDAY",
+                      ].map((day) => (
                         <div key={day} className="flex items-center space-x-2">
                           <input
                             type="checkbox"
@@ -206,7 +229,9 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
                               if (e.target.checked) {
                                 field.onChange([...(field.value || []), day]);
                               } else {
-                                field.onChange((field.value || []).filter((d) => d !== day));
+                                field.onChange(
+                                  (field.value || []).filter((d) => d !== day)
+                                );
                               }
                             }}
                             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
@@ -266,7 +291,10 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
                         {...field}
                         value={field.value?.toString() || ""}
                         onChange={(e) => {
-                          const val = e.target.value === "" ? "" : parseInt(e.target.value);
+                          const val =
+                            e.target.value === ""
+                              ? ""
+                              : parseInt(e.target.value);
                           field.onChange(val);
                         }}
                       />
@@ -287,7 +315,10 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
                         {...field}
                         value={field.value?.toString() || ""}
                         onChange={(e) => {
-                          const val = e.target.value === "" ? "" : parseInt(e.target.value);
+                          const val =
+                            e.target.value === ""
+                              ? ""
+                              : parseInt(e.target.value);
                           field.onChange(val);
                         }}
                       />
@@ -297,7 +328,7 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
                 )}
               />
             </div>
-            
+
             <FormField
               control={form.control}
               name="price"
@@ -313,17 +344,38 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
             />
             <FormField
               control={form.control}
+              name="emc_code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>EMC Code</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      {...field}
+                      placeholder="Enter EMC code"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="override"
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
                   <div className="space-y-0.5">
                     <FormLabel>Override</FormLabel>
                     <FormDescription>
-                      When enabled, this rule will override any conflicting rules
+                      When enabled, this rule will override any conflicting
+                      rules
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -340,7 +392,10 @@ export function EditRuleForm({ rule, open, onOpenChange, onSuccess, branchId = n
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
                 </FormItem>
               )}

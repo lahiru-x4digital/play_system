@@ -2,8 +2,6 @@ import { showApiError } from "@/lib/apiErrorHandler";
 import api from "./api";
 
 export const bookingService = {
-
-
   async getReservationRuleById(ruleId) {
     if (!ruleId) {
       throw new Error("Section ID is required");
@@ -96,13 +94,11 @@ export const bookingService = {
         price: data.price?.toString(),
         is_active: data.is_active,
         override: data.override,
+        emc_code: data.emc_code || null,
         days: Array.isArray(data.days) ? data.days : [],
       };
 
-      const response = await api.post(
-        "/play/reservation-rules",
-        formattedData
-      );
+      const response = await api.post("/play/reservation-rules", formattedData);
 
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to create rule");
@@ -137,6 +133,7 @@ export const bookingService = {
         is_active: data.is_active,
         override: data.override,
         days: Array.isArray(data.days) ? data.days : [],
+        emc_code: data.emc_code || null,
       };
 
       const response = await api.put(
@@ -165,9 +162,7 @@ export const bookingService = {
     }
 
     try {
-      const response = await api.delete(
-        `play/reservation-rules?id=${ruleId}`
-      );
+      const response = await api.delete(`play/reservation-rules?id=${ruleId}`);
       return response.data;
     } catch (error) {
       showApiError(error, "Failed to delete booking rule");
