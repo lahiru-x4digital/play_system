@@ -4,8 +4,13 @@ import { Button } from "../ui/button";
 import { Printer } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import { getEndTime } from "@/lib/getEndTime";
+import { combineHourAndMinute } from "@/utils/time-converter";
 
-export default function BandItem({ barcode, reservation }) {
+export default function BandItem({
+  barcode,
+  reservation,
+  isGenerating = false,
+}) {
   const printRef = useRef(null);
   const reactToPrintFn = useReactToPrint({ contentRef: printRef });
 
@@ -14,30 +19,33 @@ export default function BandItem({ barcode, reservation }) {
       reactToPrintFn();
     }, 100); // Wait for DOM update
   };
+
   if (!barcode || !reservation) return null;
-console.log(barcode)
+  // console.log(barcode);
   return (
     <div className="flex flex-col items-center justify-center">
-      <Button
-        className={"mb-2 btn-print-barcode"}
-        onClick={handleSinglePrint}
-        variant="outline"
-        size="icon"
-      >
-        <Printer />
-      </Button>
+      {!isGenerating && (
+        <Button
+          className={"mb-2 btn-print-barcode"}
+          onClick={handleSinglePrint}
+          variant="outline"
+          size="icon"
+        >
+          <Printer />
+        </Button>
+      )}
       <div
         ref={printRef}
         className="barcode-band"
         style={{
-          width: "10 mm",
-          height: "150mm",
+          width: "25mm",
+          height: "250mm",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           border: "1px solid #ccc",
-          marginBottom: "8mm",
+          margin: "3mm 1.5mm",
           pageBreakInside: "avoid",
         }}
       >
@@ -65,21 +73,21 @@ console.log(barcode)
             textAlign: "center",
           }}
         >
-          {new Date(barcode?.barcode?.created_date).toLocaleDateString()}
+          {new Date(reservation?.reservation_date).toLocaleDateString()}
         </div>
         {/* <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>From</div> */}
-        <div
-          style={{
-            fontSize: "8pt",
-            wordBreak: "break-all",
-            textAlign: "center",
-          }}
-        >
-          {new Date(barcode?.barcode?.created_date).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </div>
+        {barcode.reservation_rule_id && (
+          <div
+            style={{
+              fontSize: "8pt",
+              wordBreak: "break-all",
+              textAlign: "center",
+            }}
+          >
+            {combineHourAndMinute(barcode?.start_hour, barcode?.start_min)}-{" "}
+            {combineHourAndMinute(barcode?.end_hour, barcode?.end_min)}
+          </div>
+        )}
         {/* <div style={{ fontSize: '8pt', wordBreak: 'break-all', textAlign: 'center' }}>To</div> */}
         <div
           style={{
@@ -88,7 +96,11 @@ console.log(barcode)
             textAlign: "center",
           }}
         >
-          {getEndTime(barcode?.createdAt, barcode?.initial_minutes, barcode?.extra_minutes || 0)}
+          {/* {getEndTime(
+            barcode?.createdAt,
+            barcode?.initial_minutes,
+            barcode?.extra_minutes || 0
+          )} */}
         </div>
         <QRCode
           value={barcode?.barcode?.barcode_number}
@@ -105,16 +117,18 @@ console.log(barcode)
           {barcode?.barcode?.barcode_number}
         </div>
         <div
-        className="text-wrap"
+          className="text-wrap"
           style={{
             fontSize: "8pt",
             wordBreak: "break-all",
             textAlign: "center",
           }}
         >
-          {barcode?.barcode?.play_customer_type?.name}
+          {/* {barcode?.barcode?.play_customer_type?.name} */}
         </div>
-        <p className="text-center text-wrap text-sm text-gray-500 font-semibold">{barcode.name}</p>
+        <p className="text-center text-wrap text-sm text-gray-500 font-semibold">
+          {barcode.name}
+        </p>
       </div>
     </div>
   );

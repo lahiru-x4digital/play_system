@@ -1,5 +1,5 @@
-"use client"
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import EditExtraPricingDialog from './EditExtraPricingDialog';
+import EditExtraPricingDialog from "./EditExtraPricingDialog";
 
 const ExtraHoursPricingTable = ({ data = [], onRefresh }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -29,7 +29,7 @@ const ExtraHoursPricingTable = ({ data = [], onRefresh }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Type</TableHead>
+            <TableHead>Rule Name</TableHead>
             <TableHead>Duration (Min)</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Created at</TableHead>
@@ -39,26 +39,31 @@ const ExtraHoursPricingTable = ({ data = [], onRefresh }) => {
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
+              <TableCell
+                colSpan={5}
+                className="text-center text-muted-foreground"
+              >
                 No pricing found
               </TableCell>
             </TableRow>
           ) : (
             data.map((item, index) => (
               <TableRow key={index}>
-                <TableCell className="font-medium">{item.play_customer_type?.name || '-'}</TableCell>
-                <TableCell>{item.duration || '-'}</TableCell>
-                <TableCell>{item.price != null ? item.price : '-'}</TableCell>
+                <TableCell className="font-medium">
+                  {item.PlayReservationRule?.name || "-"}
+                </TableCell>
+                <TableCell>{item.duration || "-"}</TableCell>
+                <TableCell>{item.price != null ? item.price : "-"}</TableCell>
                 <TableCell>
                   {item.created_date
-                    ? new Date(item.created_date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                    ? new Date(item.created_date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })
-                    : '-'}
+                    : "-"}
                 </TableCell>
                 <TableCell>
                   <button
@@ -92,4 +97,4 @@ const ExtraHoursPricingTable = ({ data = [], onRefresh }) => {
   );
 };
 
-export default ExtraHoursPricingTable; 
+export default ExtraHoursPricingTable;

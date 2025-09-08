@@ -2,13 +2,18 @@
 import { ScanInput } from "@/components/common/ScanInput";
 import useGetPlayReservationsOnCall from "@/hooks/useGetPlayReservationsOnCall";
 import { useAxiosPatch } from "@/hooks/useAxiosPatch";
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
-
+import { formatHourMin } from "@/lib/combineHourMinute";
+import { BookingEditDialog } from "@/components/booking/BookingEditDialog";
+import { playReservationService } from "@/services/play/playreservation.service";
+import toast from "react-hot-toast";
+import TimerCountDown from "@/components/common/TimerCountDown";
+import { getOverstayDuration } from "@/utils/calculate-over-time";
+import PaymentInput from "@/components/common/PaymentInput";
 // Utility function to check if input is a number (for barcode or mobile number)
 const isMobile = (value) => {
   // Match a mobile number: either exactly 10 digits OR +countryCode with 10–15 digits
@@ -56,6 +61,8 @@ export default function page() {
   const [scanValue, setScanValue] = React.useState("");
   const { patchHandler, patchHandlerloading, patchHandlerError } =
     useAxiosPatch();
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const {
     playReservations,
@@ -71,63 +78,86 @@ export default function page() {
     playReservationsReset,
     currentPage,
   } = useGetPlayReservationsOnCall();
-  console.log(playReservationsLoading);
 
   // Function to update single barcode status
-  const handleSingleBarcodeUpdate = async (barcodeId) => {
-    try {
-      const response = await patchHandler(
-        "play/play-reservation/confirmation",
-        {
-          barcodeIds: [barcodeId],
-        }
-      );
+  const handleSingleBarcodeUpdate = async (bookingID, barcodeId, status) => {
+    const now = new Date();
+    const hour = now.getHours();
+    const min = now.getMinutes();
 
-      if (response.data.success) {
-        toast({
-          title: "Success",
-          description: `Barcode marked as completed`,
-          variant: "default",
-        });
-        // Refresh the data to show updated status
-        playReservationsRefres();
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error.response?.data?.message || "Failed to update barcode status",
-        variant: "destructive",
+    const payload = {
+      status: status,
+      hour: hour,
+      min: min,
+      reservation_barcode_list: [barcodeId],
+    };
+
+    try {
+      await playReservationService.updatePlayReservation({
+        payload,
+        id: bookingID,
       });
+      toast.success("Reservation status updated successfully");
+      playReservationsReset();
+    } catch (error) {
+      console.error("Failed to update reservation status:", error);
+      toast.error(error.data?.error || "Failed to update reservation status");
     }
   };
 
-  // Function to mark all barcodes for a reservation as complete
-  const handleMarkAllComplete = async (reservationId) => {
+  const handleSaveBooking = async (updatedData) => {
     try {
-      const response = await patchHandler(
-        "play/play-reservation/confirmation",
-        {
-          reservationId: reservationId,
-        }
-      );
+      // Call your API to update the booking here
+      // Example: await updateBooking(selectedBooking.id, updatedData);
 
-      if (response.data.success) {
-        toast({
-          title: "Success",
-          description: `All barcodes marked as completed`,
-          variant: "default",
-        });
-        // Refresh the data to show updated status
-        playReservationsRefres();
-      }
+      // Refresh the table data
+      onRefresh?.();
+      setEditDialogOpen(false);
     } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error.response?.data?.message || "Failed to update barcodes",
-        variant: "destructive",
+      console.error("Failed to update booking:", error);
+    }
+  };
+  const handleDialogOpenChange = (open) => {
+    setEditDialogOpen(open);
+    if (!open) {
+      setSelectedBooking(null);
+      onRefresh?.();
+    }
+  };
+  const handleEditClick = (booking) => {
+    setSelectedBooking(booking);
+    setEditDialogOpen(true);
+  };
+  const handleUpdateStatus = async (booking, status) => {
+    const now = new Date();
+    const hour = now.getHours();
+    const min = now.getMinutes();
+
+    const payload = {
+      status: status,
+      hour: null,
+      min: null,
+    };
+    if (status === "WENT_OUTSIDE" || status === "BACK_INSIDE") {
+      payload.hour = hour;
+      payload.min = min;
+    }
+
+    const reservation_barcode_list = booking.play_reservation_barcodes.map(
+      (t) => t.id
+    );
+    payload.reservation_barcode_list = reservation_barcode_list;
+
+    try {
+      await playReservationService.updatePlayReservation({
+        payload,
+        id: booking.id,
       });
+      // playReservationsReset();
+      toast.success("Reservation status updated successfully");
+    } catch (error) {
+      console.error("Failed to update reservation status:", error);
+      toast.error(error.data?.error || "Failed to update reservation status");
     }
   };
 
@@ -151,7 +181,6 @@ export default function page() {
                 playReservationsReset();
                 return;
               }
-
               // Otherwise, perform the search
               playReservationsSearch({
                 pageSize: 10,
@@ -159,7 +188,7 @@ export default function page() {
                 start_date: null,
                 end_date: null,
                 mobile_number: isMobile(data) ? data : null,
-                reservationStatus: "CONFIRMED",
+                reservationStatus: "CONFIRMED,BACK_INSIDE,WENT_OUTSIDE",
                 barcode: isMobile(data) ? null : data,
                 payment_status: "PAID",
               });
@@ -191,249 +220,292 @@ export default function page() {
       {playReservations && playReservations.length > 0 ? (
         <div className="space-y-6">
           {playReservations.map((item, index) => (
-            <Card key={item.id || index} className="overflow-hidden">
-              <CardHeader className="bg-gray-50 border-b">
-                <div className="flex items-center justify-between">
+            <div key={item.id || index} className="overflow-hidden">
+              <div className="flex gap-2 mb-2">
+                <Button
+                  onClick={() => handleUpdateStatus(item, "COMPLETED")}
+                  disabled={patchHandlerloading}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {patchHandlerloading ? "Processing..." : "Complete"}
+                </Button>
+                {/* <Button size="sm" onClick={() => handleEditClick(item)}>
+                  Update Status
+                </Button> */}
+                <Button
+                  size="sm"
+                  onClick={() => handleUpdateStatus(item, "WENT_OUTSIDE")}
+                  disabled={item.status == "WENT_OUTSIDE"}
+                >
+                  Went Outside
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleUpdateStatus(item, "BACK_INSIDE")}
+                  disabled={item.status == "BACK_INSIDE"}
+                >
+                  Back Inside
+                </Button>
+              </div>
+              <div className="bg-gray-50 border-b mb-2">
+                <div className="flex items-center justify-between p-3 border-b">
+                  {/* Left Section */}
                   <div>
-                    <CardTitle className="text-xl">
-                      Reservation #{item.id}
-                    </CardTitle>
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center ">
+                      Reservation #{item.id} /
+                      <h2 className="text-lg font-semibold"></h2>
                       <Badge variant={getStatusVariant(item.status)}>
                         {item.status}
                       </Badge>
                       <Badge variant={getPaymentVariant(item.payment_status)}>
                         {item.payment_status}
                       </Badge>
+                      <div className="flex gap-2">
+                        / <p>Total Price</p>
+                        <p className=" font-bold ">{item.total_price}</p> /
+                      </div>
+                      <div className="flex gap-2">
+                        <p>Total Payment</p>
+                        <p className=" font-bold ">{item.total_payment}</p>{" "}
+                      </div>
+                    </div>
+                    <div className="mt-1 text-sm space-y-0.5">
+                      <p className="text-gray-700 font-medium">
+                        {item.customer?.first_name}{" "}
+                        {item.customer?.last_name || ""}
+                      </p>
+                      <p className="text-gray-500">
+                        {item.customer?.mobile_number}
+                      </p>
+                      <p className="text-gray-500">
+                        {item.branch?.branch_name}
+                      </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-green-600">
-                      {item.total_price || 0}
-                    </p>
-                    <p className="text-sm text-gray-500">Total Amount</p>
-                  </div>
+
+                  {/* Right Section */}
                 </div>
-              </CardHeader>
+              </div>
 
-              <CardContent className="p-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Customer Information */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Customer Information
-                    </h3>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          Name
-                        </p>
-                        <p className="text-base">
-                          {item.customer?.first_name}{" "}
-                          {item.customer?.last_name || ""}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          Mobile Number
-                        </p>
-                        <p className="text-base">
-                          {item.customer?.mobile_number}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          Branch
-                        </p>
-                        <p className="text-base">{item.branch?.branch_name}</p>
-                      </div>
-                    </div>
-                  </div>
+              {item.play_reservation_barcodes?.length > 0 && (
+                <section className="space-y-2">
+                  {item.play_reservation_barcodes.map((barcode, idx) => {
+                    // Ensure both arrays align in rows
+                    const maxRows = Math.max(
+                      barcode.playReservationBarCodeExtraTimes?.length || 0,
+                      barcode.WentOutsideTracker?.length || 0
+                    );
 
-                  {/* Reservation Details */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Reservation Details
-                    </h3>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          Start Time
-                        </p>
-                        <p className="text-base">
-                          {formatDateTime(item.created_date)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          End Time
-                        </p>
-                        <p className="text-base">
-                          {formatDateTime(item.end_time)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          Total Payment
-                        </p>
-                        <p className="text-base font-semibold text-green-600">
-                          {item.total_payment || 0}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator className="my-6" />
-
-                {/* Customer Types Summary */}
-                {item.play_reservation_customer_types &&
-                  item.play_reservation_customer_types.length > 0 && (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        Customer Types
-                      </h3>
-                      <div className="grid gap-3 max-w-[300px]">
-                        {item.play_reservation_customer_types.map(
-                          (customerType, idx) => (
-                            <div
-                              key={customerType.id || idx}
-                              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                            >
-                              <div>
-                                <p className="font-medium">
-                                  {customerType.playCustomerType?.name}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  Count: {customerType.count}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="font-semibold">
-                                  {customerType.price || 0}
-                                </p>
-                    <p className="text-sm text-gray-500">Amount</p>
-
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                <Separator className="my-6" />
-
-                {/* Barcodes */}
-                {item.play_reservation_barcodes &&
-                  item.play_reservation_barcodes.length > 0 && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Active Barcodes
-                        </h3>
-                        <Button
-                          onClick={() => handleMarkAllComplete(item.id)}
-                          disabled={patchHandlerloading}
-                          variant="outline"
-                          size="sm"
-                          className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
-                        >
-                          {patchHandlerloading
-                            ? "Updating..."
-                            : "Mark All Complete"}
-                        </Button>
-                      </div>
-                      <div className="grid gap-3">
-                        {item.play_reservation_barcodes.map(
-                          (reservationBarcode, idx) => (
-                            <div
-                              key={reservationBarcode.id || idx}
-                              className="border rounded-lg p-4"
-                            >
-                              <div className="flex items-center justify-between mb-3">
-                                <h4 className="font-semibold">
-                                  {reservationBarcode.name}
-                                </h4>
-                                <div className="flex items-center gap-2">
-                                  <Badge
-                                    variant={
-                                      reservationBarcode.status === "COMPLETED"
-                                        ? "success"
-                                        : reservationBarcode.status === "ACTIVE"
-                                        ? "default"
-                                        : "secondary"
-                                    }
-                                  >
-                                    {reservationBarcode.status}
-                                  </Badge>
-                                  {reservationBarcode.status !==
-                                    "COMPLETED" && (
-                                    <Button
-                                      onClick={() =>
-                                        handleSingleBarcodeUpdate(
-                                          reservationBarcode.id
+                    return (
+                      <div
+                        key={barcode.id || idx}
+                        className="bg-white border border-gray-200 rounded-lg p-4"
+                      >
+                        <div>
+                          <h3 className="mb-2">Name: {barcode.name}</h3>
+                          <p className="text-sm font-semibold">
+                            Starting Package :{" "}
+                            {`${formatHourMin(
+                              barcode.start_hour,
+                              barcode.start_min
+                            )} - ${formatHourMin(
+                              barcode.end_hour,
+                              barcode.end_min
+                            )}`}{" "}
+                            / Price: {barcode.price}
+                          </p>
+                        </div>
+                        {/* Header Line */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3 text-sm">
+                            <span className="font-semibold text-gray-900">
+                              {barcode.name}
+                            </span>
+                            <span className="text-gray-400">•</span>
+                            <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                              {barcode.barcode.barcode_number}
+                            </span>
+                            <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                              {barcode.reservation_rule_id ? "KID" : "ADULT"}
+                            </span>
+                            {barcode.reservation_rule_id && (
+                              <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                                <TimerCountDown
+                                  status={barcode.status}
+                                  start_hour={barcode.start_hour}
+                                  start_min={barcode.start_min}
+                                  end_hour={barcode.end_hour}
+                                  end_min={barcode.end_min}
+                                  extra_minutes={
+                                    barcode.playReservationBarCodeExtraTimes
+                                      ? barcode.playReservationBarCodeExtraTimes.reduce(
+                                          (sum, et) =>
+                                            sum + (et.extra_minutes || 0),
+                                          0
                                         )
-                                      }
-                                      disabled={patchHandlerloading}
-                                      variant="outline"
-                                      size="sm"
-                                      className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
-                                    >
-                                      {patchHandlerloading
-                                        ? "Updating..."
-                                        : "Complete"}
-                                    </Button>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="grid md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <p className="text-gray-500">
-                                    Barcode Number
-                                  </p>
-                                  <p className="font-mono font-medium">
-                                    {reservationBarcode.barcode.barcode_number}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-gray-500">Time Duration</p>
-                                  <p className="font-medium">
-                                    {reservationBarcode.initial_minutes} minutes
-                                  </p>
-                                </div>
-                                {reservationBarcode.extra_minutes > 0 && (
-                                  <div className="md:col-span-2">
-                                    <p className="text-gray-500">
-                                      Extra Minutes
-                                    </p>
-                                    <p className="font-medium">
-                                      {reservationBarcode.extra_minutes} min (+
-                                      {reservationBarcode.extra_minute_price})
-                                    </p>
-                                  </div>
-                                )}
-                                {reservationBarcode.completed_at && (
-                                  <div className="md:col-span-2">
-                                    <p className="text-gray-500">
-                                      Completed At
-                                    </p>
-                                    <p className="font-medium text-green-600">
-                                      {formatDateTime(
-                                        reservationBarcode.completed_at
-                                      )}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        )}
+                                      : 0
+                                  }
+                                />
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-sm text-red-600 font-semibold">
+                            {getOverstayDuration(barcode) > 0 &&
+                              `Over Time : ${getOverstayDuration(
+                                barcode
+                              )} (min)`}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {barcode.status !== "ACTIVE" && (
+                              <Badge
+                                variant={
+                                  barcode.status === "COMPLETED"
+                                    ? "success"
+                                    : "default"
+                                }
+                                className="uppercase"
+                              >
+                                {barcode.status}
+                              </Badge>
+                            )}
+                            {barcode.status !== "COMPLETED" && (
+                              <Button
+                                onClick={() =>
+                                  handleSingleBarcodeUpdate(
+                                    item.id,
+                                    barcode.id,
+                                    "COMPLETED"
+                                  )
+                                }
+                                disabled={patchHandlerloading}
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                              >
+                                Complete
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                handleSingleBarcodeUpdate(
+                                  item.id,
+                                  barcode.id,
+                                  "WENT_OUTSIDE"
+                                )
+                              }
+                              disabled={barcode.status == "WENT_OUTSIDE"}
+                            >
+                              Went Outside
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                handleSingleBarcodeUpdate(
+                                  item.id,
+                                  barcode.id,
+                                  "BACK_INSIDE"
+                                )
+                              }
+                              disabled={barcode.status == "BACK_INSIDE"}
+                            >
+                              Back Inside
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Unified Table */}
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full border border-gray-200 text-sm">
+                            <thead className="bg-gray-100">
+                              <tr>
+                                <th className="px-3 py-2 border">Extra Time</th>
+                                <th className="px-3 py-2 border">
+                                  Extra Duration
+                                </th>
+                                <th className="px-3 py-2 border">
+                                  Went Outside
+                                </th>
+                                <th className="px-3 py-2 border">
+                                  Went Outside Duration
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Array.from({ length: maxRows }).map(
+                                (_, rowIdx) => {
+                                  const extraTime =
+                                    barcode.playReservationBarCodeExtraTimes?.[
+                                      rowIdx
+                                    ];
+                                  const outside =
+                                    barcode.WentOutsideTracker?.[rowIdx];
+
+                                  return (
+                                    <tr key={rowIdx}>
+                                      {/* Only show Name/Barcode in first row */}
+
+                                      {/* Extra Time */}
+                                      <td className="px-3 py-2 border">
+                                        {extraTime
+                                          ? `${formatHourMin(
+                                              extraTime.start_hour,
+                                              extraTime.start_min
+                                            )} - ${formatHourMin(
+                                              extraTime.end_hour,
+                                              extraTime.end_min
+                                            )}`
+                                          : "-"}
+                                      </td>
+                                      <td className="px-3 py-2 border">
+                                        {extraTime
+                                          ? `min - ${extraTime.extra_minutes}  / Price - ${extraTime.extra_minute_price}`
+                                          : "-"}
+                                      </td>
+
+                                      {/* Went Outside */}
+                                      <td className="px-3 py-2 border">
+                                        {outside
+                                          ? `${
+                                              outside.out_hour
+                                                ? formatHourMin(
+                                                    outside.out_hour,
+                                                    outside.out_min
+                                                  )
+                                                : "Out N/A"
+                                            } - ${
+                                              outside.in_hour
+                                                ? formatHourMin(
+                                                    outside.in_hour,
+                                                    outside.in_min
+                                                  )
+                                                : "In N/A"
+                                            }`
+                                          : "-"}
+                                      </td>
+                                      <td className="px-3 py-2 border">
+                                        {outside?.out_hour && outside?.in_hour
+                                          ? `${
+                                              outside.in_hour * 60 +
+                                              outside.in_min -
+                                              (outside.out_hour * 60 +
+                                                outside.out_min)
+                                            } min`
+                                          : "-"}
+                                      </td>
+                                    </tr>
+                                  );
+                                }
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
-                    </div>
-                  )}
-              </CardContent>
-            </Card>
+                    );
+                  })}
+                </section>
+              )}
+            </div>
           ))}
         </div>
       ) : !playReservationsLoading && !playReservationsError ? (
@@ -463,6 +535,12 @@ export default function page() {
           </CardContent>
         </Card>
       ) : null}
+      <BookingEditDialog
+        open={editDialogOpen}
+        onOpenChange={handleDialogOpenChange}
+        bookingData={selectedBooking}
+        onSave={handleSaveBooking}
+      />
     </div>
   );
 }

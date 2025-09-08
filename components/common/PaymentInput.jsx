@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const PAYMENT_METHODS = [
-  { label: "Cash", value: "CASH" },
-  { label: "Card", value: "CARD" },
+export const PAYMENT_METHODS = [
+  { label: "Store Cash", value: "STORE_CASH" },
+  { label: "Store Card", value: "STORE_CARD" },
 ];
 
 /**
@@ -24,14 +24,21 @@ export default function PaymentInput() {
   return (
     <div className="flex gap-4 items-end">
       <FormItem className="flex-1">
-        <FormLabel> Payment</FormLabel>
+        <FormLabel> Payment Method</FormLabel>
         <FormControl>
           <Controller
             name={"payment_method"}
             control={control}
-            defaultValue={PAYMENT_METHODS[0].value}
             render={({ field }) => (
-              <select {...field} className="border rounded px-2 py-1 w-full">
+              <select
+                {...field}
+                value={field.value}
+                className="border rounded px-2 py-1 w-full"
+                onChange={(e) => {
+                  console.log("PaymentInput onChange:", e.target.value);
+                  field.onChange(e);
+                }}
+              >
                 {PAYMENT_METHODS.map((m) => (
                   <option key={m.value} value={m.value}>
                     {m.label}

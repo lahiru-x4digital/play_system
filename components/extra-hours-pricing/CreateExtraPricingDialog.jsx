@@ -1,6 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,24 +19,29 @@ import api from "@/services/api";
 import SelectBranch from "../common/selectBranch";
 import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
 import { useAxiosPost } from "@/hooks/useAxiosPost";
+import ReservationRuleSelectInput from "../common/ReservationRuleSelectInput";
 
 const formSchema = z.object({
-  play_customer_type_id: z.number().min(1, "Customer type is required"),
-  duration: z.number({ invalid_type_error: "Duration is required" }).min(1, "Duration must be at least 1"),
-  price: z.number({ invalid_type_error: "Price is required" }).min(0, "Price must be at least 0"),
+  play_reservation_rule_id: z.number().min(1, "Reservation rule is required"),
+  duration: z
+    .number({ invalid_type_error: "Duration is required" })
+    .min(1, "Duration must be at least 1"),
+  price: z
+    .number({ invalid_type_error: "Price is required" })
+    .min(0, "Price must be at least 0"),
   branch_id: z.number().min(1, "Branch is required"),
 });
 
 const CreateExtraPricingDialog = ({ onSuccess }) => {
   const [open, setOpen] = useState(false);
-  const {postHandler,postHandlerloading,postHandlerError}=useAxiosPost()
+  const { postHandler, postHandlerloading, postHandlerError } = useAxiosPost();
   const isAdmin = useIsAdmin();
   const user = useSessionUser();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      play_customer_type_id: undefined,
+      play_reservation_rule_id: undefined,
       duration: undefined,
       price: undefined,
       branch_id: undefined,
@@ -37,21 +49,22 @@ const CreateExtraPricingDialog = ({ onSuccess }) => {
   });
 
   const onSubmit = async (data) => {
-    const payload={
+    const payload = {
       ...data,
-      branch_id: isAdmin ? data.branch_id : user?.branchId,
-    }
+    };
     try {
       await postHandler("pricing/extra-hours-pricing", payload);
       form.reset();
       setOpen(false);
       onSuccess?.();
     } catch (error) {
-      // handle error (show toast, etc)
+      const msg = error?.response?.data?.error || "Failed to update pricing";
+      toast.error(msg);
       console.error(error);
     }
   };
-
+  //watch play_reservation_rule_id
+  console.log(form.watch("play_reservation_rule_id"));
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -62,32 +75,32 @@ const CreateExtraPricingDialog = ({ onSuccess }) => {
           <DialogTitle>Create Extra Hours Pricing</DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <Controller
-             name="branch_id"
-             control={form.control}
-             rules={{ required: "Branch is required" }}
-             render={({ field, fieldState }) => (
-               <SelectBranch
-                 value={field.value}
-                 onChange={field.onChange}
-                 error={fieldState.error?.message}
-                 label="Branch"
-               />
-             )}
-           />
           <Controller
-            name="play_customer_type_id"
+            name="branch_id"
             control={form.control}
+            rules={{ required: "Branch is required" }}
             render={({ field, fieldState }) => (
-              <CustomerTypeSelect
+              <SelectBranch
                 value={field.value}
                 onChange={field.onChange}
                 error={fieldState.error?.message}
-                open={open}
+                label="Branch"
               />
             )}
           />
-       
+          <Controller
+            name="play_reservation_rule_id"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <ReservationRuleSelectInput
+                value={field.value}
+                onChange={field.onChange}
+                error={fieldState.error?.message}
+                branch_id={form.watch("branch_id")}
+              />
+            )}
+          />
+
           <div>
             <Label htmlFor="duration">Duration (min)</Label>
             <Input
@@ -117,8 +130,13 @@ const CreateExtraPricingDialog = ({ onSuccess }) => {
               </p>
             )}
           </div>
-          <Button type="submit" className={`w-full ${postHandlerError && "bg-red-500"}`} 
-          disabled={postHandlerloading}>{postHandlerloading ? "Creating..." : "Create"}</Button>
+          <Button
+            type="submit"
+            className={`w-full ${postHandlerError && "bg-red-500"}`}
+            disabled={postHandlerloading}
+          >
+            {postHandlerloading ? "Creating..." : "Create"}
+          </Button>
         </form>
         <DialogFooter />
       </DialogContent>

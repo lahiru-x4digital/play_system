@@ -51,6 +51,8 @@ import {
   PackageSearch,
   Scan,
   ScanQrCode,
+  Clock1,
+  Ticket,
 } from "lucide-react";
 
 import {
@@ -88,15 +90,20 @@ const adminNavItems = [
   //   icon: TicketPercent,
   // },
 
-  // {
-  //   title: "Reservations",
-  //   href: "/dashboard/reservations",
-  //   icon: NotebookPen ,
-  // },
+  {
+    title: "Ticketing",
+    href: "/dashboard/ticketing",
+    icon: Ticket,
+  },
   {
     title: "Tracking Report",
     href: "/dashboard/booking",
     icon: CalendarCheck,
+  },
+  {
+    title: "Payment Report",
+    href: "/dashboard/payment-report",
+    icon: CreditCard,
   },
   {
     title: "Confimation",
@@ -108,12 +115,16 @@ const adminNavItems = [
   //   href: "/dashboard/tracking-report",
   //   icon: Timer,
   // },
-
   {
-    title: "Pricing",
-    href: "/dashboard/pricing",
-    icon: DollarSign,
+    title: "Product Settings",
+    href: "/dashboard/product-settings",
+    icon: Clock1,
   },
+  // {
+  //   title: "Pricing",
+  //   href: "/dashboard/pricing",
+  //   icon: DollarSign,
+  // },
   {
     title: "Extra Hours Pricing",
     href: "/dashboard/extra-hours-pricing",
@@ -122,7 +133,7 @@ const adminNavItems = [
   {
     title: "Products",
     href: "/dashboard/products",
-    icon: PackageSearch 
+    icon: PackageSearch,
   },
 
   {
@@ -139,22 +150,17 @@ const adminNavItems = [
       //   href: "/dashboard/settings/branches",
       //   icon: Building,
       // },
-      // {
-      //   title: "Countries",
-      //   href: "/dashboard/settings/countries",
-      //   icon: Globe,
-      // },
 
       {
         title: "Users",
         href: "/dashboard/settings/users",
         icon: Users,
       },
-      {
-        title: "Customer Types",
-        href: "/dashboard/settings/customer-types",
-        icon: Users,
-      },
+      // {
+      //   title: "Customer Types",
+      //   href: "/dashboard/settings/customer-types",
+      //   icon: Users,
+      // },
       {
         title: "Webhook",
         href: "/dashboard/settings/webhook",
@@ -209,7 +215,7 @@ const userNavItems = [
   {
     title: "Products",
     href: "/dashboard/products",
-    icon: PackageSearch 
+    icon: PackageSearch,
   },
 
   // {

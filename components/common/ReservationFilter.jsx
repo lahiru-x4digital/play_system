@@ -9,12 +9,16 @@ import { Button } from "../ui/button";
 import { FilterIcon } from "lucide-react";
 
 export default function ReservationFilter({ onSubmit, onExport }) {
-  const statuses = ["PAID", "COMPLETED","WENT_OUTSIDE","CONFIRMED","ALL"];
-  const[reservationStatus, setReservationStatus] = React.useState("ALL");
+  const statuses = ["PAID", "COMPLETED", "WENT_OUTSIDE", "CONFIRMED", "ALL"];
+  const [reservationStatus, setReservationStatus] = React.useState("ALL");
 
   const [selectedBranchId, setSelectedBranchId] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedEndDate, setSelectedEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [selectedEndDate, setSelectedEndDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [selectedTimeDurationId, setSelectedTimeDurationId] = useState("");
   const [selectedMobileNumber, setSelectedMobileNumber] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("all"); // <-- Add this line
@@ -65,8 +69,8 @@ export default function ReservationFilter({ onSubmit, onExport }) {
   };
   const handleReset = () => {
     setSelectedBranchId(null);
-    setSelectedDate(new Date().toISOString().split('T')[0]);
-    setSelectedEndDate(new Date().toISOString().split('T')[0]);
+    setSelectedDate(new Date().toISOString().split("T")[0]);
+    setSelectedEndDate(new Date().toISOString().split("T")[0]);
     setSelectedTimeDurationId("");
     setSelectedMobileNumber(null);
     setSelectedStatus("all"); // <-- Add this line
@@ -91,7 +95,7 @@ export default function ReservationFilter({ onSubmit, onExport }) {
             label="Branch"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {/* Date */}
           <div className="flex-1 min-w-[200px]">
             <label className="block mb-2 font-semibold text-gray-700">
@@ -140,6 +144,8 @@ export default function ReservationFilter({ onSubmit, onExport }) {
                 ))}
             </select>
           </div>
+        </div>
+        <div className="flex gap-2">
           <div className="flex-1 min-w-[200px]">
             <label className="block mb-2 font-semibold text-gray-700">
               Mobile Number
@@ -161,10 +167,10 @@ export default function ReservationFilter({ onSubmit, onExport }) {
               value={reservationStatus}
               onChange={(e) => setReservationStatus(e.target.value)}
             >
-             {statuses.map((statusItem) => (
-              <option key={statusItem} value={statusItem}>
+              {statuses.map((statusItem) => (
+                <option key={statusItem} value={statusItem}>
                   {statusItem}
-              </option>
+                </option>
               ))}
             </select>
           </div>
@@ -183,6 +189,7 @@ export default function ReservationFilter({ onSubmit, onExport }) {
             </select>
           </div>
         </div>
+
         <div className="flex gap-2 mt-2">
           <Button
             size="sm"
