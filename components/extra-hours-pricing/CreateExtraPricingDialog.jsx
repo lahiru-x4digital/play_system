@@ -14,7 +14,6 @@ import { Label } from "@/components/ui/label";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import CustomerTypeSelect from "@/components/common/CustomerTypeSelectInput";
 import api from "@/services/api";
 import SelectBranch from "../common/selectBranch";
 import useSessionUser, { useIsAdmin } from "@/lib/getuserData";

@@ -1,10 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { extractErrorMessage } from "../utils/extractErrorMessage";
-import axios from "axios";
 import { playReportingService } from "@/services/play/reporting.service";
-import api from "@/services/api";
-import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import useSessionUser from "@/lib/getuserData";
 import useIsAdmin from "@/lib/getuserData";
 

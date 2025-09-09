@@ -1,26 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useForm, FormProvider, Controller } from "react-hook-form";
-import { PhoneNumberField } from "@/components/coustomer-mobile-input";
-import {
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
-import { ADULTS_ID, KIDS_ID } from "@/utils/static-variables";
-import { useSession } from "next-auth/react";
-import SelectBranch from "@/components/common/selectBranch";
-import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
-import { useAxiosPatch } from "@/hooks/useAxiosPatch";
-import { useAxiosPost } from "@/hooks/useAxiosPost";
 import PaymentReportTable from "@/components/report/PaymentReportTable";
 import { Pagination } from "@/components/ui/pagination";
-import { ReservationDialog } from "@/components/reservation/ReservationDialog";
-import { AutoBookingDialog } from "@/components/booking/AutoBookingDialog";
 import PaymentFilter from "@/components/common/PaymentFilter";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import api from "@/services/api";

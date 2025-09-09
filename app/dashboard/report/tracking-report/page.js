@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import useGetPlayReservations from "@/hooks/useGetPlayReservations";
-import PlayReservationTable from "@/components/reservation/PlayReservationTable";
+import PlayReservationTable from "@/components/tracking-report/PlayReservationTable";
 import { Pagination } from "@/components/ui/pagination";
 import ReservationFilter from "@/components/common/ReservationFilter";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
