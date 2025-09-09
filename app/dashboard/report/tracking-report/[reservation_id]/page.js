@@ -2,14 +2,10 @@
 import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation";
 import React, { useEffect, useState } from "react";
 import { use } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { AddBarcodeDialog } from "@/components/booking/AddBarcodeDialog";
 import { AddExtraTimeDialog } from "@/components/booking/AddExtraTimeDialog";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { getEndTime } from "@/lib/getEndTime";
 import TimerCountDown from "@/components/common/TimerCountDown";
 import { formatHourMin } from "@/lib/combineHourMinute";
 import { getOverstayDuration } from "@/utils/calculate-over-time";
@@ -344,41 +340,6 @@ export default function Page({ params }) {
           onSuccess={handleDialogSuccess}
         />
       )}
-      {/* Products */}
-      {/* <Card className="shadow-lg rounded-2xl border border-muted">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-2xl font-bold tracking-tight text-primary">
-            Products
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {playReservation.play_reservation_products?.length > 0 ? (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-base">
-              {playReservation.play_reservation_products.map((b) => (
-                <li
-                  key={b.id}
-                  className="border rounded-lg p-4 space-y-2 bg-muted/10 hover:bg-muted/20 transition"
-                >
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground font-semibold">
-                      Product
-                    </span>
-                    <Badge variant="outline" className="px-2 py-1">
-                      {b.play_product?.name}
-                    </Badge>
-                  </div>
-                  <LabelValue label="Price" value={b.play_product?.price} />
-                  <LabelValue label="Quantity" value={b?.quantity || "-"} />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="text-muted-foreground text-base">
-              No products found.
-            </div>
-          )}
-        </CardContent>
-      </Card> */}
     </div>
   );
 }

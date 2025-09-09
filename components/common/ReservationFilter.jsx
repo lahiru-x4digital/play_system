@@ -137,7 +137,7 @@ export default function ReservationFilter({ onSubmit, onExport }) {
               ))}
             </select>
           </div>
-          <div className="flex-1 min-w-[200px]">
+          {/* <div className="flex-1 min-w-[200px]">
             <label className="block mb-2 font-semibold text-gray-700">
               Status
             </label>
@@ -150,7 +150,7 @@ export default function ReservationFilter({ onSubmit, onExport }) {
               <option value="not_expired">Not Expired</option>
               <option value="expired">Expired</option>
             </select>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex gap-2 mt-2">

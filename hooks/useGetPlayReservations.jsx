@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { extractErrorMessage } from "../utils/extractErrorMessage";
 import axios from "axios";
+import { playReportingService } from "@/services/play/reporting.service";
 import api from "@/services/api";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import useSessionUser from "@/lib/getuserData";
@@ -39,27 +40,19 @@ const useGetPlayReservations = () => {
     abortControllerRef.current = controller;
     setLoading(true);
     try {
-      const response = await api.get(`play/report/time-tracking`, {
-        params: {
-          ...paramsNullCleaner(params),
-          skip: (params.page - 1) * params.pageSize,
-          limit: params.pageSize,
-        },
+      const response = await playReportingService.fetchReservations({
+        params: params,
         signal: controller.signal,
       });
-      // Only update state if this request wasn't aborted
-      if (!controller.signal.aborted) {
-        SetDataList(response.data?.data);
-        setTotalCount(response.data?.total);
-      }
 
-      // setTotalCount(response.data.count);
+      if (!controller.signal.aborted) {
+        SetDataList(response.data);
+        setTotalCount(response.total);
+      }
     } catch (err) {
-      // Check if the error is a cancellation
-      if (axios.isCancel(err)) {
+      if (err.cancelled) {
         return;
       }
-      // Only update error state if this request wasn't aborted
       if (!controller.signal.aborted) {
         SetDataList([]);
         extractErrorMessage(err);

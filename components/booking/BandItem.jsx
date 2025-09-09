@@ -1,9 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import QRCode from "react-qr-code";
 import { Button } from "../ui/button";
 import { Printer } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
-import { getEndTime } from "@/lib/getEndTime";
 import { combineHourAndMinute } from "@/utils/time-converter";
 
 export default function BandItem({

@@ -7,6 +7,7 @@ import ReservationFilter from "@/components/common/ReservationFilter";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import api from "@/services/api";
 import * as XLSX from "xlsx";
+import { playReportingService } from "@/services/play/reporting.service";
 
 export default function Booking() {
   const {
@@ -55,14 +56,14 @@ export default function Booking() {
       `reservations_${new Date().toISOString().split("T")[0]}.xlsx`
     );
   };
+  // console.log("Play Reservations:", playReservations);
 
   return (
     <div>
       <div className="space-y-4">
         <ReservationFilter
           onExport={async (data) => {
-            const { branch, date, endDate, ressStatus, reservationStatus } =
-              data;
+            const { branch, date, endDate, reservationStatus } = data;
             const payload = {
               search: null,
               branch_id: branch,
@@ -70,18 +71,16 @@ export default function Booking() {
               start_date: date,
               skip: 0,
               end_date: endDate,
-              ress_status: ressStatus,
               reservationStatus: reservationStatus,
               limit: playReservationsTotalCount,
             };
             try {
-              const response = await api.get(`play/play-reservation`, {
-                params: {
-                  ...paramsNullCleaner(payload),
-                },
+              const response = await playReportingService.fetchReservations({
+                params: paramsNullCleaner(payload),
+                signal: null,
               });
-              if (response?.data?.data) {
-                generateExcel(response?.data?.data);
+              if (response?.data) {
+                generateExcel(response.data);
               }
             } catch (error) {}
           }}

@@ -7,15 +7,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScanReservationDialog } from "./ScanReservationDialog";
 import { Button } from "../ui/button";
-import { Eye, Printer, Pencil, Download, Loader2 } from "lucide-react";
+import { Eye, Printer, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PrintDialog } from "../booking/PrintDialog";
-import { getEndTime } from "@/lib/getEndTime";
+
 import { BookingEditDialog } from "../booking/BookingEditDialog";
 import TimerCountDown from "../common/TimerCountDown";
-import { utcToTimeConvert } from "@/utils/time-converter";
 
 const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
   const router = useRouter();
@@ -206,7 +204,9 @@ const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
                         className="text-primary hover:text-primary"
                         onClick={() => {
                           //navigate to the reservation id page
-                          router.push(`/dashboard/booking/${item.id}`);
+                          router.push(
+                            `/dashboard/report/tracking-report/${item.id}`
+                          );
                         }}
                       >
                         <Eye className="h-4 w-4" />

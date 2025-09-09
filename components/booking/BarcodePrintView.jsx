@@ -1,11 +1,7 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "next/navigation";
-import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation";
-import QRCode from "react-qr-code";
+import React, { useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { useReactToPrint } from "react-to-print";
-import { Printer } from "lucide-react";
 import BandItem from "./BandItem";
 import toast from "react-hot-toast";
 

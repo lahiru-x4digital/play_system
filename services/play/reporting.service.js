@@ -7,26 +7,27 @@ import api from "@/services/api";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import axios from "axios";
 
-export const playReservationsService = {
+export const playReportingService = {
   /**
    * Fetch play reservations with pagination and filters.
    * @param {Object} params - Query parameters for the API.
    * @param {AbortSignal} [signal] - Optional abort signal for cancellation.
    * @returns {Promise<{data: Array, total: number}>}
    */
-  async fetchReservations(params = {}, signal) {
+  async fetchReservations({ params = {}, signal }) {
     try {
-      const response = await api.get("play/time-tracking", {
+      const response = await api.get("play/report/time-tracking", {
         params: {
           ...paramsNullCleaner(params),
-          skip: (params.page - 1) * params.pageSize,
+
           limit: params.pageSize,
         },
         signal,
       });
+      // console.log({ "play/report/time-tracking": response.data });
+
       return {
-        data: response.data?.data || [],
-        total: response.data?.total || 0,
+        ...response.data,
       };
     } catch (err) {
       if (axios.isCancel(err)) {
