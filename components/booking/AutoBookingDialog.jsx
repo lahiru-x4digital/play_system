@@ -19,34 +19,35 @@ import AutoGenarateReservationForm from "../common/AutoGenarateReservationForm";
 import BarcodePrintView from "./BarcodePrintView";
 import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation";
 
-export function AutoBookingDialog({playReservationsRefres}) {
+export function AutoBookingDialog({ playReservationsRefres }) {
   const [printBarcodes, setPrintBarcodes] = useState(false);
   const [reservation_id, setReservation_id] = useState(null);
   const [open, setOpen] = useState(false); // Track dialog open state
 
   const { playReservation, playReservationLoading, playReservationRefresh } =
-  useGetSinglePlayReservation();
+    useGetSinglePlayReservation();
 
-useEffect(() => {
-  if (reservation_id) {
-    playReservationRefresh(reservation_id);
-  }
-}, [reservation_id]);
+  useEffect(() => {
+    if (reservation_id) {
+      playReservationRefresh(reservation_id);
+    }
+  }, [reservation_id]);
   // Reset all values when dialog closes
   const handleOpenChange = (isOpen) => {
-   setOpen(isOpen);
+    setOpen(isOpen);
     if (!isOpen) {
       setPrintBarcodes(false);
       setReservation_id(null);
       playReservationsRefres();
     }
   };
-    const formattedReservation = useMemo(() => {
-      if (!playReservation) return null;
-  
-      return {
-        ...playReservation,
-        barcodes: playReservation.play_reservation_barcodes?.map(b => ({
+  const formattedReservation = useMemo(() => {
+    if (!playReservation) return null;
+
+    return {
+      ...playReservation,
+      barcodes:
+        playReservation.play_reservation_barcodes?.map((b) => ({
           id: b.barcode.id,
           barcode_number: b.barcode.barcode_number,
           play_customer_type_id: b.barcode.play_customer_type_id,
@@ -59,9 +60,9 @@ useEffect(() => {
           play_customer_type: b.barcode.play_customer_type,
           extra_minutes: b.extra_minutes || 0,
         })) || [],
-        playPayments: playReservation.play_playment || []
-      };
-    }, [playReservation]);
+      playPayments: playReservation.playPayment || [],
+    };
+  }, [playReservation]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -80,9 +81,7 @@ useEffect(() => {
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[75vh] overflow-y-auto">
-            {reservation_id && playReservationLoading && (
-              <div>Loading...</div>
-            )}
+            {reservation_id && playReservationLoading && <div>Loading...</div>}
             {printBarcodes ? (
               <BarcodePrintView reservation={formattedReservation} />
             ) : (

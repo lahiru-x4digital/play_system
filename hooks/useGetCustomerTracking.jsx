@@ -1,7 +1,6 @@
 import api from "@/services/api";
 import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
-import { get } from "lodash";
 const formatDateToYMD = (dateString) => {
   if (!dateString) return undefined;
   const date = new Date(dateString);
@@ -14,16 +13,17 @@ const useGetCustomerTracking = ({ id, mobile }) => {
     mobile: mobile,
     startDate: formatDateToYMD(new Date()),
     endDate: formatDateToYMD(new Date()),
-    actionType: undefined,
-    multiEventType: undefined,
-    limit: 50,
+    actionType: "all",
+    // multiEventType: undefined,
+    pageSize: 10,
+    currentPage: 1,
   });
   const [trackingHistory, setTrackingHistory] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const controllerRef = useRef(null);
 
- 
 
   const loadData = useCallback(async () => {
     if (controllerRef.current) {
@@ -35,63 +35,25 @@ const useGetCustomerTracking = ({ id, mobile }) => {
     setLoading(true);
     setError(null);
     try {
+      const pyaload = {
+        customerId: params.customerId,
+        startDate: formatDateToYMD(params.startDate),
+        endDate: formatDateToYMD(params.endDate),
+        ...(params?.actionType ? { actionTypes: params?.actionType } : {}),
+        pageSize: params.pageSize,
+        currentPage: params.currentPage,
+      }
       const response = await api.get(
         "action-tracker/customer",
         {
           params: {
-            customerId: params.customerId,
-            startDate: formatDateToYMD(params.startDate),
-            endDate: formatDateToYMD(params.endDate),
-            actionType: params.actionType,
-            limit: params.limit,
+           ...pyaload
           },
           signal: controller.signal,
         }
       );
-      const responsePosEvents = await api.get(
-        "pos-event",
-        {
-          params: {
-            mobile: params.mobile,
-            startDate: formatDateToYMD(params.startDate),
-            endDate: formatDateToYMD(params.endDate),
-            multiEventType: params.multiEventType,
-            limit: params.limit,
-          },
-          signal: controller.signal,
-        }
-      );
-
-      const formatPosEventData = responsePosEvents.data?.events?.map((event) => {
-        const mainDataObj = event.payload.find((p) => p.Main_Data) || {};
-        return {
-          ...event,
-          action_type: event.eventType,
-          action_data: {
-            changes: [
-              {
-                key_name: "etlId",
-                before: "",
-                after: event.etlId
-              },
-              {
-                key_name: "Business_Date",
-                before: "",
-                after: get(mainDataObj, "Main_Data.Business_Date", ""),
-              },
-            ],
-            payload: event.payload || [],
-          },
-          createdAt: event.createdAt,
-          id: event.id,
-          action_type: event.eventType,
-          user: {
-            name: "System"
-          }
-        };
-      });
-      setTrackingHistory([...response.data, ...formatPosEventData]);
-
+      setTrackingHistory(response.data.trackingHistory);
+      setTotalItems(response?.data?.pagination?.totalItems||0);
     } catch (err) {
       // Skip state updates if the request was aborted
       if (controller.signal.aborted) {
@@ -116,15 +78,6 @@ const useGetCustomerTracking = ({ id, mobile }) => {
 
       setError(errorMessage);
       setTrackingHistory([]);
-
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error in useGetCustomerTracking:', {
-          message: errorMessage,
-          code: err.code,
-          status: err.response?.status,
-          url: err.config?.url
-        });
-      }
     } finally {
       setLoading(false);
     }
@@ -142,10 +95,13 @@ const useGetCustomerTracking = ({ id, mobile }) => {
     setParams(prev => ({
       ...prev,
       startDate: dateRange.start,
-      endDate: dateRange.end
+      endDate: dateRange.end,
+      actionType: dateRange.actionType || prev.actionType,
     }));
   };
-
+const loadMore = () => {
+  setParams((prev) => ({ ...prev, pageSize: prev.pageSize + 10 }));
+};
   useEffect(() => {
     if (params.customerId > 0) {
       loadData();
@@ -159,6 +115,7 @@ const useGetCustomerTracking = ({ id, mobile }) => {
 
   return {
     trackingHistory,
+    totalItems,
     loading,
     error,
     params,
@@ -166,6 +123,7 @@ const useGetCustomerTracking = ({ id, mobile }) => {
     setActionTypeFilter,
     setDateRange,
     refresh: loadData,
+    loadMore,
   };
 };
 

@@ -337,7 +337,6 @@ export default function CreateBookingInput() {
               <Button
                 onClick={() => {
                   // Reset customer_types before adding new items
-
                   // Add kids
                   append({
                     rule_id: selectedRule.id,

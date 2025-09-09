@@ -62,8 +62,8 @@ export default function Booking() {
         ? new Date(item.end_time).toLocaleString()
         : "-",
       Payment:
-        item?.play_playment?.reduce((sum, item) => sum + item.amount, 0) || 0,
-      "Payment Method": item?.play_playment?.[0]?.payment_method || "-",
+        item?.playPayment?.reduce((sum, item) => sum + item.amount, 0) || 0,
+      "Payment Method": item?.playPayment?.[0]?.payment_method || "-",
     }));
 
     const wb = XLSX.utils.book_new();

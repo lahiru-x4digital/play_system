@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import PaymentInput from "../common/PaymentInput";
 
 export default function CartItem() {
-  const { watch, setValue } = useFormContext();
+  const { watch, setValue, formState } = useFormContext();
   const customerTypes = watch("customer_types") || [];
   // console.log(customerTypes);
   if (customerTypes.length === 0) return null;
@@ -15,7 +15,13 @@ export default function CartItem() {
     const updated = customerTypes.filter((_, index) => index !== indexToRemove);
     setValue("customer_types", updated);
   };
+  const totalPayment = watch("payments")
+    ?.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0)
+    .toFixed(2);
 
+  // Get payments error
+  const paymentsError = formState.errors?.payments?.root?.message;
+  console.log("paymentsError", formState.errors);
   return (
     <div className="w-full">
       {/* <h1 className="text-xl font-bold">Cart Items</h1> */}
@@ -26,7 +32,6 @@ export default function CartItem() {
             <th className="px-4 py-2 text-left">Kids</th>
             <th className="px-4 py-2 text-left">Time</th>
             <th className="px-4 py-2 text-right">Price</th>
-            <th className="px-4 py-2"></th>
           </tr>
         </thead>
         <tbody>
@@ -48,6 +53,14 @@ export default function CartItem() {
             return (
               <tr key={index} className="border-b last:border-b-0">
                 <td className="px-4 py-2 font-semibold">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
+                    onClick={() => removeCustomerType(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                   {isKid ? customerType.rule_name : "Adult"}
                 </td>
                 <td className="px-4 py-2">
@@ -91,31 +104,57 @@ export default function CartItem() {
                 <td className="px-4 py-2 text-right align-middle">
                   {isKid ? `${price.toFixed(2)}` : "Free"}
                 </td>
-                <td className="px-4 py-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
-                    onClick={() => removeCustomerType(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </td>
               </tr>
             );
           })}
           {/* Total row */}
           <tr>
-            <td colSpan={2}></td>
-            <td>
-              <PaymentInput />
+            <td colSpan={3} className="font-bold text-right align-middle">
+              Sub Total&nbsp;
             </td>
-            <td className="px-4 py-4 font-bold text-right align-middle">
-              Total&nbsp;
+            <td colSpan={4} className="px-4  font-bold text-right align-middle">
               <span>
                 {watch("amount") ? Number(watch("amount")).toFixed(2) : "0.00"}
               </span>
             </td>
+          </tr>
+          <tr>
+            <td className={`text-right `} colSpan={3}>
+              Payment Total&nbsp;
+            </td>
+            <td
+              colSpan={1}
+              className={`px-4  text-right align-middle ${
+                paymentsError ? "text-red-600 font-bold" : ""
+              }`}
+            >
+              <span>{totalPayment}</span>
+            </td>
+          </tr>
+          <tr>
+            <td className="text-right" colSpan={3}>
+              Balance&nbsp;
+            </td>
+            <td colSpan={1} className="px-4  text-right align-middle">
+              <span>{watch("amount") - totalPayment}</span>
+            </td>
+          </tr>
+          {/* Show payments error here */}
+          {paymentsError && (
+            <tr>
+              <td colSpan={4}>
+                <div className="text-red-600 text-sm text-right">
+                  {paymentsError}
+                </div>
+              </td>
+            </tr>
+          )}
+          <tr>
+            <td colSpan={1}></td>
+            <td colSpan={3}>
+              <PaymentInput branch_id={watch("branch_id")} />
+            </td>
+
             <td></td>
           </tr>
         </tbody>

@@ -2,18 +2,19 @@ import React, { useState, useEffect } from 'react'
 import { reservationService } from '@/services/reservation.service'
 import { format } from 'date-fns'
 import { waitingListService } from '@/services/waitinglist.service'
+import walkInService from '@/services/walkin.service'
 
-export default function WaitingListDetails({ id }) {
-  const [reservation, setReservation] = useState(null)
+export default function WalkinListDetails({ id }) {
+  const [walkin, setWalkin] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
-
+console.log(walkin)
   useEffect(() => {
     const fetchReservation = async () => {
       try {
-        const data = await waitingListService.getWaitingListById(id)
+        const data = await walkInService.getWalkInById(id)
         if (data?.data) {
-          setReservation(data.data)
+          setWalkin(data?.data)
         } else {
           setError('No reservation found with this ID')
         }
@@ -46,7 +47,7 @@ export default function WaitingListDetails({ id }) {
     )
   }
 
-  if (!reservation) return null
+  if (!walkin) return null
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -65,58 +66,53 @@ export default function WaitingListDetails({ id }) {
     if (!dateString) return 'Not specified'
     return format(new Date(dateString), 'MMM dd, yyyy HH:mm a')
   }
-
+console.log(walkin)
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <h3 className="font-medium text-gray-900">Customer Information</h3>
+          <h3 className="font-medium text-gray-900 text-xl">Customer Information</h3>
           <div className="space-y-1">
             <div>
-              <span className="font-medium">Name:</span> {reservation.customer.first_name} {reservation.customer.last_name || ''}
+              <span className="font-medium">Name:</span> {walkin.customer.first_name} {walkin.customer.last_name || ''}
             </div>
             <div>
-              <span className="font-medium">Mobile:</span> {reservation.customer.mobile_number}
-            </div>
-            <div>
-              <span className="font-medium">Customer Level:</span> {reservation.customer.customer_level}
+              <span className="font-medium">Mobile:</span> {walkin.customer.mobile_number}
             </div>
           </div>
         </div>
 
         <div className="space-y-2">
-          <h3 className="font-medium text-gray-900">Waiting List Details</h3>
+          <h3 className="font-medium text-gray-900 text-xl">Waiting List Details</h3>
           <div className="space-y-1">
             <div>
               <span className="font-medium">Status:</span> 
               <span className={`px-2 py-1 rounded-full text-sm ${
-                reservation.status === 'NOSHOW' ? 'bg-red-100 text-red-700' : 
-                reservation.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 
+                walkin.status === 'NOSHOW' ? 'bg-red-100 text-red-700' : 
+                walkin.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 
                 'bg-gray-100 text-gray-700'
               }`}>
-                {reservation.status}
+                {walkin.status}
               </span>
             </div>
             <div>
-              <span className="font-medium">Party Size:</span> {reservation.party_size}
+              <span className="font-medium">Party Size:</span> {walkin.party_size}
             </div>
             <div>
-              <span className="font-medium">Branch:</span> {reservation.branch.branch_name}
+              <span className="font-medium">Branch:</span> {walkin.branch.branch_name}
             </div>
             <div>
-              <span className="font-medium">Created:</span> {format(new Date(reservation.createdAt), 'MMM d, yyyy h:mm a')}
+              <span className="font-medium">Created:</span> {format(new Date(walkin.createdAt), 'MMM d, yyyy h:mm a')}
             </div>
-            <div>
-              <span className="font-medium">Status Updated:</span> {format(new Date(reservation.status_updated_at), 'MMM d, yyyy h:mm a')}
-            </div>
+            
           </div>
         </div>
       </div>
 
-      {reservation.notes && (
+      {walkin.notes && (
         <div className="mt-4">
           <h3 className="font-medium text-gray-900">Notes</h3>
-          <p className="text-gray-600">{reservation.notes}</p>
+          <p className="text-gray-600">{walkin.notes}</p>
         </div>
       )}
     </div>

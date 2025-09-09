@@ -1,32 +1,32 @@
 import api from "@/services/api";
 import React, { useEffect, useState } from "react";
 
-export default function PosEventDetails({ id }) {
-  const [posEvent, setPosEvent] = useState(null)
+export default function ClubEventDetails({ id }) {
+  const [clubEvent, setClubEvent] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const fetchPosEvent = async () => {
+    const fetchClubEvent = async () => {
       try {
-        const data = await api.get(`pos-event/${id}`)
+        const data = await api.get(`club-events/${id}`)
         if (data?.data) {
      
-          setPosEvent(data.data.data)
+          setClubEvent(data.data.data)
     
         } else {
-          setError('No pos event found with this ID')
+          setError('No club event found with this ID')
         }
       } catch (error) {
-        console.error('Failed to fetch pos event:', error)
-        setError('Failed to load pos event details')
+        console.error('Failed to fetch club event:', error)
+        setError('Failed to load club event details')
       } finally {
         setIsLoading(false)
       }
     }
 
     if (id) {
-      fetchPosEvent()
+      fetchClubEvent()
     }
   }, [id])
   return (
@@ -37,9 +37,9 @@ export default function PosEventDetails({ id }) {
 
     {error && <div className="text-red-500 font-medium">{error}</div>}
 
-    {posEvent && (
+    {clubEvent && (
       <pre className="text-sm p-4 rounded-lg overflow-x-auto">
-        {JSON.stringify(posEvent, null, 2)}
+        {JSON.stringify(clubEvent, null, 2)}
       </pre>
     )}
   </div>

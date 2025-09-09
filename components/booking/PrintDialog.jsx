@@ -41,7 +41,7 @@ export function PrintDialog({ reservation_id, open, onOpenChange }) {
           play_customer_type: b.barcode.play_customer_type,
           extra_minutes: b.extra_minutes || 0,
         })) || [],
-      playPayments: playReservation.play_playment || [],
+      playPayments: playReservation.playPayment || [],
     };
   }, [playReservation]);
 

@@ -172,9 +172,9 @@ export default function Page({ params }) {
             <h3 className="text-sm font-medium text-muted-foreground mb-1">
               Payments
             </h3>
-            {playReservation.play_playment?.length > 0 ? (
+            {playReservation.playPayment?.length > 0 ? (
               <ul className="grid gap-2">
-                {playReservation.play_playment.map((p) => (
+                {playReservation.playPayment.map((p) => (
                   <li
                     key={p.id}
                     className="border rounded-md p-2 space-y-1 bg-muted/20"

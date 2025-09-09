@@ -28,42 +28,60 @@ import { extractHourMin, extractHourMinFromUTC } from "@/utils/time-converter";
 import toast from "react-hot-toast";
 import useGetSinglePlayReservation from "@/hooks/useGetSinglePlayReservation";
 import { playReservationService } from "@/services/play/playreservation.service";
-const reservationSchema = z.object({
-  mobile_number: z.string().min(1, { message: "Mobile number is required" }),
-  payment_method: z.string().min(1, { message: "Payment method is required" }),
-  amount: z.number().min(0, { message: "Amount is required" }),
-  customer_type: z.string().optional(),
-  member_level: z.string().optional(),
-  first_name: z.string(),
-  last_name: z.string(),
-  branch_id: z.number().min(1, { message: "Branch is required" }),
-  date: z.string().min(1, { message: "Date is required" }),
-  customer_types: z.array(
-    z.object({
-      rule_id: z.number(),
-      price: z.number(),
-      rule_name: z.string(),
-      customers: z.array(
-        z.object({
-          name: z.string().optional(),
-          birthday: z.string().optional(),
-        })
-      ),
-      start_hour: z.number().min(0).max(23),
-      start_min: z.number().min(0).max(59),
-      end_hour: z.number().min(0).max(23),
-      end_min: z.number().min(0).max(59),
-    })
-  ),
-  additional_products: z.array(
-    z.object({
-      id: z.number(),
-      name: z.string(),
-      price: z.number(),
-      qty: z.number(),
-    })
-  ),
-});
+const reservationSchema = z
+  .object({
+    mobile_number: z.string().min(1, { message: "Mobile number is required" }),
+    amount: z.number().min(0, { message: "Amount is required" }),
+    customer_type: z.string().optional(),
+    member_level: z.string().optional(),
+    first_name: z.string(),
+    last_name: z.string(),
+    branch_id: z.number().min(1, { message: "Branch is required" }),
+    date: z.string().min(1, { message: "Date is required" }),
+    customer_types: z.array(
+      z.object({
+        rule_id: z.number(),
+        price: z.number(),
+        rule_name: z.string(),
+        customers: z.array(
+          z.object({
+            name: z.string().optional(),
+            birthday: z.string().optional(),
+          })
+        ),
+        start_hour: z.number().min(0).max(23),
+        start_min: z.number().min(0).max(59),
+        end_hour: z.number().min(0).max(23),
+        end_min: z.number().min(0).max(59),
+      })
+    ),
+    additional_products: z.array(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+        price: z.number(),
+        qty: z.number(),
+      })
+    ),
+    payments: z.array(
+      z.object({
+        payment_method: z
+          .number()
+          .min(1, { message: "Payment method is required" }),
+        amount: z.number(),
+      })
+    ),
+  })
+  .refine(
+    (data) => {
+      const totalPayments = data.payments.reduce((sum, p) => sum + p.amount, 0);
+      return totalPayments === data.amount;
+    },
+    {
+      message: "Total payments must match the amount.",
+      path: ["payments"], // error will show on payments
+    }
+  );
 export default function page() {
   const { playReservation, playReservationLoading, playReservationRefresh } =
     useGetSinglePlayReservation();
