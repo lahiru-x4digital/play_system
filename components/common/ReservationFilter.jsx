@@ -1,10 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import SelectBranch from "./selectBranch";
-import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
 import { useIsAdmin } from "@/lib/getuserData";
 import { useSession } from "next-auth/react";
-import { KIDS_ID } from "@/utils/static-variables";
 import { Button } from "../ui/button";
 import { FilterIcon } from "lucide-react";
 
@@ -19,15 +17,13 @@ export default function ReservationFilter({ onSubmit, onExport }) {
   const [selectedEndDate, setSelectedEndDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-  const [selectedTimeDurationId, setSelectedTimeDurationId] = useState("");
+
   const [selectedMobileNumber, setSelectedMobileNumber] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("all"); // <-- Add this line
   const { data: session } = useSession();
   const user = session?.user;
   const isAdmin = useIsAdmin();
   const branchId = user?.branchId;
-  const { timeDurationPricing, timeDurationPricingRefres } =
-    useGetTimeDurationPricing(isAdmin ? null : branchId);
 
   const handleBranchChange = (branchId) => {
     setSelectedBranchId(branchId);
@@ -35,21 +31,11 @@ export default function ReservationFilter({ onSubmit, onExport }) {
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
-  const handleTimeDurationChange = (timeDurationId) => {
-    setSelectedTimeDurationId(timeDurationId);
-  };
-
-  useEffect(() => {
-    if (selectedBranchId) {
-      timeDurationPricingRefres({ branch_id: selectedBranchId });
-    }
-  }, [selectedBranchId]);
 
   const handleFilter = () => {
     onSubmit?.({
       branch: selectedBranchId || null,
       date: selectedDate || null,
-      timeDurationId: selectedTimeDurationId || null,
       mobileNumber: selectedMobileNumber || null,
       ressStatus: selectedStatus !== "all" ? selectedStatus : null, // <-- Add this line
       reservationStatus: reservationStatus !== "ALL" ? reservationStatus : null,
@@ -61,7 +47,6 @@ export default function ReservationFilter({ onSubmit, onExport }) {
       branch: selectedBranchId || null,
       date: selectedDate || null,
       endDate: selectedEndDate || null,
-      timeDurationId: selectedTimeDurationId || null,
       mobileNumber: selectedMobileNumber || null,
       ressStatus: selectedStatus !== "all" ? selectedStatus : null, // <-- Add this line
       reservationStatus: reservationStatus !== "ALL" ? reservationStatus : null,
@@ -71,7 +56,7 @@ export default function ReservationFilter({ onSubmit, onExport }) {
     setSelectedBranchId(null);
     setSelectedDate(new Date().toISOString().split("T")[0]);
     setSelectedEndDate(new Date().toISOString().split("T")[0]);
-    setSelectedTimeDurationId("");
+
     setSelectedMobileNumber(null);
     setSelectedStatus("all"); // <-- Add this line
     onSubmit?.({
@@ -121,28 +106,6 @@ export default function ReservationFilter({ onSubmit, onExport }) {
               value={selectedEndDate}
               onChange={(e) => setSelectedEndDate(e.target.value)}
             />
-          </div>
-          {/* Duration */}
-          <div className="flex-1 min-w-[200px]">
-            <label className="block mb-2 font-semibold text-gray-700">
-              Duration
-            </label>
-            <select
-              className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              value={selectedTimeDurationId}
-              onChange={(e) => handleTimeDurationChange(Number(e.target.value))}
-            >
-              <option value="" disabled>
-                Select duration
-              </option>
-              {timeDurationPricing
-                .filter((p) => p.play_customer_type_id === KIDS_ID)
-                .map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.duration} min - {p.price}
-                  </option>
-                ))}
-            </select>
           </div>
         </div>
         <div className="flex gap-2">

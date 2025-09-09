@@ -7,46 +7,11 @@ import { cn } from "@/lib/utils";
 import {
   Users,
   Settings,
-  Star,
-  Percent,
-  File,
   ChevronDown,
-  ChevronRight,
-  UserPlus,
-  Server,
-  Mail,
-  History,
-  Coins,
-  Receipt,
-  ReceiptText,
-  Tag,
-  ScrollText,
-  Building,
-  Tags,
-  Calendar,
-  Clock,
-  LayoutGrid,
-  Globe,
-  TimerOff,
-  Gift,
-  Wallet,
-  BookOpen,
   CalendarCheck,
   CreditCard,
-  PercentSquare,
-  TicketPercent,
   Webhook,
-  List,
-  Link2,
-  FileSpreadsheet,
-  XCircle,
-  LayoutList,
-  FileText,
   DollarSign,
-  CheckCheck,
-  ShoppingCart,
-  NotebookPen,
-  Timer,
   Play,
   PackageSearch,
   Scan,
@@ -59,16 +24,12 @@ import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
-  SidebarFooter,
   SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubItem,
-  SidebarMenuSubButton,
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
@@ -76,55 +37,28 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
-import Image from "next/image";
-
 const adminNavItems = [
   {
     title: "Customers",
     href: "/dashboard/customers",
     icon: Users,
   },
-  // {
-  //   title: "Bar Code Generator",
-  //   href: "/dashboard/bar-code-generator",
-  //   icon: TicketPercent,
-  // },
-
   {
     title: "Ticketing",
     href: "/dashboard/ticketing",
     icon: Ticket,
   },
-  {
-    title: "Tracking Report",
-    href: "/dashboard/booking",
-    icon: CalendarCheck,
-  },
-  {
-    title: "Payment Report",
-    href: "/dashboard/payment-report",
-    icon: CreditCard,
-  },
+
   {
     title: "Confimation",
     href: "/dashboard/confimation",
     icon: ScanQrCode,
   },
-  // {
-  //   title: "Tracking Report",
-  //   href: "/dashboard/tracking-report",
-  //   icon: Timer,
-  // },
   {
     title: "Product Settings",
     href: "/dashboard/product-settings",
     icon: Clock1,
   },
-  // {
-  //   title: "Pricing",
-  //   href: "/dashboard/pricing",
-  //   icon: DollarSign,
-  // },
   {
     title: "Extra Hours Pricing",
     href: "/dashboard/extra-hours-pricing",
@@ -135,32 +69,27 @@ const adminNavItems = [
     href: "/dashboard/products",
     icon: PackageSearch,
   },
-
+  //REPORTS
+  {
+    title: "Tracking Report",
+    href: "/dashboard/report/tracking-report",
+    icon: CalendarCheck,
+  },
+  {
+    title: "Payment Report",
+    href: "/dashboard/report/payment-report",
+    icon: CreditCard,
+  },
+  //REPORTS
   {
     title: "Settings",
     icon: Settings,
     submenu: [
-      // {
-      //   title: "Brands",
-      //   href: "/dashboard/settings/brands",
-      //   icon: Tags,
-      // },
-      // {
-      //   title: "Branches",
-      //   href: "/dashboard/settings/branches",
-      //   icon: Building,
-      // },
-
       {
         title: "Users",
         href: "/dashboard/settings/users",
         icon: Users,
       },
-      // {
-      //   title: "Customer Types",
-      //   href: "/dashboard/settings/customer-types",
-      //   icon: Users,
-      // },
       {
         title: "Webhook",
         href: "/dashboard/settings/webhook",
@@ -176,17 +105,6 @@ const userNavItems = [
     href: "/dashboard/customers",
     icon: Users,
   },
-  // {
-  //   title: "Bar Code Generator",
-  //   href: "/dashboard/bar-code-generator",
-  //   icon: TicketPercent,
-  // },
-
-  // {
-  //   title: "Reservations",
-  //   href: "/dashboard/reservations",
-  //   icon: NotebookPen ,
-  // },
   {
     title: "Tracking Report",
     href: "/dashboard/booking",
@@ -197,11 +115,6 @@ const userNavItems = [
     href: "/dashboard/confimation",
     icon: ScanQrCode,
   },
-  // {
-  //   title: "Tracking Report",
-  //   href: "/dashboard/tracking-report",
-  //   icon: Timer,
-  // },
   {
     title: "Pricing",
     href: "/dashboard/pricing",
@@ -217,40 +130,6 @@ const userNavItems = [
     href: "/dashboard/products",
     icon: PackageSearch,
   },
-
-  // {
-  //   title: "Settings",
-  //   icon: Settings,
-  //   submenu: [
-  //     // {
-  //     //   title: "Brands",
-  //     //   href: "/dashboard/settings/brands",
-  //     //   icon: Tags,
-  //     // },
-  //     // {
-  //     //   title: "Branches",
-  //     //   href: "/dashboard/settings/branches",
-  //     //   icon: Building,
-  //     // },
-  //     // {
-  //     //   title: "Countries",
-  //     //   href: "/dashboard/settings/countries",
-  //     //   icon: Globe,
-  //     // },
-
-  //     {
-  //       title: "Users",
-  //       href: "/dashboard/settings/users",
-  //       icon: Users,
-  //     },
-  //     {
-  //       title: "Customer Types",
-  //       href: "/dashboard/settings/customer-types",
-  //       icon: Users ,
-  //     },
-
-  //   ],
-  // },
 ];
 
 function NestedSubmenu({ item, pathname, level = 0 }) {

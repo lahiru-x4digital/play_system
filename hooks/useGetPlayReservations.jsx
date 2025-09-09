@@ -22,11 +22,9 @@ const useGetPlayReservations = () => {
     search: null,
     branch_id: user?.branchId || null,
     order_id: null,
-    time_duration_id: null,
-    start_date: new Date().toISOString().split('T')[0],
-    end_date: new Date().toISOString().split('T')[0],
+    start_date: new Date().toISOString().split("T")[0],
+    end_date: new Date().toISOString().split("T")[0],
     mobile_number: null,
-    ress_status: null,
     reservationStatus: null,
     barcode: null,
     payment_status: null,
@@ -41,7 +39,7 @@ const useGetPlayReservations = () => {
     abortControllerRef.current = controller;
     setLoading(true);
     try {
-      const response = await api.get(`play/play-reservation`, {
+      const response = await api.get(`play/report/time-tracking`, {
         params: {
           ...paramsNullCleaner(params),
           skip: (params.page - 1) * params.pageSize,

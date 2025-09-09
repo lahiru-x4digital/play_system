@@ -7,9 +7,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { myCross } from "@/app/service/my-cross.service";
+
 import { CircleMinus, SquarePlus } from "lucide-react";
 import { Button } from "../ui/button";
+import { myCross } from "@/services/play/my-cross.service";
 
 /**
  * Reusable PaymentInput for react-hook-form payments array

@@ -1,27 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useForm, FormProvider, Controller } from "react-hook-form";
-import { PhoneNumberField } from "@/components/coustomer-mobile-input";
-import {
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import useGetTimeDurationPricing from "@/hooks/useGetTimeDurationPricing";
-import { ADULTS_ID, KIDS_ID } from "@/utils/static-variables";
-import { useSession } from "next-auth/react";
-import SelectBranch from "@/components/common/selectBranch";
-import useSessionUser, { useIsAdmin } from "@/lib/getuserData";
-import { useAxiosPatch } from "@/hooks/useAxiosPatch";
-import { useAxiosPost } from "@/hooks/useAxiosPost";
+import React from "react";
 import useGetPlayReservations from "@/hooks/useGetPlayReservations";
 import PlayReservationTable from "@/components/reservation/PlayReservationTable";
 import { Pagination } from "@/components/ui/pagination";
-import { ReservationDialog } from "@/components/reservation/ReservationDialog";
-import { AutoBookingDialog } from "@/components/booking/AutoBookingDialog";
 import ReservationFilter from "@/components/common/ReservationFilter";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import api from "@/services/api";
@@ -80,19 +61,12 @@ export default function Booking() {
       <div className="space-y-4">
         <ReservationFilter
           onExport={async (data) => {
-            const {
-              branch,
-              date,
-              endDate,
-              timeDurationId,
-              ressStatus,
-              reservationStatus,
-            } = data;
+            const { branch, date, endDate, ressStatus, reservationStatus } =
+              data;
             const payload = {
               search: null,
               branch_id: branch,
               order_id: null,
-              time_duration_id: timeDurationId,
               start_date: date,
               skip: 0,
               end_date: endDate,
@@ -112,20 +86,13 @@ export default function Booking() {
             } catch (error) {}
           }}
           onSubmit={(data) => {
-            const {
-              branch,
-              date,
-              endDate,
-              timeDurationId,
-              ressStatus,
-              reservationStatus,
-            } = data;
+            const { branch, date, endDate, ressStatus, reservationStatus } =
+              data;
             console.log("data", data);
             playReservationsSearch({
               search: null,
               branch_id: branch,
               order_id: null,
-              time_duration_id: timeDurationId,
               start_date: date,
               end_date: endDate,
               ress_status: ressStatus,

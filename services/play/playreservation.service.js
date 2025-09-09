@@ -4,46 +4,46 @@ export const playReservationService = {
   /**
    * Fetch all play reservations.
    */
-  async getPlayReservations(params = {}) {
-    try {
-      const response = await api.get("/play/play-reservation", { params });
-      if (response.data.success) {
-        return {
-          success: true,
-          data: response.data.data || [],
-        };
-      } else {
-        throw new Error(
-          response.data.message || "Failed to fetch reservations"
-        );
-      }
-    } catch (error) {
-      throw new Error(
-        error.response?.data?.message || "Failed to fetch reservations"
-      );
-    }
-  },
+  // async getPlayReservations(params = {}) {
+  //   try {
+  //     const response = await api.get("/play/play-reservation", { params });
+  //     if (response.data.success) {
+  //       return {
+  //         success: true,
+  //         data: response.data.data || [],
+  //       };
+  //     } else {
+  //       throw new Error(
+  //         response.data.message || "Failed to fetch reservations"
+  //       );
+  //     }
+  //   } catch (error) {
+  //     throw new Error(
+  //       error.response?.data?.message || "Failed to fetch reservations"
+  //     );
+  //   }
+  // },
 
-  /**
-   * Fetch a single play reservation by ID.
-   */
-  async getPlayReservationById(id) {
-    try {
-      const response = await api.get(`/play/play-reservation/${id}`);
-      if (response.data.success) {
-        return {
-          success: true,
-          data: response.data.data,
-        };
-      } else {
-        throw new Error(response.data.message || "Failed to fetch reservation");
-      }
-    } catch (error) {
-      throw new Error(
-        error.response?.data?.message || "Failed to fetch reservation"
-      );
-    }
-  },
+  // /**
+  //  * Fetch a single play reservation by ID.
+  //  */
+  // async getPlayReservationById(id) {
+  //   try {
+  //     const response = await api.get(`/play/play-reservation/${id}`);
+  //     if (response.data.success) {
+  //       return {
+  //         success: true,
+  //         data: response.data.data,
+  //       };
+  //     } else {
+  //       throw new Error(response.data.message || "Failed to fetch reservation");
+  //     }
+  //   } catch (error) {
+  //     throw new Error(
+  //       error.response?.data?.message || "Failed to fetch reservation"
+  //     );
+  //   }
+  // },
 
   /**
    * Update a play reservation by ID.
@@ -96,24 +96,24 @@ export const playReservationService = {
   /**
    * Delete a play reservation by ID.
    */
-  async deletePlayReservation(id) {
-    try {
-      const response = await api.delete(`/play/play-reservation/${id}`);
-      if (response.data.success) {
-        return {
-          success: true,
-          data: response.data.data,
-        };
-      } else {
-        throw new Error(
-          response.data.message || "Failed to delete reservation"
-        );
-      }
-    } catch (error) {
-      showApiError(error, "Failed to delete Play Reservation");
-      throw new Error(
-        error.response?.data?.message || "Failed to delete reservation"
-      );
-    }
-  },
+  // async deletePlayReservation(id) {
+  //   try {
+  //     const response = await api.delete(`/play/play-reservation/${id}`);
+  //     if (response.data.success) {
+  //       return {
+  //         success: true,
+  //         data: response.data.data,
+  //       };
+  //     } else {
+  //       throw new Error(
+  //         response.data.message || "Failed to delete reservation"
+  //       );
+  //     }
+  //   } catch (error) {
+  //     showApiError(error, "Failed to delete Play Reservation");
+  //     throw new Error(
+  //       error.response?.data?.message || "Failed to delete reservation"
+  //     );
+  //   }
+  // },
 };

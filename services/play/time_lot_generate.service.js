@@ -1,17 +1,26 @@
+/**
+ * bookingService provides methods to interact with the slot generation API for play reservations.
+ * It allows fetching available reservation slots based on rule ID and date
+ */
 import { showApiError } from "@/lib/apiErrorHandler";
-import api from "../api";
+import api from "@/services/api";
 
 export const bookingService = {
-  // Availability Rules Methods
-  async getReservationRules({ date = null, rule_id } = {}) {
+  // Fetch available reservation slots for a given rule and date
+  async getReservationRules({
+    date = null,
+    rule_id = null,
+    branch_id = null,
+  } = {}) {
     try {
       const params = {};
       if (rule_id) params.rule_id = rule_id;
-      if (date) params.date = date;
+      if (date) params.date = date; // format to YYYY-MM-DD
+      if (branch_id) params.branch_id = branch_id;
 
       const response = await api.get("play/slot-generate", { params });
-      //log response.data
-      console.log(response.data);
+
+      // console.log("play/slot-generate", response.data);
       if (response.data.success) {
         return {
           success: true,
