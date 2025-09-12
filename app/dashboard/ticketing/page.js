@@ -101,7 +101,7 @@ export default function page() {
       first_name: "",
       last_name: "",
       branch_id: user?.branchId,
-      payment_method: "STORE_CASH",
+      payments: [],
       amount: 0,
       customer_types: [],
       additional_products: [],
@@ -167,7 +167,7 @@ export default function page() {
       total_price: data.amount,
       status: "CONFIRMED",
       payment_status: "PAID",
-      payment_method: data.payment_method,
+      payments: data.payments.filter((p) => p.amount > 0),
       customer_types: [...kidsArray, adult],
       // products:
       //   data.additional_products?.map((item) => ({
@@ -280,7 +280,7 @@ export default function page() {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                    <FormItem className="sm:col-span-2">
+                    {/* <FormItem className="sm:col-span-2">
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
                         <Input
@@ -291,7 +291,7 @@ export default function page() {
                         />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
+                    </FormItem> */}
                   </div>
                 </div>
               )}

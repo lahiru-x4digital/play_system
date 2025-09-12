@@ -43,9 +43,6 @@ export default function Booking() {
       "End Time": item.end_time
         ? new Date(item.end_time).toLocaleString()
         : "-",
-      Payment:
-        item?.playPayment?.reduce((sum, item) => sum + item.amount, 0) || 0,
-      "Payment Method": item?.playPayment?.[0]?.payment_method || "-",
     }));
 
     const wb = XLSX.utils.book_new();
@@ -63,7 +60,8 @@ export default function Booking() {
       <div className="space-y-4">
         <ReservationFilter
           onExport={async (data) => {
-            const { branch, date, endDate, reservationStatus } = data;
+            const { branch, date, endDate, reservationStatus, mobileNumber } =
+              data;
             const payload = {
               search: null,
               branch_id: branch,
@@ -72,6 +70,7 @@ export default function Booking() {
               skip: 0,
               end_date: endDate,
               reservationStatus: reservationStatus,
+              mobile_number: mobileNumber, // Add this line
               limit: playReservationsTotalCount,
             };
             try {
@@ -85,8 +84,14 @@ export default function Booking() {
             } catch (error) {}
           }}
           onSubmit={(data) => {
-            const { branch, date, endDate, ressStatus, reservationStatus } =
-              data;
+            const {
+              branch,
+              date,
+              endDate,
+              ressStatus,
+              reservationStatus,
+              mobileNumber,
+            } = data;
             console.log("data", data);
             playReservationsSearch({
               search: null,
@@ -96,6 +101,7 @@ export default function Booking() {
               end_date: endDate,
               ress_status: ressStatus,
               reservationStatus: reservationStatus,
+              mobile_number: mobileNumber, // Add this line
             });
           }}
         />
@@ -111,6 +117,7 @@ export default function Booking() {
               <PlayReservationTable
                 data={playReservations}
                 playReservationsLoading={playReservationsLoading}
+                onRefresh={playReservationsRefres}
               />
               <Pagination
                 currentPage={currentPage}

@@ -24,7 +24,7 @@ export const playReportingService = {
         },
         signal,
       });
-      // console.log({ "play/report/time-tracking": response.data });
+      console.log({ "play/report/time-tracking": response.data });
 
       return {
         ...response.data,

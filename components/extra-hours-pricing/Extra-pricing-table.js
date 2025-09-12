@@ -32,7 +32,7 @@ const ExtraHoursPricingTable = ({ data = [], onRefresh }) => {
             <TableHead>Rule Name</TableHead>
             <TableHead>Duration (Min)</TableHead>
             <TableHead>Price</TableHead>
-            <TableHead>Created at</TableHead>
+            {/* <TableHead>Created at</TableHead> */}
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
@@ -50,11 +50,11 @@ const ExtraHoursPricingTable = ({ data = [], onRefresh }) => {
             data.map((item, index) => (
               <TableRow key={index}>
                 <TableCell className="font-medium">
-                  {item.PlayReservationRule?.name || "-"}
+                  {item.play_reservation_rule?.name || "-"}
                 </TableCell>
                 <TableCell>{item.duration || "-"}</TableCell>
                 <TableCell>{item.price != null ? item.price : "-"}</TableCell>
-                <TableCell>
+                {/* <TableCell>
                   {item.created_date
                     ? new Date(item.created_date).toLocaleDateString("en-US", {
                         year: "numeric",
@@ -64,7 +64,7 @@ const ExtraHoursPricingTable = ({ data = [], onRefresh }) => {
                         minute: "2-digit",
                       })
                     : "-"}
-                </TableCell>
+                </TableCell> */}
                 <TableCell>
                   <button
                     className="px-2 py-1 border rounded text-sm hover:bg-gray-100"

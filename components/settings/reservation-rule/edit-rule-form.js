@@ -103,6 +103,7 @@ export function EditRuleForm({
 
   const onSubmit = async (data) => {
     setIsLoading(true);
+    console.log(data);
     try {
       const requestData = { ...data };
       if (requestData.days && !Array.isArray(requestData.days)) {

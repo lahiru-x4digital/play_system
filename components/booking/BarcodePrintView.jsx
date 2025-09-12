@@ -14,7 +14,33 @@ export default function BarcodePrintView({ reservation = null }) {
     // A short delay to allow React to re-render before we grab the HTML
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    const htmlContent = printRef.current.innerHTML;
+    const htmlContent = `
+  <html>
+    <head>
+      <style>
+        @media print {
+          body {
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+          }
+          .print-area {
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+          }
+        }
+        body {
+          margin: 0;
+          padding: 0;
+        }
+      </style>
+    </head>
+    <body>
+      ${printRef.current.innerHTML}
+    </body>
+  </html>
+`;
     try {
       const res = await fetch("http://localhost:4000/print", {
         method: "POST",
@@ -42,21 +68,21 @@ export default function BarcodePrintView({ reservation = null }) {
   return (
     <div className="">
       <div className="flex gap-2">
-        <Button
+        {/* <Button
           type="button"
           className=""
           onClick={reactToPrintFn}
           style={{ marginBottom: "1rem" }}
         >
           Print All
-        </Button>
+        </Button> */}
         <Button
           type="button"
           className=""
           onClick={handleGeneratePdf}
           style={{ marginBottom: "1rem" }}
         >
-          Quick Print
+          Print All
         </Button>
       </div>
       <div className="barcode-print-container grid grid-cols-4 gap-4">

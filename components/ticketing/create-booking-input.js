@@ -2,19 +2,13 @@ import React, { useEffect, useState } from "react";
 import SelectBranch from "../common/selectBranch";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { bookingService } from "@/services/booking.service";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { format, parse } from "date-fns";
 import { motion } from "framer-motion";
-import GenerateTimeSlots, { TimeSlotSelector } from "./GenerateTimeSlots";
+import { TimeSlotSelector } from "./GenerateTimeSlots";
 import AnimatedRuleCard from "./AnimatedRuleCard";
 import { Input } from "../ui/input";
-import AddToCart from "./AddToCart";
 import { Button } from "../ui/button";
 import CartItem from "./CartItem";
-import AdditionalProductSelect from "../booking/AdditionalProductSelect";
-import { set } from "lodash";
 import { Trash } from "lucide-react";
-import PaymentInput from "../common/PaymentInput";
 import { useIsAdmin, useIsUser } from "@/lib/getuserData";
 
 export default function CreateBookingInput() {

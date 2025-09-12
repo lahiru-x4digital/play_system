@@ -50,6 +50,8 @@ export function PhoneNumberField({
     } else if (getValues(name)?.replace(/\D/g, "") === digits) {
       // Only clear errors if the current value matches what we just checked
       clearErrors(name);
+      setValue("first_name", "");
+      setValue("last_name", "");
       setIsFree(true);
     }
   };

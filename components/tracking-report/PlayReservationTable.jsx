@@ -15,7 +15,11 @@ import { PrintDialog } from "../booking/PrintDialog";
 import { BookingEditDialog } from "../booking/BookingEditDialog";
 import TimerCountDown from "../common/TimerCountDown";
 
-const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
+const PlayReservationTable = ({
+  data = [],
+  playReservationsLoading,
+  onRefresh = () => {},
+}) => {
   const router = useRouter();
   const [scanDialogOpen, setScanDialogOpen] = useState(false);
   const [selectedReservationId, setSelectedReservationId] = useState(null);
@@ -145,14 +149,15 @@ const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
                               <span className="font-semibold text-sm text-gray-900">
                                 {barcode.name}/{" "}
                                 <TimerCountDown
+                                  reservation_date={item.reservation_date}
                                   status={item.status}
                                   start_hour={barcode.start_hour}
                                   start_min={barcode.start_min}
                                   end_hour={barcode.end_hour}
                                   end_min={barcode.end_min}
                                   extra_minutes={
-                                    barcode.playReservationBarCodeExtraTimes
-                                      ? barcode.playReservationBarCodeExtraTimes.reduce(
+                                    barcode.play_reservation_barCode_extraTimes
+                                      ? barcode.play_reservation_barCode_extraTimes.reduce(
                                           (sum, et) =>
                                             sum + (et.extra_minutes || 0),
                                           0
@@ -179,7 +184,6 @@ const PlayReservationTable = ({ data = [], playReservationsLoading }) => {
                     </div>
                   </TableCell>
 
-                  <TableCell></TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <Button

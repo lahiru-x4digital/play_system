@@ -59,11 +59,11 @@ const adminNavItems = [
     href: "/dashboard/product-settings",
     icon: Clock1,
   },
-  {
-    title: "Extra Hours Pricing",
-    href: "/dashboard/extra-hours-pricing",
-    icon: DollarSign,
-  },
+  // {
+  //   title: "Extra Hours Pricing",
+  //   href: "/dashboard/extra-hours-pricing",
+  //   icon: DollarSign,
+  // },
   {
     title: "Products",
     href: "/dashboard/products",
@@ -106,30 +106,59 @@ const userNavItems = [
     icon: Users,
   },
   {
-    title: "Tracking Report",
-    href: "/dashboard/booking",
-    icon: Scan,
+    title: "Ticketing",
+    href: "/dashboard/ticketing",
+    icon: Ticket,
   },
+
   {
     title: "Confimation",
     href: "/dashboard/confimation",
     icon: ScanQrCode,
   },
   {
-    title: "Pricing",
-    href: "/dashboard/pricing",
-    icon: DollarSign,
+    title: "Product Settings",
+    href: "/dashboard/product-settings",
+    icon: Clock1,
   },
-  {
-    title: "Extra Hours Pricing",
-    href: "/dashboard/extra-hours-pricing",
-    icon: DollarSign,
-  },
+  // {
+  //   title: "Extra Hours Pricing",
+  //   href: "/dashboard/extra-hours-pricing",
+  //   icon: DollarSign,
+  // },
   {
     title: "Products",
     href: "/dashboard/products",
     icon: PackageSearch,
   },
+  //REPORTS
+  {
+    title: "Tracking Report",
+    href: "/dashboard/report/tracking-report",
+    icon: CalendarCheck,
+  },
+  {
+    title: "Payment Report",
+    href: "/dashboard/report/payment-report",
+    icon: CreditCard,
+  },
+  //REPORTS
+  // {
+  //   title: "Settings",
+  //   icon: Settings,
+  //   submenu: [
+  //     {
+  //       title: "Users",
+  //       href: "/dashboard/settings/users",
+  //       icon: Users,
+  //     },
+  //     {
+  //       title: "Webhook",
+  //       href: "/dashboard/settings/webhook",
+  //       icon: Webhook,
+  //     },
+  //   ],
+  // },
 ];
 
 function NestedSubmenu({ item, pathname, level = 0 }) {

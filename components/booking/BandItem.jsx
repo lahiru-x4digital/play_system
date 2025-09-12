@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Printer } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import { combineHourAndMinute } from "@/utils/time-converter";
+import toast from "react-hot-toast";
 
 export default function BandItem({
   barcode,
@@ -19,6 +20,58 @@ export default function BandItem({
     }, 100); // Wait for DOM update
   };
 
+  const handleGeneratePdf = async () => {
+    // A short delay to allow React to re-render before we grab the HTML
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const htmlContent = `
+  <html>
+    <head>
+      <style>
+        @media print {
+          body {
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+          }
+          .print-area {
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+          }
+        }
+        body {
+          margin: 0;
+          padding: 0;
+        }
+      </style>
+    </head>
+    <body>
+      ${printRef.current.innerHTML}
+    </body>
+  </html>
+`;
+    try {
+      const res = await fetch("http://localhost:4000/print", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          html: htmlContent,
+        }),
+      });
+
+      const text = await res.text();
+      console.log(text);
+      toast.success("Sent to printer: Printed!");
+    } catch (err) {
+      console.error("Error sending HTML to server:", err);
+      toast.error("Print failed. Please try again.");
+    } finally {
+    }
+  };
+
   if (!barcode || !reservation) return null;
   // console.log(barcode);
   return (
@@ -26,7 +79,7 @@ export default function BandItem({
       {!isGenerating && (
         <Button
           className={"mb-2 btn-print-barcode"}
-          onClick={handleSinglePrint}
+          onClick={handleGeneratePdf}
           variant="outline"
           size="icon"
         >
@@ -37,19 +90,19 @@ export default function BandItem({
         ref={printRef}
         className="barcode-band"
         style={{
-          width: "25mm",
+          width: "23mm",
           height: "250mm",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           border: "1px solid #ccc",
-          margin: "3mm 1.5mm",
+          margin: "3mm 1mm",
           pageBreakInside: "avoid",
         }}
       >
         {/* Show reservation first name */}
-        {reservation?.customer?.first_name && (
+        {
           <div
             style={{
               fontSize: "10pt",
@@ -62,9 +115,9 @@ export default function BandItem({
               whiteSpace: "nowrap",
             }}
           >
-            {reservation.customer.first_name}
+            {barcode?.name}
           </div>
-        )}
+        }
         <div
           style={{
             fontSize: "8pt",
@@ -125,9 +178,9 @@ export default function BandItem({
         >
           {/* {barcode?.barcode?.play_customer_type?.name} */}
         </div>
-        <p className="text-center text-wrap text-sm text-gray-500 font-semibold">
+        {/* <p className="text-center text-wrap text-sm text-gray-500 font-semibold">
           {barcode.name}
-        </p>
+        </p> */}
       </div>
     </div>
   );

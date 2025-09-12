@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 const pad = (num) => num.toString().padStart(2, "0");
 
 const TimerCountDown = ({
+  reservation_date,
   status,
   start_hour,
   start_min,
@@ -12,12 +13,13 @@ const TimerCountDown = ({
   extra_minutes = 0, // <-- Add this prop
 }) => {
   const now = new Date();
+  const reservationDate = new Date(reservation_date);
 
   // Build today's start and end time
   const startTime = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
+    reservationDate.getFullYear(),
+    reservationDate.getMonth(),
+    reservationDate.getDate(),
     start_hour,
     start_min,
     0,
@@ -26,9 +28,9 @@ const TimerCountDown = ({
 
   // Add extra_minutes to end time
   const endTime = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
+    reservationDate.getFullYear(),
+    reservationDate.getMonth(),
+    reservationDate.getDate(),
     end_hour,
     end_min + extra_minutes,
     0,

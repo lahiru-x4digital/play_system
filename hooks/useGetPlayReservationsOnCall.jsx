@@ -6,6 +6,7 @@ import api from "@/services/api";
 import { paramsNullCleaner } from "@/lib/paramsNullCleaner";
 import useSessionUser from "@/lib/getuserData";
 import useIsAdmin from "@/lib/getuserData";
+import { playReportingService } from "@/services/play/reporting.service";
 
 const useGetPlayReservationsOnCall = () => {
   //use null or [] base on scenario
@@ -41,8 +42,9 @@ const useGetPlayReservationsOnCall = () => {
     const controller = new AbortController();
     abortControllerRef.current = controller;
     setLoading(true);
+
     try {
-      const response = await api.get(`play/play-reservation`, {
+      const response = await playReportingService.fetchReservations({
         params: {
           ...paramsNullCleaner(params),
           skip: (params.page - 1) * params.pageSize,
@@ -52,8 +54,8 @@ const useGetPlayReservationsOnCall = () => {
       });
       // Only update state if this request wasn't aborted
       if (!controller.signal.aborted) {
-        SetDataList(response.data?.data);
-        setTotalCount(response.data?.total);
+        SetDataList(response?.data || []);
+        setTotalCount(response?.total || 0);
       }
 
       // setTotalCount(response.data.count);

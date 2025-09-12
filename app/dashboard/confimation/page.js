@@ -153,7 +153,7 @@ export default function page() {
         payload,
         id: booking.id,
       });
-      // playReservationsReset();
+      playReservationsReset();
       toast.success("Reservation status updated successfully");
     } catch (error) {
       console.error("Failed to update reservation status:", error);
@@ -210,8 +210,8 @@ export default function page() {
         <Card>
           <CardContent className="p-6">
             <div className="text-center text-red-600">
-              <p className="font-semibold">Error loading data</p>
-              <p className="text-sm mt-1">Please try again</p>
+              <p className="font-semibold">Customer Not Found</p>
+              <p className="text-sm mt-1">Please Enter Full Code or Number </p>
             </div>
           </CardContent>
         </Card>
@@ -293,8 +293,8 @@ export default function page() {
                   {item.play_reservation_barcodes.map((barcode, idx) => {
                     // Ensure both arrays align in rows
                     const maxRows = Math.max(
-                      barcode.playReservationBarCodeExtraTimes?.length || 0,
-                      barcode.WentOutsideTracker?.length || 0
+                      barcode.play_reservation_barCode_extraTimes?.length || 0,
+                      barcode.went_outside_tracker?.length || 0
                     );
 
                     return (
@@ -332,14 +332,15 @@ export default function page() {
                             {barcode.reservation_rule_id && (
                               <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
                                 <TimerCountDown
+                                  reservation_date={item.reservation_date}
                                   status={barcode.status}
                                   start_hour={barcode.start_hour}
                                   start_min={barcode.start_min}
                                   end_hour={barcode.end_hour}
                                   end_min={barcode.end_min}
                                   extra_minutes={
-                                    barcode.playReservationBarCodeExtraTimes
-                                      ? barcode.playReservationBarCodeExtraTimes.reduce(
+                                    barcode.play_reservation_barCode_extraTimes
+                                      ? barcode.play_reservation_barCode_extraTimes.reduce(
                                           (sum, et) =>
                                             sum + (et.extra_minutes || 0),
                                           0
@@ -369,7 +370,7 @@ export default function page() {
                                 {barcode.status}
                               </Badge>
                             )}
-                            {barcode.status !== "COMPLETED" && (
+                            {/* {barcode.status !== "COMPLETED" && (
                               <Button
                                 onClick={() =>
                                   handleSingleBarcodeUpdate(
@@ -384,7 +385,7 @@ export default function page() {
                               >
                                 Complete
                               </Button>
-                            )}
+                            )} */}
                             <Button
                               size="sm"
                               onClick={() =>
@@ -435,11 +436,12 @@ export default function page() {
                               {Array.from({ length: maxRows }).map(
                                 (_, rowIdx) => {
                                   const extraTime =
-                                    barcode.playReservationBarCodeExtraTimes?.[
+                                    barcode
+                                      .play_reservation_barCode_extraTimes?.[
                                       rowIdx
                                     ];
                                   const outside =
-                                    barcode.WentOutsideTracker?.[rowIdx];
+                                    barcode.went_outside_tracker?.[rowIdx];
 
                                   return (
                                     <tr key={rowIdx}>

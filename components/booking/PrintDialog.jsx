@@ -48,6 +48,7 @@ export function PrintDialog({ reservation_id, open, onOpenChange }) {
   if (playReservationLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogTitle></DialogTitle>
         <DialogContent>
           <div>Loading...</div>
         </DialogContent>
@@ -58,7 +59,7 @@ export function PrintDialog({ reservation_id, open, onOpenChange }) {
   if (!formattedReservation) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogTitle>Print Barcodes</DialogTitle>
+        <DialogTitle></DialogTitle>
 
         <DialogContent>
           <div>No reservation data available</div>
@@ -71,7 +72,7 @@ export function PrintDialog({ reservation_id, open, onOpenChange }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Print Barcodes</DialogTitle>
+          <DialogTitle></DialogTitle>
           <DialogDescription>
             Print barcodes for the reservation.
           </DialogDescription>

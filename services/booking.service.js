@@ -123,6 +123,7 @@ export const bookingService = {
     try {
       const formattedData = {
         branch_id: Number(data.branch_id),
+        name: data.name ?? "",
         start_date: data.start_date,
         end_date: data.end_date,
         start_time: data.start_time,

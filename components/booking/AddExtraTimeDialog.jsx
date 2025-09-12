@@ -18,13 +18,31 @@ import AdditionalHoursSelect from "./AdditionalHoursSelect";
 import { Loader2 } from "lucide-react";
 import PaymentInput from "../common/PaymentInput";
 
-const reservationSchema = z.object({
-  play_reservation_id: z.number(),
-  additional_minutes: z.number(),
-  additional_minutes_price: z.number(),
-  additional_minutes_price_id: z.number(),
-  payment_method: z.string().min(1, "Payment method is required"),
-});
+const reservationSchema = z
+  .object({
+    play_reservation_id: z.number(),
+    additional_minutes: z.number(),
+    additional_minutes_price: z.number(),
+    additional_minutes_price_id: z.number(),
+    payments: z.array(
+      z.object({
+        payment_method: z
+          .number()
+          .min(1, { message: "Payment method is required" }),
+        amount: z.number(),
+      })
+    ),
+  })
+  .refine(
+    (data) => {
+      const totalPayments = data.payments.reduce((sum, p) => sum + p.amount, 0);
+      return totalPayments === data.additional_minutes_price;
+    },
+    {
+      message: "Total payments must match the amount.",
+      path: ["payments"], // error will show on payments
+    }
+  );
 
 export function AddExtraTimeDialog({
   open,
@@ -44,15 +62,9 @@ export function AddExtraTimeDialog({
       additional_minutes_price: 0,
       additional_minutes_price_id: null,
       minutes_qty: 0,
-      payment_method: "STORE_CASH",
+      payments: [],
     },
   });
-
-  // Watch the quantity and price to calculate total
-  const watchFields = methods.watch([
-    "customer_types.0.minutes_qty",
-    "customer_types.0.additional_minutes_price",
-  ]);
 
   const onSubmit = async (data) => {
     // get now time and extract hour , minute
@@ -74,7 +86,7 @@ export function AddExtraTimeDialog({
       end_hour: end_hour,
       end_min: end_min,
       Play_reservation_barcode_id: barcodeId,
-      payment_method: data.payment_method,
+      payments: data.payments,
     };
 
     try {
@@ -137,13 +149,16 @@ export function AddExtraTimeDialog({
                       />
                     </div> */}
                   </div>
-
-                  <div className="flex justify-between items-center pt-2 border-t">
-                    <PaymentInput />
-
-                    <span className="text-lg font-semibold">
-                      Price : {methods.watch("additional_minutes_price")}
+                  <span className="text-lg font-semibold">
+                    Price : {methods.watch("additional_minutes_price")}
+                  </span>
+                  {methods.formState.errors.payments && (
+                    <span className="text-red-600 text-sm block mt-1">
+                      {methods.formState.errors.payments?.root?.message}
                     </span>
+                  )}
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <PaymentInput branch_id={branchId} />
                   </div>
                 </div>
               </div>

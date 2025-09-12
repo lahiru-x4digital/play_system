@@ -18,7 +18,7 @@ export function middleware(request) {
 
   // If there is a token and user is on auth page (except OTP), redirect to dashboard/booking
   if (token && currentPath.startsWith('/auth') && !currentPath.startsWith('/auth/otp')) {
-    return NextResponse.redirect(new URL('/dashboard/booking', request.url));
+    return NextResponse.redirect(new URL('/dashboard/ticketing', request.url));
   }
 
   return NextResponse.next();

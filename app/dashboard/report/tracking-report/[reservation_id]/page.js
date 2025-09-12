@@ -151,8 +151,8 @@ export default function Page({ params }) {
           {playReservation.play_reservation_barcodes.map((barcode, idx) => {
             // Ensure both arrays align in rows
             const maxRows = Math.max(
-              barcode.playReservationBarCodeExtraTimes?.length || 0,
-              barcode.WentOutsideTracker?.length || 0
+              barcode.play_reservation_barCode_extraTimes?.length || 0,
+              barcode.went_outside_tracker?.length || 0
             );
 
             return (
@@ -190,14 +190,15 @@ export default function Page({ params }) {
                     {barcode.reservation_rule_id && (
                       <span className="font-mono text-gray-800 bg-gray-100 px-2 py-1 rounded">
                         <TimerCountDown
+                          reservation_date={playReservation.reservation_date}
                           status={playReservation.status}
                           start_hour={barcode.start_hour}
                           start_min={barcode.start_min}
                           end_hour={barcode.end_hour}
                           end_min={barcode.end_min}
                           extra_minutes={
-                            barcode.playReservationBarCodeExtraTimes
-                              ? barcode.playReservationBarCodeExtraTimes.reduce(
+                            barcode.play_reservation_barCode_extraTimes
+                              ? barcode.play_reservation_barCode_extraTimes.reduce(
                                   (sum, et) => sum + (et.extra_minutes || 0),
                                   0
                                 )
@@ -234,15 +235,17 @@ export default function Page({ params }) {
                         Complete
                       </Button>
                     )} */}
-                    <Button
-                      className="px-3 py-1 font-semibold"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenDialog(barcode)}
-                    >
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Extra Time
-                    </Button>
+                    {barcode.reservation_rule_id && (
+                      <Button
+                        className="px-3 py-1 font-semibold"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenDialog(barcode)}
+                      >
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Extra Time
+                      </Button>
+                    )}
                   </div>
                 </div>
 
@@ -262,8 +265,8 @@ export default function Page({ params }) {
                     <tbody>
                       {Array.from({ length: maxRows }).map((_, rowIdx) => {
                         const extraTime =
-                          barcode.playReservationBarCodeExtraTimes?.[rowIdx];
-                        const outside = barcode.WentOutsideTracker?.[rowIdx];
+                          barcode.play_reservation_barCode_extraTimes?.[rowIdx];
+                        const outside = barcode.went_outside_tracker?.[rowIdx];
 
                         return (
                           <tr key={rowIdx}>

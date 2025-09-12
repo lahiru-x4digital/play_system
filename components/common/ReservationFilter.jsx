@@ -32,6 +32,10 @@ export default function ReservationFilter({ onSubmit, onExport }) {
     setSelectedDate(date);
   };
 
+  const handleMobileNumberChange = (mobileNumber) => {
+    setSelectedMobileNumber(mobileNumber);
+  };
+
   const handleFilter = () => {
     onSubmit?.({
       branch: selectedBranchId || null,

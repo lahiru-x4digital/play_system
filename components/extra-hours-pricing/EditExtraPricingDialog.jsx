@@ -41,7 +41,7 @@ const EditExtraPricingDialog = ({ pricing = {}, onSuccess, open, setOpen }) => {
       duration: pricing.duration || "",
       price: pricing.price || "",
       is_active: pricing.is_active,
-      branch_id: pricing?.PlayReservationRule?.branch_id || "",
+      branch_id: pricing?.play_reservation_rule?.branch_id || "",
     },
   });
 
@@ -51,7 +51,7 @@ const EditExtraPricingDialog = ({ pricing = {}, onSuccess, open, setOpen }) => {
       duration: pricing.duration || "",
       price: pricing.price || "",
       is_active: pricing.is_active,
-      branch_id: pricing?.PlayReservationRule?.branch_id || "",
+      branch_id: pricing?.play_reservation_rule?.branch_id || "",
     });
   }, [pricing]);
 

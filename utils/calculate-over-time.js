@@ -4,12 +4,12 @@ function getBarcodeAllowedEnd(barcode) {
 
   // If extra times exist, use the last one
   if (
-    barcode.playReservationBarCodeExtraTimes &&
-    barcode.playReservationBarCodeExtraTimes.length > 0
+    barcode.play_reservation_barCode_extraTimes &&
+    barcode.play_reservation_barCode_extraTimes.length > 0
   ) {
     const lastExtra =
-      barcode.playReservationBarCodeExtraTimes[
-        barcode.playReservationBarCodeExtraTimes.length - 1
+      barcode.play_reservation_barCode_extraTimes[
+        barcode.play_reservation_barCode_extraTimes.length - 1
       ];
     endHour = lastExtra.end_hour ?? endHour;
     endMin = lastExtra.end_min ?? endMin;

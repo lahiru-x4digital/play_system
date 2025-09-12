@@ -37,6 +37,15 @@ export default function PaymentInput({ branch_id }) {
     <div>
       {fields.map((item, idx) => (
         <div key={item.id} className="flex gap-4 items-end mb-2">
+          <Button
+            variant={"outline"}
+            type="button"
+            className="text-red-500 px-2"
+            onClick={() => remove(idx)}
+            aria-label="Remove payment"
+          >
+            <CircleMinus />
+          </Button>
           <FormItem className="flex-1">
             <FormLabel>Payment Method</FormLabel>
             <FormControl>
@@ -103,13 +112,6 @@ export default function PaymentInput({ branch_id }) {
               {formState.errors?.payments?.[idx]?.amount?.message}
             </FormMessage>
           </FormItem>
-          {/* <button
-            type="button"
-            className="text-red-500 px-2"
-            onClick={() => remove(idx)}
-          >
-            <CircleMinus />
-          </button> */}
         </div>
       ))}
       <Button
