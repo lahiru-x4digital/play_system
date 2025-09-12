@@ -7,7 +7,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
 import { CircleMinus, SquarePlus } from "lucide-react";
 import { Button } from "../ui/button";
 import { myCross } from "@/services/play/my-cross.service";
@@ -56,9 +55,9 @@ export default function PaymentInput({ branch_id }) {
                 render={({ field }) => (
                   <select
                     {...field}
-                    value={field.value}
-                    className="border rounded px-2 py-1 w-full"
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value || ""}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    onChange={(e) => field.onChange(Number(e.target.value) || "")}
                   >
                     <option value="">Select method</option>
                     {paymentMethods?.map((m) => (

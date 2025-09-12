@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { bookingService } from "@/services/play/time_lot_generate.service";
-import Select from "react-select";
 
 export function TimeSlotSelector({
   rule,
@@ -12,6 +11,7 @@ export function TimeSlotSelector({
 }) {
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     async function fetchSlots() {
       if (!rule || !selectedDate) {
@@ -64,15 +64,29 @@ export function TimeSlotSelector({
 
   if (!rule) return null;
 
-  const options = timeSlots
-    .filter((slot) => slot.available > 0)
-    .map((slot) => ({
-      value: `${slot.start_hour}:${String(slot.start_min).padStart(2, "0")}-${
-        slot.end_hour
-      }:${String(slot.end_min).padStart(2, "0")}`,
-      label: `${slot.formatted} (${slot.available} Seats)`,
-      ...slot,
-    }));
+  const availableSlots = timeSlots.filter((slot) => slot.available > 0);
+
+  const getCurrentSelectedValue = () => {
+    if (!selectedSlot) return "";
+    return `${selectedSlot.start_hour}:${selectedSlot.start_min}:${selectedSlot.end_hour}:${selectedSlot.end_min}`;
+  };
+
+  const handleSelectChange = (e) => {
+    const value = e.target.value;
+    if (!value) {
+      onSlotSelect(null);
+      return;
+    }
+
+    const [startHour, startMin, endHour, endMin] = value.split(":").map(Number);
+    onSlotSelect({
+      rule_id: rule?.id,
+      start_hour: startHour,
+      start_min: startMin,
+      end_hour: endHour,
+      end_min: endMin,
+    });
+  };
 
   return (
     <div className="">
@@ -82,37 +96,21 @@ export function TimeSlotSelector({
         </div>
       ) : timeSlots.length > 0 ? (
         <div>
-          <Select
-            options={options}
-            menuPlacement="bottom"
-            className="basic-single w-96"
-            classNamePrefix="select"
-            isClearable={true}
-            value={
-              selectedSlot
-                ? options.find(
-                    (option) =>
-                      option.start_hour === selectedSlot.start_hour &&
-                      option.start_min === selectedSlot.start_min &&
-                      option.end_hour === selectedSlot.end_hour &&
-                      option.end_min === selectedSlot.end_min
-                  ) || null
-                : null
-            }
-            onChange={(selectedOption) => {
-              onSlotSelect(
-                selectedOption
-                  ? {
-                      rule_id: rule?.id,
-                      start_hour: selectedOption.start_hour,
-                      start_min: selectedOption.start_min,
-                      end_hour: selectedOption.end_hour,
-                      end_min: selectedOption.end_min,
-                    }
-                  : null
-              );
-            }}
-          />
+          <select
+            value={getCurrentSelectedValue()}
+            onChange={handleSelectChange}
+            className="w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          >
+            <option value="">Select a time slot</option>
+            {availableSlots.map((slot) => (
+              <option
+                key={`${slot.start_hour}:${slot.start_min}:${slot.end_hour}:${slot.end_min}`}
+                value={`${slot.start_hour}:${slot.start_min}:${slot.end_hour}:${slot.end_min}`}
+              >
+                {slot.formatted} ({slot.available} Seats)
+              </option>
+            ))}
+          </select>
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500">
