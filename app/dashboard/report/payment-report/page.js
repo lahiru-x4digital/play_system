@@ -32,9 +32,9 @@ export default function PaymentReportPage() {
           ...paramsNullCleaner(finalParams),
         },
       });
-      // Flatten payments from reservations
-      const flattenedPayments = response?.data?.data || [];
-      setPayments(flattenedPayments);
+
+      const paymentsData = response?.data?.data || [];
+      setPayments(paymentsData);
       setTotalCount(response?.data?.total || 0);
       setTotalPages(response?.data?.pages || 0);
       setError(null);
@@ -61,22 +61,35 @@ export default function PaymentReportPage() {
 
   const generateExcel = (exportData) => {
     const excelData = exportData.map((item) => ({
-      "Payment ID": item.id,
-      Customer: item.customer
-        ? `${item.customer.first_name || ""} ${
-            item.customer.last_name || ""
+      "Reservation ID": item.play_reservation?.id || "-",
+      "Customer Name": item.play_reservation?.customer
+        ? `${item.play_reservation.customer.first_name || ""} ${
+            item.play_reservation.customer.last_name || ""
           }`.trim()
         : "-",
-      Mobile: item.customer?.mobile_number || "-",
-      Amount: item.amount || "-",
-      "Payment Method": item.payment_method || "-",
-      Status: item.status || "-",
-      "Payment Status": item.payment_status || "-",
-      Date: item.created_at
-        ? new Date(item.created_at).toLocaleDateString()
+      "Mobile Number": item.play_reservation?.customer?.mobile_number || "-",
+      "Reservation Date": item.play_reservation?.reservation_date
+        ? new Date(item.play_reservation.reservation_date).toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "numeric",
+              day: "numeric",
+            }
+          )
         : "-",
-      Reference: item.reference_number || "-",
+      "Payment Date": item.createdAt
+        ? new Date(item.createdAt).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+          })
+        : "-",
+      Amount: item.amount || "-",
+      "Payment Method": item.payment_method?.method_name || "-",
     }));
+
+    console.log("Excel Data:", excelData); // Add this for debugging
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(excelData);
@@ -94,9 +107,7 @@ export default function PaymentReportPage() {
           onExport={async (data) => {
             const { branch, date, endDate, paymentMethod } = data;
             const payload = {
-              search: null,
               branch_id: branch,
-              order_id: null,
               start_date: date,
               skip: 0,
               end_date: endDate,
@@ -104,22 +115,22 @@ export default function PaymentReportPage() {
               limit: 10000, // Large limit for export
             };
             try {
-              const response = await api.get(`play/play-reservation`, {
+              const response = await api.get(`play/report/payment-method`, {
                 params: {
                   ...paramsNullCleaner(payload),
                 },
               });
               if (response?.data?.data) {
-                // Payments are already flattened
-                const flattenedPayments = response.data.data;
-                generateExcel(flattenedPayments);
+                generateExcel(response.data.data);
               }
-            } catch (error) {}
+            } catch (error) {
+              console.error("Export error:", error);
+            }
           }}
           onSubmit={(data) => {
             const { branch, date, endDate, paymentMethod } = data;
+            setCurrentPage(1); // Reset to first page when filtering
             fetchPayments({
-              search: null,
               branch_id: branch,
               start_date: date,
               end_date: endDate,

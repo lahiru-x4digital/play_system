@@ -1,10 +1,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
-import { Toaster } from "react-hot-toast";
 import LocalStorageSync from "@/components/common/LocalStorageSync";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
+import ReactHotToastComp from "@/components/ReactHotToastComp";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +31,7 @@ export default async function RootLayout({ children }) {
       >
         <LocalStorageSync userId={userId} />
         <SessionProviderWrapper>{children}</SessionProviderWrapper>
-        <Toaster position="bottom-center" />
+        <ReactHotToastComp />
       </body>
     </html>
   );

@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SelectBranch from "./selectBranch";
 import { Button } from "../ui/button";
 import { FilterIcon } from "lucide-react";
+import { myCross } from "@/services/play/my-cross.service";
 
 export default function PaymentFilter({ onSubmit, onExport }) {
   const [selectedBranchId, setSelectedBranchId] = useState(null);
@@ -13,13 +14,43 @@ export default function PaymentFilter({ onSubmit, onExport }) {
     new Date().toISOString().split("T")[0]
   );
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("All");
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(false);
+
+  // Fetch payment methods when branch changes
+  useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      if (!selectedBranchId) {
+        setPaymentMethods([]);
+        setSelectedPaymentMethod("All");
+        return;
+      }
+
+      setLoadingPaymentMethods(true);
+      try {
+        const res = await myCross.getPaymentMethods(selectedBranchId);
+        setPaymentMethods(res || []);
+        setSelectedPaymentMethod("All"); // Reset to "All" when branch changes
+      } catch (error) {
+        console.error("Failed to fetch payment methods:", error);
+        setPaymentMethods([]);
+      } finally {
+        setLoadingPaymentMethods(false);
+      }
+    };
+
+    fetchPaymentMethods();
+  }, [selectedBranchId]);
 
   const handleBranchChange = (branchId) => {
     setSelectedBranchId(branchId);
+    // Payment methods will be fetched automatically via useEffect
   };
+
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
+
   const handlePaymentMethodChange = (method) => {
     setSelectedPaymentMethod(method);
   };
@@ -29,22 +60,27 @@ export default function PaymentFilter({ onSubmit, onExport }) {
       branch: selectedBranchId || null,
       date: selectedDate || null,
       endDate: selectedEndDate || null,
-      paymentMethod: selectedPaymentMethod !== "All" ? selectedPaymentMethod : null,
+      paymentMethod:
+        selectedPaymentMethod !== "All" ? selectedPaymentMethod : null,
     });
   };
+
   const handleExport = () => {
     onExport?.({
       branch: selectedBranchId || null,
       date: selectedDate || null,
       endDate: selectedEndDate || null,
-      paymentMethod: selectedPaymentMethod !== "All" ? selectedPaymentMethod : null,
+      paymentMethod:
+        selectedPaymentMethod !== "All" ? selectedPaymentMethod : null,
     });
   };
+
   const handleReset = () => {
     setSelectedBranchId(null);
     setSelectedDate(new Date().toISOString().split("T")[0]);
     setSelectedEndDate(new Date().toISOString().split("T")[0]);
     setSelectedPaymentMethod("All");
+    setPaymentMethods([]);
     onSubmit?.({
       branch: null,
       date: null,
@@ -100,11 +136,24 @@ export default function PaymentFilter({ onSubmit, onExport }) {
               className="w-full border border-gray-300 rounded px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               value={selectedPaymentMethod}
               onChange={(e) => handlePaymentMethodChange(e.target.value)}
+              disabled={loadingPaymentMethods || !selectedBranchId}
             >
               <option value="All">All</option>
-              <option value="STORE_CASH">Store Cash</option>
-              <option value="STORE_CARD">Store Card</option>
+              {loadingPaymentMethods ? (
+                <option disabled>Loading...</option>
+              ) : (
+                paymentMethods.map((method) => (
+                  <option key={method.id} value={method.id}>
+                    {method.method_name}
+                  </option>
+                ))
+              )}
             </select>
+            {!selectedBranchId && (
+              <p className="text-sm text-gray-500 mt-1">
+                Select a branch to load payment methods
+              </p>
+            )}
           </div>
         </div>
 

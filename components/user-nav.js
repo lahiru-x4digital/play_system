@@ -96,19 +96,15 @@ export function UserNav({ user }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-1" />
         <DropdownMenuGroup>
-          <Link href="/dashboard/settings/users/profile" passHref legacyBehavior>
-            <DropdownMenuItem 
-              className="hover:bg-primary/10 focus:bg-primary/20 transition-colors cursor-pointer rounded-md px-4 py-2 flex items-center gap-2"
-              as="a"
-            >
+          <DropdownMenuItem
+            className="hover:bg-primary/10 focus:bg-primary/20 transition-colors cursor-pointer rounded-md px-4 py-2 flex items-center gap-2"
+            asChild
+          >
+            <Link href="/dashboard/settings/users/profile">
               <User className="h-4 w-4 text-primary" />
               <span>Profile</span>
-            </DropdownMenuItem>
-          </Link>
-          {/* <DropdownMenuItem className="hover:bg-primary/10 focus:bg-primary/20 transition-colors cursor-pointer rounded-md px-4 py-2 flex items-center gap-2">
-            <Settings className="h-4 w-4 text-primary" />
-            <span>Settings</span>
-          </DropdownMenuItem> */}
+            </Link>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator className="my-1" />
         <DropdownMenuItem
@@ -129,4 +125,4 @@ export function UserNav({ user }) {
       </DropdownMenuContent>
     </DropdownMenu>
   )
-} 
+}

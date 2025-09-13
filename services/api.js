@@ -16,7 +16,6 @@ api.interceptors.request.use(
       // console.log("API Request:", {
       //   url: config.url,
       //   method: config.method,
-
       //   // Removed data and baseURL logging to prevent memory bloat
       // });
     }
@@ -30,6 +29,12 @@ api.interceptors.request.use(
 // Add response interceptor for debugging - with limited logging
 api.interceptors.response.use(
   (response) => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("user-token");
+      if (token) {
+        response.headers["x-user-token"] = token;
+      }
+    }
     // Only log in development and avoid logging large response data
     if (process.env.NODE_ENV === "development") {
       console.log("API Response:", {
@@ -43,21 +48,25 @@ api.interceptors.response.use(
   },
   (error) => {
     // Don't log cancellation errors
-    if (axios.isCancel(error) || error.code === 'ERR_CANCELED' || error.message?.includes('canceled')) {
+    if (
+      axios.isCancel(error) ||
+      error.code === "ERR_CANCELED" ||
+      error.message?.includes("canceled")
+    ) {
       return Promise.reject(error);
     }
-    
+
     // Only log essential error information for non-cancellation errors
-    if (process.env.NODE_ENV === 'development') {
-      console.error('API Error:', {
+    if (process.env.NODE_ENV === "development") {
+      console.error("API Error:", {
         url: error.config?.url,
         method: error.config?.method,
         status: error.response?.status,
         message: error.response?.data?.message || error.message,
-        code: error.code
+        code: error.code,
       });
     }
-    
+
     return Promise.reject(error);
   }
 );

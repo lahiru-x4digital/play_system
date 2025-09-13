@@ -20,20 +20,19 @@ const PaymentReportTable = ({ data = [], loading }) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Payment ID</TableHead>
+              <TableHead>Reservation ID</TableHead>
               <TableHead>Customer</TableHead>
+              <TableHead>Reservation Date</TableHead>
+              <TableHead>Payment Date</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Method</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Payment Status</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Payment Method</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={6}
                   className="text-center text-muted-foreground"
                 >
                   No payments found
@@ -42,39 +41,46 @@ const PaymentReportTable = ({ data = [], loading }) => {
             ) : (
               data.map((item, index) => (
                 <TableRow key={item.id || index}>
-                  <TableCell className="font-medium">{item.id}</TableCell>
+                  <TableCell className="font-medium">
+                    {item.play_reservation?.id || "-"}
+                  </TableCell>
                   <TableCell className="flex flex-col">
-                    <span>
-                      {item.customer
-                        ? `${item.customer.first_name || ""} ${
-                            item.customer.last_name || ""
-                          }`
+                    <span className="font-medium">
+                      {item.play_reservation?.customer
+                        ? `${item.play_reservation.customer.first_name || ""} ${
+                            item.play_reservation.customer.last_name || ""
+                          }`.trim()
                         : "-"}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {item.customer ? item.customer.mobile_number : "-"}
+                      {item.play_reservation?.customer?.mobile_number || "-"}
                     </span>
                   </TableCell>
                   <TableCell>
-                    {item.amount != null ? `$${item.amount}` : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {item.payment_method || "-"}
-                  </TableCell>
-                  <TableCell>
-                    {item.status || "-"}
-                  </TableCell>
-                  <TableCell>
-                    {item.payment_status || "-"}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {item.created_at
-                      ? new Date(item.created_at).toLocaleDateString("en-US", {
+                    {item.play_reservation?.reservation_date
+                      ? new Date(
+                          item.play_reservation.reservation_date
+                        ).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "numeric",
                           day: "numeric",
                         })
                       : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {item.createdAt
+                      ? new Date(item.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "numeric",
+                          day: "numeric",
+                        })
+                      : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {item.amount != null ? item.amount : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {item.payment_method?.method_name || "-"}
                   </TableCell>
                 </TableRow>
               ))
